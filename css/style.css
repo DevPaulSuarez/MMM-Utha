@@ -294,7 +294,8 @@ h1, h2, h3, h4 {
   transition: transform .25s var(--ease), background .25s var(--ease);
 }
 .header__cta:hover { background: var(--acento-osc); transform: translateY(-2px); }
-.header__cta svg { width: 1em; height: 1em; fill: currentColor; }
+.header__cta svg { width: 1em; height: 1em; fill: currentColor; flex-shrink: 0; }
+.header__cta-txt { white-space: nowrap; }
 
 .nav__toggle {
   display: none;
@@ -1348,9 +1349,27 @@ a.barra-info__item:hover { background: #16293c; }
 /* ---- Celulares y tabletas verticales ------------------------- */
 @media (max-width: 820px) {
   .nav__toggle { display: grid; }
-  .header__cta { display: none; }
 
-  .header__interior { padding: .5rem .6rem .5rem 1rem; }
+  /* El botón del mapa se queda, en redondo y solo con el pin: en el
+     menú ya no hay un enlace equivalente */
+  .header__cta {
+    order: 2;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .header__cta svg { width: 18px; height: 18px; }
+  .header__cta-txt { display: none; }
+
+  .nav__toggle { order: 3; }
+
+  .header__interior {
+    justify-content: flex-start;
+    gap: .35rem;
+    padding: .5rem .6rem .5rem 1rem;
+  }
+  .header .logo { margin-right: auto; }
 
   .header .nav {
     position: absolute;
@@ -1390,14 +1409,6 @@ a.barra-info__item:hover { background: #16293c; }
   .header .nav .nav__link--activo { background: var(--papel-2); }
   .header .nav .nav__link::after { left: 1rem; transform: none; }
 
-  .nav__cta-movil {
-    margin-top: .5rem;
-    text-align: center;
-    background: var(--acento) !important;
-    color: #fff !important;
-    font-weight: 600;
-  }
-  .nav__cta-movil::after { display: none; }
 
   /* Hero: la imagen se muestra entera (los banners traen su propio
      arte y recortarlos les comía el título) y el mensaje va debajo,

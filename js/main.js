@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   pintarAgenda();
   pintarNoticias();
   proximoCulto();
+  enlazarMapa();
   volverArriba();
   animarAlDesplazar();
 });
@@ -190,6 +191,26 @@ function iniciarSlider() {
 
   mostrar(0);
   arrancar();
+}
+
+/* --- Enlaces al mapa ------------------------------------------
+   Todo elemento con data-mapa apunta al templo. Si UBICACION trae
+   coordenadas se mandan esas; si no, la dirección escrita. El href
+   del HTML ya lleva la dirección, así que sigue funcionando aunque
+   el navegador no ejecute este archivo.
+   -------------------------------------------------------------- */
+function enlazarMapa() {
+  const enlaces = document.querySelectorAll("[data-mapa]");
+  if (!enlaces.length || typeof UBICACION === "undefined") return;
+
+  const destino = (UBICACION.coordenadas || UBICACION.direccion || "").trim();
+  if (!destino) return;
+
+  const url =
+    "https://www.google.com/maps/search/?api=1&query=" +
+    encodeURIComponent(destino);
+
+  enlaces.forEach((enlace) => { enlace.href = url; });
 }
 
 /* --- Inicio estando ya en el inicio ---------------------------

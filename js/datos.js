@@ -5,6 +5,15 @@
    main.js les añade "../" cuando la página está en /paginas.
    ============================================================ */
 
+/* Ubicación del templo. El enlace del mapa se arma con esto:
+   si "coordenadas" tiene valor manda las coordenadas exactas
+   (formato "lat,lng", por ejemplo "40.6534,-111.9386"); si se deja
+   vacío, se usa la dirección escrita. */
+const UBICACION = {
+  direccion: "2262 W 5400 S, Salt Lake City, UT 84129",
+  coordenadas: ""
+};
+
 /* Banners del slider del inicio.
    Por ahora se repite la misma imagen 3 veces; cuando tengas las
    definitivas solo cambia la ruta de cada "imagen". */
