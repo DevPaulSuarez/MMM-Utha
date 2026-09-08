@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   menuResponsive();
   anioActual();
   ajustarHeader();
+  encogerPortada();
   iniciarSlider();
   pintarRepresentantes();
   pintarHorarios();
@@ -72,16 +73,22 @@ function ajustarHeader() {
   const header = document.querySelector(".header");
   if (!header) return;
 
-  /* Fondo oscuro detrás de la barra: la portada del inicio o la
-     de las páginas internas */
-  const oscuro = document.querySelector(".portada, .encabezado-pagina");
+  /* Bloques de fondo oscuro: mientras uno de ellos esté detrás de la
+     barra, su contenido va en blanco */
+  const oscuros = [
+    ...document.querySelectorAll(
+      ".portada, .hero, .encabezado-pagina, .barra-info, .oracion, .footer"
+    )
+  ];
 
   const revisar = () => {
     const alto = header.offsetHeight;
     document.documentElement.style.setProperty("--alto-header", `${alto}px`);
 
-    const caja = oscuro && oscuro.getBoundingClientRect();
-    const sobreOscuro = caja && caja.top <= 1 && caja.bottom > alto;
+    const sobreOscuro = oscuros.some((bloque) => {
+      const caja = bloque.getBoundingClientRect();
+      return caja.top <= 1 && caja.bottom > alto;
+    });
 
     header.classList.toggle("header--sobre-claro", !sobreOscuro);
     header.classList.toggle("header--desplazado", window.scrollY > 40);
@@ -93,6 +100,49 @@ function ajustarHeader() {
   window.addEventListener("load", revisar);
 
   if (window.ResizeObserver) new ResizeObserver(revisar).observe(header);
+}
+
+/* --- Portada que se encoge al bajar ---------------------------
+   La portada abre a pantalla completa; durante el primer tramo de
+   desplazamiento se va reduciendo y redondeando. Aquí solo se
+   calcula cuánto se ha bajado (0 a 1) y el CSS hace el resto.
+   En el celular no se aplica: allí la imagen se ve entera y el
+   mensaje va debajo.
+   -------------------------------------------------------------- */
+function encogerPortada() {
+  const portada = document.querySelector(".portada");
+  if (!portada) return;
+
+  const enMovil = window.matchMedia("(max-width: 820px)");
+  const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  let pedido = false;
+
+  function calcular() {
+    pedido = false;
+
+    if (enMovil.matches || sinMovimiento.matches) {
+      portada.style.removeProperty("--avance");
+      return;
+    }
+
+    const recorrido = portada.offsetHeight || 1;
+    const avance = Math.min(Math.max(window.scrollY / recorrido, 0), 1);
+    portada.style.setProperty("--avance", avance.toFixed(3));
+  }
+
+  /* El cálculo se agrupa en el siguiente cuadro: así el
+     desplazamiento no se entrecorta */
+  function alDesplazar() {
+    if (pedido) return;
+    pedido = true;
+    requestAnimationFrame(calcular);
+  }
+
+  window.addEventListener("scroll", alDesplazar, { passive: true });
+  window.addEventListener("resize", alDesplazar);
+  enMovil.addEventListener("change", calcular);
+  calcular();
 }
 
 /* --- Slider del hero ------------------------------------------

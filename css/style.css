@@ -342,7 +342,22 @@ h1, h2, h3, h4 {
   overflow: hidden;
   background: var(--ink);
   margin-top: calc(-1 * var(--alto-header, 76px));
-  height: calc(clamp(520px, 62vh, 720px) + var(--alto-header, 76px));
+  /* Toda la pantalla al abrir; svh evita el salto de las barras del
+     navegador en el móvil */
+  height: 100vh;
+  height: 100svh;
+}
+
+/* Lo que se ve. main.js va subiendo --avance de 0 a 1 durante la
+   primera pantalla de desplazamiento y esto se encoge y redondea. */
+.portada__marco {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 50% 35%;
+  transform: scale(calc(1 - .12 * var(--avance, 0)));
+  border-radius: calc(2.5rem * var(--avance, 0));
+  will-change: transform;
 }
 
 .portada__fondo {
@@ -376,6 +391,7 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   padding-top: var(--alto-header, 76px);
+  opacity: calc(1 - 1.4 * var(--avance, 0));
 }
 
 /* El mensaje entra de a poco al abrir la página */
@@ -1467,9 +1483,22 @@ a.barra-info__item:hover { background: #16293c; }
   .portada {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     height: auto;
+    min-height: 100svh;
     margin-top: calc(-1 * var(--alto-header, 76px));
     padding-top: var(--alto-header, 76px);
+  }
+
+  /* Aquí el marco no se encoge: solo ordena imagen y mensaje */
+  .portada__marco {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1 1 auto;
+    transform: none;
+    border-radius: 0;
   }
 
   .portada__fondo {
@@ -1488,6 +1517,7 @@ a.barra-info__item:hover { background: #16293c; }
     position: static;
     order: 2;
     padding: 1.5rem 0 2.6rem;
+    opacity: 1;
   }
 
   .hero__texto { max-width: none; }
