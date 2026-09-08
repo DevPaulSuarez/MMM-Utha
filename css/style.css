@@ -366,9 +366,7 @@ h1, h2, h3, h4 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* La imagen es vertical: se encuadra desde arriba para que se vea
-     la parte alta y no la franja del medio */
-  object-position: top center;
+  object-position: center;
   transform: scale(1.05);
   animation: portadaZoom 12s var(--ease) forwards;
 }
@@ -1507,11 +1505,8 @@ a.barra-info__item:hover { background: #16293c; }
     position: static;
     order: 1;
     height: auto;
-    /* Franja vertical, encuadrada desde arriba: así la imagen se
-       aprovecha en el celular sin quedar diminuta */
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: top center;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
     transform: none;
     animation: none;
   }
