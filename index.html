@@ -3,356 +3,428 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MMM | Utah</title>
+    <title>MMM Utah | Movimiento Misionero Mundial · Salt Lake City</title>
+    <meta
+      name="description"
+      content="Movimiento Misionero Mundial en Utah. Una iglesia de fe y esperanza en Taylorsville, Salt Lake City. Cultos, oración, familia y una comunidad que te espera."
+    />
+    <meta name="theme-color" content="#0f2133" />
     <link rel="icon" href="img/logo/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
+
     <header class="header">
       <div class="contenedor header__interior">
         <div class="header__cristal" aria-hidden="true"></div>
-        <a class="logo" href="index.html">
+
+        <a class="logo" href="index.html" aria-label="MMM Utah · Inicio">
           <img
             src="img/logo/logo_mmm_2026.png"
             alt="Movimiento Misionero Mundial"
           />
         </a>
 
-        <button class="nav__toggle" id="navToggle" aria-label="Abrir menú">
-          ☰
+        <button class="nav__toggle" id="navToggle" aria-label="Abrir menú"
+                aria-expanded="false" aria-controls="nav">
+          <span></span>
         </button>
 
-        <nav class="nav" id="nav">
-          <a href="index.html" class="nav__link">Inicio</a>
+        <nav class="nav" id="nav" aria-label="Navegación principal">
+          <a href="index.html" class="nav__link nav__link--activo">Inicio</a>
           <a href="paginas/nosotros.html" class="nav__link">Nosotros</a>
-          <a href="paginas/representantes.html" class="nav__link"
-            >Representantes</a
-          >
+          <a href="paginas/representantes.html" class="nav__link">Representantes</a>
           <a href="paginas/horarios.html" class="nav__link">Horarios</a>
           <a href="paginas/noticias.html" class="nav__link">Noticias</a>
+          <a href="#visitanos" class="nav__link nav__cta-movil">Visítanos</a>
         </nav>
+
+        <a class="header__cta" href="#visitanos">
+          Visítanos
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z"/></svg>
+        </a>
       </div>
     </header>
 
-    <main>
-      <!-- Slider de banners · las imágenes salen de BANNERS en js/datos.js -->
+    <main id="contenido">
+      <!-- ===== Hero · las imágenes salen de BANNERS en js/datos.js ===== -->
       <section
-        class="slider"
+        class="hero"
         id="banner"
-        aria-label="Banner principal"
+        aria-label="Bienvenida"
         aria-roledescription="carrusel"
       >
         <div class="slider__pista" id="bannerPista"></div>
+        <div class="hero__velo" aria-hidden="true"></div>
 
-        <div
-          class="slider__puntos"
-          id="bannerPuntos"
-          role="tablist"
-          aria-label="Seleccionar banner"
-        ></div>
-      </section>
-      <section class="seccion_brand">
-        <div class="contenedor seccion_brand__interior">
-          <div class="site-branding">
-            <div id="site-identity">
-              <h1 class="site-title">
-                <a href="index.html" rel="home"
-                  >Somos un lugar de fe y esperanza</a
-                >
+        <div class="hero__contenido">
+          <div class="contenedor">
+            <div class="hero__texto">
+              <p class="hero__marca"><i aria-hidden="true"></i> Taylorsville · Utah</p>
+              <h1 class="hero__titulo">
+                Somos un lugar de <em>fe</em>
+                <b>y esperanza.</b>
               </h1>
-              <p class="site-description"></p>
+              <p class="hero__bajada">
+                Una comunidad del Movimiento Misionero Mundial donde las
+                familias crecen, se restauran y encuentran un hogar. Ven tal
+                como eres: aquí hay un lugar para ti.
+              </p>
+              <div class="hero__acciones">
+                <a class="btn btn--primario" href="#visitanos">Planea tu visita</a>
+                <a class="btn btn--claro" href="#agenda">Ver horarios</a>
+              </div>
             </div>
-            <!-- #site-identity -->
           </div>
+        </div>
 
-          <div id="quick-contact">
-            <ul>
-              <li class="quick-call-info">
-                <img
-                  src="https://www.svgrepo.com/show/415832/contact-phonebook-support.svg"
-                  alt="Teléfono"
-                />
-                <a class="quick-call" href="tel:3856229878">(385) 622-9878</a>
-                <a class="quick-email" href="mailto:info@mmmli.org"
-                  >info@mmmli.org</a
-                >
-              </li>
-              <li class="quick-address-info">
-                <img
-                  src="https://www.svgrepo.com/show/532548/map-pin-alt.svg"
-                  alt="Dirección"
-                />
-                <span class="main-address"
-                  >2262 W 5400 S, Salt Lake City, UT 84129</span
-                >
-                <span class="sub-address"
-                  >Taylorsville, Utah – Estados Unidos</span
-                >
-              </li>
-            </ul>
+        <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
+                type="button" aria-label="Banner anterior">❮</button>
+        <button class="hero__flecha hero__flecha--next" id="bannerNext"
+                type="button" aria-label="Banner siguiente">❯</button>
+
+        <div class="slider__puntos" id="bannerPuntos" role="tablist"
+             aria-label="Seleccionar banner"></div>
+      </section>
+
+      <!-- ===== Contacto rápido ===== -->
+      <section class="barra-info" id="visitanos" aria-label="Cómo encontrarnos">
+        <div class="contenedor">
+          <div class="barra-info__grid">
+            <a class="barra-info__item" href="https://maps.google.com/?q=2262+W+5400+S,+Salt+Lake+City,+UT+84129"
+               target="_blank" rel="noopener">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Dónde estamos</span>
+                <span class="barra-info__valor">2262 W 5400 S, Salt Lake City, UT 84129</span>
+                <span class="barra-info__extra">Taylorsville, Utah · Estados Unidos</span>
+              </span>
+            </a>
+
+            <a class="barra-info__item" href="tel:3856229878">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Llámanos</span>
+                <span class="barra-info__valor">(385) 622-9878</span>
+                <span class="barra-info__extra">info@mmmli.org</span>
+              </span>
+            </a>
+
+            <a class="barra-info__item" href="#agenda">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2Zm13 8H4v10h16Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Próximo culto</span>
+                <span class="barra-info__valor" id="proximoCulto">Consulta la agenda</span>
+                <span class="barra-info__extra">Todas las semanas en el templo</span>
+              </span>
+            </a>
           </div>
         </div>
       </section>
 
-<section class="noticias-externas">
-  <div class="contenedor">
-    <div class="elementor-image-box-wrapper">
-      <figure class="elementor-image-box-img">
-        <a href="https://mmmoficial.org/noticias/" target="_blank" rel="noopener" tabindex="-1">
-          <img
-            src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-            width="150"
-            height="218"
-            alt=""
-          />
-        </a>
-      </figure>
-      <div class="elementor-image-box-content">
-        <h3 class="elementor-image-box-title">
-          <a href="https://mmmoficial.org/noticias/" target="_blank" rel="noopener">noticias</a>
-        </h3>
-      </div>
-    </div>
-    <div id="lista-noticias-externas" class="grid-noticias">
-      <p>Cargando noticias...</p>
-    </div>
+      <!-- ===== Quiénes somos ===== -->
+      <section class="seccion" id="nosotros">
+        <div class="contenedor somos__grid">
+          <div class="somos__texto reveal">
+            <header class="sec-head">
+              <p class="eyebrow">Quiénes somos</p>
+              <h2 class="sec-title">
+                Bienvenidos al <em>Movimiento Misionero Mundial</em>
+              </h2>
+            </header>
+            <p>
+              Somos una obra de fe presente en más de 80 países, comprometida
+              en compartir el mensaje de nuestro Señor Jesucristo para
+              transformar vidas, restaurar familias y fomentar una fe viva que
+              impacta al mundo.
+            </p>
+            <div class="somos__acciones">
+              <a class="btn btn--oscuro" href="paginas/nosotros.html">Conoce nuestra historia</a>
+              <a class="btn btn--linea" href="paginas/representantes.html">Nuestros pastores</a>
+            </div>
+          </div>
 
-    <div class="elementor-align-center elementor-widget-button noticias__pie">
-      <a
-        class="elementor-button elementor-button-link elementor-size-sm elementor-animation-grow"
-        href="https://mmmoficial.org/noticias/"
-        target="_blank"
-        rel="noopener"
-      >
-        <span class="elementor-button-content-wrapper">
-          <span class="elementor-button-text">Ver más</span>
-        </span>
-      </a>
-    </div>
-  </div>
-</section>
+          <div class="somos__cifras reveal">
+            <div class="cifra">
+              <p class="cifra__num">80<span>+</span></p>
+              <p class="cifra__txt">Países donde la obra está presente</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">60<span>+</span></p>
+              <p class="cifra__txt">Años sirviendo a las familias</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">4</p>
+              <p class="cifra__txt">Reuniones cada semana en el templo</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">1</p>
+              <p class="cifra__txt">Mensaje: Cristo, la esperanza del mundo</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-<section class="lemas">
-  <div class="contenedor">
-    <div class="elementor-image-box-wrapper">
-      <figure class="elementor-image-box-img">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-          width="150"
-          height="218"
-          alt=""
-        />
-      </figure>
-      <div class="elementor-image-box-content">
-        <h3 class="elementor-image-box-title">Conoce nuestro lema 2026</h3>
-      </div>
-    </div>
+      <!-- ===== Agenda semanal ===== -->
+      <section class="seccion seccion--papel" id="agenda">
+        <div class="contenedor">
+          <header class="sec-head sec-head--centro reveal">
+            <p class="eyebrow">Agenda ministerial</p>
+            <h2 class="sec-title">Te esperamos <em>cada semana</em></h2>
+            <p class="sec-sub">
+              Nuestra agenda se repite todas las semanas. Llega unos minutos
+              antes y con gusto te recibimos.
+            </p>
+          </header>
 
-  </div>
+          <!-- main.js arma la semana desde AGENDA en js/datos.js -->
+          <div class="agenda__semana reveal" id="agendaSemanal"></div>
 
-  <!-- Los años y los textos salen de LEMAS en js/datos.js -->
-  <div class="gl-viewport" id="gl-main">
-    <div class="gl-col-img">
-      <div class="gl-full-bg" id="gl-bg-target"></div>
-    </div>
+          <div class="agenda__pie reveal">
+            <p>Todas las reuniones se realizan en el templo de Taylorsville.</p>
+            <a class="enlace-flecha" href="paginas/horarios.html">Ver horarios completos</a>
+          </div>
+        </div>
+      </section>
 
-    <div class="gl-col-content">
-      <div class="gl-white-card">
-        <div id="gl-ajax-container"></div>
-      </div>
-    </div>
+      <!-- ===== Lema del año · datos en LEMAS (js/datos.js) ===== -->
+      <section class="seccion" id="lemas">
+        <div class="contenedor">
+          <header class="sec-head reveal">
+            <p class="eyebrow">Lemas</p>
+            <h2 class="sec-title">Conoce nuestro <em>lema 2026</em></h2>
+            <p class="sec-sub">
+              Cada año la obra recibe una consigna que marca su caminar.
+              Recorre los lemas y descubre el mensaje detrás de cada uno.
+            </p>
+          </header>
 
-    <div class="gl-dock-nav">
-      <button class="gl-btn-arrow" id="gl-prev" aria-label="Años anteriores">❮</button>
-      <div class="gl-scroll-box" id="gl-scroller"></div>
-      <button class="gl-btn-arrow" id="gl-next" aria-label="Años siguientes">❯</button>
-    </div>
-  </div>
-</section>
+          <div class="gl-viewport reveal" id="gl-main">
+            <div class="gl-col-img">
+              <div class="gl-full-bg" id="gl-bg-target"></div>
+            </div>
 
-<section class="medios">
-  <div class="contenedor">
-    <div class="elementor-image-box-wrapper">
-      <figure class="elementor-image-box-img">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-          width="150"
-          height="218"
-          alt=""
-        />
-      </figure>
-      <div class="elementor-image-box-content">
-        <h3 class="elementor-image-box-title">Medios</h3>
-      </div>
-    </div>
+            <div class="gl-col-content">
+              <div class="gl-white-card">
+                <div id="gl-ajax-container"></div>
+              </div>
+            </div>
 
-    <div class="medios__grid">
-      <a class="medio" href="https://betheltv.tv/" target="_blank" rel="noopener">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-1024x702.jpg"
-          srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-300x206.jpg 300w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-768x526.jpg 768w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-1024x702.jpg 1024w"
-          sizes="(max-width: 820px) 100vw, 33vw"
-          width="800"
-          height="548"
-          loading="lazy"
-          alt="Bethel Televisión"
-        />
-        <h2 class="elementor-heading-title">Bethel Televisión</h2>
-      </a>
-      <a class="medio" href="http://bethelradio.fm" target="_blank" rel="noopener">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-1024x702.jpg"
-          srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-300x206.jpg 300w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-768x526.jpg 768w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-1024x702.jpg 1024w"
-          sizes="(max-width: 820px) 100vw, 33vw"
-          width="800"
-          height="548"
-          loading="lazy"
-          alt="Bethel Radio"
-        />
-        <h2 class="elementor-heading-title">Bethel Radio</h2>
-      </a>
-      <a class="medio" href="https://impactoevangelistico.net/" target="_blank" rel="noopener">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-1024x702.jpg"
-          srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-300x206.jpg 300w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-768x526.jpg 768w,
-                  https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-1024x702.jpg 1024w"
-          sizes="(max-width: 820px) 100vw, 33vw"
-          width="800"
-          height="548"
-          loading="lazy"
-          alt="Impacto Evangelístico"
-        />
-        <h2 class="elementor-heading-title">Impacto Evangelístico</h2>
-      </a>
-    </div>
-  </div>
+            <div class="gl-dock-nav">
+              <button class="gl-btn-arrow" id="gl-prev" type="button" aria-label="Años anteriores">❮</button>
+              <div class="gl-scroll-box" id="gl-scroller"></div>
+              <button class="gl-btn-arrow" id="gl-next" type="button" aria-label="Años siguientes">❯</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
-  <div class="elementor-shape elementor-shape-bottom" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" preserveAspectRatio="none">
-      <path
-        class="elementor-shape-fill"
-        d="M1000,4.3V0H0v4.3C0.9,23.1,126.7,99.2,500,100S1000,22.7,1000,4.3z"
-      />
-    </svg>
-  </div>
-</section>
+      <!-- ===== Noticias del sitio internacional ===== -->
+      <section class="seccion seccion--papel" id="noticias">
+        <div class="contenedor">
+          <header class="sec-head reveal">
+            <p class="eyebrow">Noticias</p>
+            <h2 class="sec-title">Lo que Dios hace <em>en el mundo</em></h2>
+            <p class="sec-sub">
+              Últimas publicaciones del Movimiento Misionero Mundial
+              internacional.
+            </p>
+          </header>
 
-<section class="oracion">
-  <div class="contenedor oracion__grid">
-    <div class="oracion__titulo">
-      <h2 class="elementor-heading-title">Envía tus peticiones</h2>
-      <img
-        class="oracion__separador"
-        src="https://mmmarequipa.org/wp-content/uploads/2025/06/mmmarequipa_22.jpg"
-        width="150"
-        height="8"
-        loading="lazy"
-        alt=""
-      />
-    </div>
+          <div id="lista-noticias-externas" class="grid-noticias reveal">
+            <p>Cargando noticias…</p>
+          </div>
 
-    <div class="oracion__accion">
-      <h2 class="elementor-heading-title">¿Necesitas oración?</h2>
-      <p>Escríbenos tu petición. Estamos aquí para ti.</p>
+          <div class="noticias__pie reveal">
+            <a class="btn btn--linea" href="https://mmmoficial.org/noticias/"
+               target="_blank" rel="noopener">Ver todas las noticias</a>
+          </div>
+        </div>
+      </section>
 
-      <div class="elementor-align-center elementor-button-wrapper">
-        <a
-          class="elementor-button elementor-button-link elementor-size-sm elementor-animation-pulse-shrink"
-          href="https://wa.me/51988071855?text=Necesito%20que%20oren%20por%20mi%20petici%C3%B3n"
-          target="_blank"
-          rel="noopener"
-        >
-          <span class="elementor-button-content-wrapper">
-            <span class="elementor-button-icon"><svg aria-hidden="true" class="e-fab-whatsapp" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></span>
-            <span class="elementor-button-text">WhatsApp</span>
-          </span>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
+      <!-- ===== Medios ===== -->
+      <section class="seccion" id="medios">
+        <div class="contenedor">
+          <header class="sec-head reveal">
+            <p class="eyebrow">Medios</p>
+            <h2 class="sec-title">Acompáñanos <em>desde donde estés</em></h2>
+            <p class="sec-sub">
+              Radio, televisión y publicaciones para seguir alimentando tu fe
+              durante la semana.
+            </p>
+          </header>
 
-<section class="quienes-somos">
-  <div class="contenedor">
-    <div class="elementor-image-box-wrapper">
-      <figure class="elementor-image-box-img">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-          width="150"
-          height="218"
-          alt=""
-        />
-      </figure>
-      <div class="elementor-image-box-content">
-        <h3 class="elementor-image-box-title">¿Quiénes somos?</h3>
-      </div>
-    </div>
+          <div class="medios__grid reveal">
+            <a class="medio" href="https://betheltv.tv/" target="_blank" rel="noopener">
+              <div class="medio__foto">
+                <img
+                  src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-1024x702.jpg"
+                  srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-768x526.jpg 768w,
+                          https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_19-1024x702.jpg 1024w"
+                  sizes="(max-width: 900px) 100vw, 33vw"
+                  width="800" height="548" loading="lazy" alt="Bethel Televisión"
+                />
+              </div>
+              <div class="medio__pie">
+                <div>
+                  <small>Televisión</small>
+                  <h3>Bethel Televisión</h3>
+                </div>
+                <span class="medio__ir" aria-hidden="true">↗</span>
+              </div>
+            </a>
 
-    <div class="quienes-somos__texto">
-      <h2 class="elementor-heading-title">
-        Bienvenidos al <b><i>Movimiento Misionero Mundial</i></b>
-      </h2>
+            <a class="medio" href="http://bethelradio.fm" target="_blank" rel="noopener">
+              <div class="medio__foto">
+                <img
+                  src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-1024x702.jpg"
+                  srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-768x526.jpg 768w,
+                          https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_20-1024x702.jpg 1024w"
+                  sizes="(max-width: 900px) 100vw, 33vw"
+                  width="800" height="548" loading="lazy" alt="Bethel Radio"
+                />
+              </div>
+              <div class="medio__pie">
+                <div>
+                  <small>Radio</small>
+                  <h3>Bethel Radio</h3>
+                </div>
+                <span class="medio__ir" aria-hidden="true">↗</span>
+              </div>
+            </a>
 
-      <p>
-        Somos una obra de fe presente en más de 80 países, comprometida en
-        compartir el mensaje de nuestro Señor Jesucristo para transformar
-        vidas, restaurar familias y fomentar una fe viva que impacta al mundo.
-      </p>
+            <a class="medio" href="https://impactoevangelistico.net/" target="_blank" rel="noopener">
+              <div class="medio__foto">
+                <img
+                  src="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-1024x702.jpg"
+                  srcset="https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-768x526.jpg 768w,
+                          https://mmmoficial.org/wp-content/uploads/2026/02/mmm_oficial_21-1024x702.jpg 1024w"
+                  sizes="(max-width: 900px) 100vw, 33vw"
+                  width="800" height="548" loading="lazy" alt="Impacto Evangelístico"
+                />
+              </div>
+              <div class="medio__pie">
+                <div>
+                  <small>Revista</small>
+                  <h3>Impacto Evangelístico</h3>
+                </div>
+                <span class="medio__ir" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
 
-      <div class="elementor-button-wrapper">
-        <a
-          class="elementor-button elementor-button-link elementor-size-sm elementor-animation-grow"
-          href="https://mmmoficial.org/nosotros/"
-          target="_blank"
-          rel="noopener"
-        >
-          <span class="elementor-button-content-wrapper">
-            <span class="elementor-button-text">Ver más</span>
-          </span>
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
+      <!-- ===== Peticiones de oración ===== -->
+      <section class="seccion oracion" id="oracion">
+        <div class="contenedor oracion__grid">
+          <div class="reveal">
+            <p class="eyebrow">Peticiones</p>
+            <h2>¿Necesitas <em>oración</em>?</h2>
+            <p>
+              No tienes que pasar por esto solo. Escríbenos tu petición y
+              nuestro equipo pastoral orará contigo esta misma semana.
+            </p>
+          </div>
 
-<section class="agenda">
-  <div class="contenedor">
-    <div class="elementor-image-box-wrapper">
-      <figure class="elementor-image-box-img">
-        <img
-          src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-          width="150"
-          height="218"
-          alt=""
-        />
-      </figure>
-      <div class="elementor-image-box-content">
-        <h3 class="elementor-image-box-title">Agenda ministerial</h3>
-      </div>
-    </div>
-
-    <p class="agenda__nota">
-      Nuestra agenda se repite todas las semanas. ¡Te esperamos!
-    </p>
-
-    <!-- main.js arma la semana desde AGENDA en js/datos.js -->
-    <div class="agenda__semana" id="agendaSemanal"></div>
-  </div>
-</section>
+          <div class="oracion__caja reveal">
+            <h3>Envía tu petición</h3>
+            <p>Confidencial y sin compromiso. Te respondemos personalmente.</p>
+            <a
+              class="btn btn--primario"
+              href="https://wa.me/51988071855?text=Necesito%20que%20oren%20por%20mi%20petici%C3%B3n"
+              target="_blank" rel="noopener"
+            >
+              <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+              Escribir por WhatsApp
+            </a>
+            <p class="oracion__nota">También puedes llamarnos al (385) 622-9878</p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="footer">
       <div class="contenedor">
-        <p>
-          &copy; <span id="anio"></span> MMM. Todos los derechos reservados.
-        </p>
+        <div class="footer__grid">
+          <div>
+            <div class="footer__logo">
+              <img src="img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial" />
+            </div>
+            <p class="footer__lema">
+              Movimiento Misionero Mundial en Utah. Una iglesia de fe y
+              esperanza para toda la familia, en Taylorsville, Salt Lake City.
+            </p>
+            <div class="footer__redes">
+              <a href="https://www.facebook.com/mmmoficial" target="_blank" rel="noopener" aria-label="Facebook">
+                <svg viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+              </a>
+              <a href="https://www.youtube.com/@mmmoficial" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 576 512"><path d="M549.65 124.08c-6.28-23.65-24.79-42.28-48.28-48.6C458.78 64 288 64 288 64S117.22 64 74.63 75.48c-23.49 6.32-42 24.95-48.28 48.6C15 167.06 15 256.3 15 256.3s0 89.24 11.35 132.22c6.28 23.65 24.79 41.5 48.28 47.82C117.22 448 288 448 288 448s170.78 0 213.37-11.66c23.49-6.32 42-24.17 48.28-47.82C561 345.54 561 256.3 561 256.3s0-89.24-11.35-132.22zM232.15 337.6V175l142.77 81.3z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/mmmoficial" target="_blank" rel="noopener" aria-label="Instagram">
+                <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <nav aria-label="Enlaces del sitio">
+            <h2 class="footer__titulo">Navegación</h2>
+            <ul class="footer__lista">
+              <li><a href="index.html">Inicio</a></li>
+              <li><a href="paginas/nosotros.html">Nosotros</a></li>
+              <li><a href="paginas/representantes.html">Representantes</a></li>
+              <li><a href="paginas/horarios.html">Horarios</a></li>
+              <li><a href="paginas/noticias.html">Noticias</a></li>
+            </ul>
+          </nav>
+
+          <nav aria-label="Enlaces externos">
+            <h2 class="footer__titulo">Medios</h2>
+            <ul class="footer__lista">
+              <li><a href="https://mmmoficial.org/" target="_blank" rel="noopener">MMM Internacional</a></li>
+              <li><a href="https://betheltv.tv/" target="_blank" rel="noopener">Bethel Televisión</a></li>
+              <li><a href="http://bethelradio.fm" target="_blank" rel="noopener">Bethel Radio</a></li>
+              <li><a href="https://impactoevangelistico.net/" target="_blank" rel="noopener">Impacto Evangelístico</a></li>
+            </ul>
+          </nav>
+
+          <div>
+            <h2 class="footer__titulo">Visítanos</h2>
+            <p class="footer__dato">
+              <strong>Templo</strong>
+              2262 W 5400 S, Salt Lake City, UT 84129<br />
+              Taylorsville, Utah
+            </p>
+            <p class="footer__dato">
+              <strong>Contacto</strong>
+              <a href="tel:3856229878">(385) 622-9878</a><br />
+              <a href="mailto:info@mmmli.org">info@mmmli.org</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="footer__base">
+          <p>&copy; <span id="anio"></span> Movimiento Misionero Mundial · Utah. Todos los derechos reservados.</p>
+          <p>Hecho con fe para nuestra comunidad.</p>
+        </div>
       </div>
     </footer>
+
+    <a class="flotante"
+       href="https://wa.me/51988071855?text=Hola%2C%20quisiera%20m%C3%A1s%20informaci%C3%B3n"
+       target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+      <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+    </a>
 
     <script src="js/datos.js"></script>
     <script src="js/main.js"></script>
@@ -360,4 +432,3 @@
     <script src="js/lemas.js"></script>
   </body>
 </html>
-<!-- #f39c12 color narajanda y azul par ala paleta d ecolore  -->

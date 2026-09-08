@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   pintarHorarios();
   pintarAgenda();
   pintarNoticias();
+  proximoCulto();
+  animarAlDesplazar();
 });
 
 /* Prefijo de rutas: las páginas dentro de /paginas necesitan "../" */
@@ -21,14 +23,31 @@ const RUTA = location.pathname.includes("/paginas/") ? "../" : "";
 function menuResponsive() {
   const boton = document.getElementById("navToggle");
   const nav = document.getElementById("nav");
+  const header = document.querySelector(".header");
   if (!boton || !nav) return;
 
-  boton.addEventListener("click", () => {
-    const abierto = nav.classList.toggle("nav--abierto");
-    /* La barra necesita saberlo para cuadrar sus esquinas con el
-       panel que se despliega debajo */
-    document.querySelector(".header")
-      .classList.toggle("header--menu-abierto", abierto);
+  const alternar = (abrir) => {
+    const abierto = nav.classList.toggle("nav--abierto", abrir);
+    header.classList.toggle("header--menu-abierto", abierto);
+    boton.setAttribute("aria-expanded", String(abierto));
+    boton.setAttribute("aria-label", abierto ? "Cerrar menú" : "Abrir menú");
+  };
+
+  boton.addEventListener("click", () => alternar());
+
+  /* Al elegir una sección el panel se cierra solo */
+  nav.addEventListener("click", (e) => {
+    if (e.target.closest(".nav__link")) alternar(false);
+  });
+
+  /* Y también con Escape o al tocar fuera */
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && nav.classList.contains("nav--abierto")) alternar(false);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!nav.classList.contains("nav--abierto")) return;
+    if (!e.target.closest(".header__interior")) alternar(false);
   });
 }
 
@@ -40,30 +59,31 @@ function anioActual() {
 
 /* --- Header: medida y estado ----------------------------------
    Guarda el alto real en --alto-header (el CSS lo usa para montar
-   el banner debajo) y decide como se ve la barra:
+   el hero debajo) y decide cómo se ve la barra:
      - cristal esmerilado en cuanto se baja del inicio
-     - contenido blanco mientras el banner esta detras, azul sobre
-       el contenido claro
-   Se revisa tambien con ResizeObserver porque el alto cambia
-   cuando termina de cargar el logo, y con esa medida vieja el
-   banner nunca llegaba a quedar detras.
+     - contenido blanco mientras el banner está detrás, oscuro
+       sobre el contenido claro
+   Se revisa también con ResizeObserver porque el alto cambia
+   cuando termina de cargar el logo.
    -------------------------------------------------------------- */
 function ajustarHeader() {
   const header = document.querySelector(".header");
   if (!header) return;
 
   const banner = document.getElementById("banner");
+  const portada = document.querySelector(".encabezado-pagina");
+  /* Fondo oscuro detrás de la barra: el hero del inicio o la
+     portada de las páginas internas */
+  const oscuro = banner || portada;
 
   const revisar = () => {
     const alto = header.offsetHeight;
     document.documentElement.style.setProperty("--alto-header", `${alto}px`);
 
-    /* El banner esta detras de la barra cuando ya llego al borde
-       superior; en movil no se solapan hasta que se desplaza */
-    const caja = banner && banner.getBoundingClientRect();
-    const sobreBanner = caja && caja.top <= 1 && caja.bottom > alto;
+    const caja = oscuro && oscuro.getBoundingClientRect();
+    const sobreOscuro = caja && caja.top <= 1 && caja.bottom > alto;
 
-    header.classList.toggle("header--sobre-claro", !sobreBanner);
+    header.classList.toggle("header--sobre-claro", !sobreOscuro);
     header.classList.toggle("header--desplazado", window.scrollY > 40);
   };
 
@@ -75,10 +95,10 @@ function ajustarHeader() {
   if (window.ResizeObserver) new ResizeObserver(revisar).observe(header);
 }
 
-/* --- Slider de banners ---------------------------------------
-   Pinta las diapositivas desde BANNERS (js/datos.js) y las mueve
-   Avanza solo; ademas se puede saltar con los puntos, el teclado
-   o deslizando en pantallas tactiles.
+/* --- Slider del hero ------------------------------------------
+   Pinta las diapositivas desde BANNERS (js/datos.js) y las mueve.
+   Avanza solo; además se puede saltar con las flechas, los puntos,
+   el teclado o deslizando en pantallas táctiles.
    -------------------------------------------------------------- */
 function iniciarSlider() {
   const slider = document.getElementById("banner");
@@ -86,7 +106,6 @@ function iniciarSlider() {
   const puntos = document.getElementById("bannerPuntos");
   if (!slider || !pista || typeof BANNERS === "undefined" || !BANNERS.length) return;
 
-  /* Diapositivas */
   pista.innerHTML = BANNERS.map((b, i) => `
     <div class="slider__slide" role="group" aria-roledescription="diapositiva"
          aria-label="${i + 1} de ${BANNERS.length}">
@@ -95,7 +114,6 @@ function iniciarSlider() {
     </div>
   `).join("");
 
-  /* Puntos indicadores */
   puntos.innerHTML = BANNERS.map((_, i) => `
     <button class="slider__punto" type="button" role="tab"
             data-indice="${i}" aria-label="Ir al banner ${i + 1}"></button>
@@ -105,7 +123,7 @@ function iniciarSlider() {
   const total = BANNERS.length;
   let actual = 0;
   let temporizador = null;
-  const INTERVALO = 5000;
+  const INTERVALO = 6000;
 
   function mostrar(indice) {
     actual = (indice + total) % total;
@@ -117,7 +135,7 @@ function iniciarSlider() {
   }
 
   const siguiente = () => mostrar(actual + 1);
-  const anterior  = () => mostrar(actual - 1);
+  const anterior = () => mostrar(actual - 1);
 
   function arrancar() {
     if (total < 2) return;
@@ -128,14 +146,17 @@ function iniciarSlider() {
     clearInterval(temporizador);
     temporizador = null;
   }
-  /* Reinicia el automatico despues de una accion manual */
-  function tras(accion) {
-    return () => { accion(); arrancar(); };
-  }
+  /* Reinicia el automático después de una acción manual */
+  const tras = (accion) => () => { accion(); arrancar(); };
 
-  listaPuntos.forEach(p =>
+  listaPuntos.forEach((p) =>
     p.addEventListener("click", tras(() => mostrar(Number(p.dataset.indice))))
   );
+
+  const prev = document.getElementById("bannerPrev");
+  const next = document.getElementById("bannerNext");
+  if (prev) prev.addEventListener("click", tras(anterior));
+  if (next) next.addEventListener("click", tras(siguiente));
 
   /* Pausa al pasar el mouse o al enfocar con el teclado */
   slider.addEventListener("mouseenter", detener);
@@ -143,20 +164,24 @@ function iniciarSlider() {
   slider.addEventListener("focusin", detener);
   slider.addEventListener("focusout", arrancar);
 
-  /* Flechas del teclado */
-  slider.addEventListener("keydown", e => {
+  /* Y también cuando la pestaña queda en segundo plano */
+  document.addEventListener("visibilitychange", () =>
+    document.hidden ? detener() : arrancar()
+  );
+
+  slider.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") tras(siguiente)();
-    if (e.key === "ArrowLeft")  tras(anterior)();
+    if (e.key === "ArrowLeft") tras(anterior)();
   });
 
-  /* Deslizamiento en pantallas tactiles */
+  /* Deslizamiento en pantallas táctiles */
   let inicioX = 0;
-  slider.addEventListener("touchstart", e => {
+  slider.addEventListener("touchstart", (e) => {
     inicioX = e.touches[0].clientX;
     detener();
   }, { passive: true });
 
-  slider.addEventListener("touchend", e => {
+  slider.addEventListener("touchend", (e) => {
     const recorrido = e.changedTouches[0].clientX - inicioX;
     if (Math.abs(recorrido) > 50) (recorrido < 0 ? siguiente : anterior)();
     arrancar();
@@ -180,9 +205,10 @@ function pintarRepresentantes() {
 
   cont.innerHTML = REPRESENTANTES.map(r => `
     <article class="tarjeta">
-      <img src="${RUTA}${r.foto}" alt="${r.nombre}">
-      <h3>${r.nombre}</h3>
+      <img src="${RUTA}${r.foto}" alt="${r.nombre}" loading="lazy"
+           onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
       <p class="tarjeta__cargo">${r.cargo}</p>
+      <h3>${r.nombre}</h3>
       <p>${r.descripcion}</p>
     </article>
   `).join("");
@@ -204,8 +230,8 @@ function pintarHorarios() {
 }
 
 /* --- Agenda semanal -------------------------------------------
-   Almanaque del inicio: la semana se repite igual, asi que sale
-   de AGENDA (js/datos.js). Se marca el dia de hoy.
+   La semana se repite igual, así que sale de AGENDA (js/datos.js).
+   Se marca el día de hoy.
    -------------------------------------------------------------- */
 function pintarAgenda() {
   const cont = document.getElementById("agendaSemanal");
@@ -239,6 +265,29 @@ function pintarAgenda() {
   }).join("");
 }
 
+/* --- Próximo culto --------------------------------------------
+   Recorre la semana desde hoy y muestra la primera actividad que
+   encuentra en la barra de contacto del inicio.
+   -------------------------------------------------------------- */
+function proximoCulto() {
+  const destino = document.getElementById("proximoCulto");
+  if (!destino || typeof AGENDA === "undefined") return;
+
+  const hoy = (new Date().getDay() + 6) % 7;
+
+  for (let i = 0; i < AGENDA.length; i++) {
+    const dia = AGENDA[(hoy + i) % AGENDA.length];
+    if (!dia.eventos.length) continue;
+
+    const cuando = i === 0 ? "Hoy" : dia.dia;
+    destino.textContent = `${cuando} · ${dia.eventos[0].hora}`;
+
+    const detalle = destino.nextElementSibling;
+    if (detalle) detalle.textContent = dia.eventos[0].nombre;
+    return;
+  }
+}
+
 /* --- Noticias -------------------------------------------------
    Rellena la lista completa (noticias.html) o las destacadas
    del inicio, según el contenedor que exista en la página.
@@ -253,10 +302,36 @@ function pintarNoticias() {
 
   cont.innerHTML = lista.map(n => `
     <article class="tarjeta">
-      <img src="${RUTA}${n.imagen}" alt="${n.titulo}">
-      <h3>${n.titulo}</h3>
+      <img src="${RUTA}${n.imagen}" alt="${n.titulo}" loading="lazy"
+           onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
       <p class="tarjeta__fecha">${formatearFecha(n.fecha)}</p>
+      <h3>${n.titulo}</h3>
       <p>${n.resumen}</p>
     </article>
   `).join("");
+}
+
+/* --- Aparición al desplazar -----------------------------------
+   Los bloques con .reveal entran cuando se acercan a la pantalla.
+   Si el visitante pidió menos movimiento, se muestran de una vez.
+   -------------------------------------------------------------- */
+function animarAlDesplazar() {
+  const bloques = document.querySelectorAll(".reveal");
+  if (!bloques.length) return;
+
+  const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (sinMovimiento || !("IntersectionObserver" in window)) {
+    bloques.forEach(b => b.classList.add("es-visible"));
+    return;
+  }
+
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((entrada) => {
+      if (!entrada.isIntersecting) return;
+      entrada.target.classList.add("es-visible");
+      observador.unobserve(entrada.target);
+    });
+  }, { threshold: .12, rootMargin: "0px 0px -60px" });
+
+  bloques.forEach(b => observador.observe(b));
 }

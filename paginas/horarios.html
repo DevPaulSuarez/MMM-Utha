@@ -1,61 +1,177 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MMM | Horarios</title>
-  <link rel="icon" href="../img/logo/favicon.png">
-  <link rel="stylesheet" href="../css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MMM Utah | Horarios</title>
+    <meta name="description" content="Horarios de cultos y actividades del Movimiento Misionero Mundial en Taylorsville, Utah." />
+    <meta name="theme-color" content="#0f2133" />
+    <link rel="icon" href="../img/logo/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <a class="saltar" href="#contenido">Saltar al contenido</a>
 
-  <header class="header">
-    <div class="contenedor header__interior">
-      <div class="header__cristal" aria-hidden="true"></div>
-      <a class="logo" href="../index.html">
-        <img src="../img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial">
-      </a>
+    <header class="header">
+      <div class="contenedor header__interior">
+        <div class="header__cristal" aria-hidden="true"></div>
 
-      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú">☰</button>
+        <a class="logo" href="../index.html" aria-label="MMM Utah · Inicio">
+          <img src="../img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial" />
+        </a>
 
-      <nav class="nav" id="nav">
-        <a href="../index.html" class="nav__link">Inicio</a>
-        <a href="nosotros.html" class="nav__link">Nosotros</a>
-        <a href="representantes.html" class="nav__link">Representantes</a>
-        <a href="horarios.html" class="nav__link nav__link--activo">Horarios</a>
-        <a href="noticias.html" class="nav__link">Noticias</a>
-      </nav>
-    </div>
-  </header>
+        <button class="nav__toggle" id="navToggle" aria-label="Abrir menú"
+                aria-expanded="false" aria-controls="nav">
+          <span></span>
+        </button>
 
-  <main>
-    <section class="encabezado-pagina">
+        <nav class="nav" id="nav" aria-label="Navegación principal">
+          <a href="../index.html" class="nav__link">Inicio</a>
+          <a href="nosotros.html" class="nav__link">Nosotros</a>
+          <a href="representantes.html" class="nav__link">Representantes</a>
+          <a href="horarios.html" class="nav__link nav__link--activo">Horarios</a>
+          <a href="noticias.html" class="nav__link">Noticias</a>
+          <a href="../index.html#visitanos" class="nav__link nav__cta-movil">Visítanos</a>
+        </nav>
+
+        <a class="header__cta" href="../index.html#visitanos">
+          Visítanos
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="encabezado-pagina">
+        <div class="contenedor">
+          <p class="eyebrow">Horarios</p>
+          <h1>Cuándo nos <em>reunimos</em></h1>
+          <p>Cultos, oración y escuela dominical en el templo de Taylorsville, todas las semanas.</p>
+          <nav class="migas" aria-label="Ruta de navegación">
+            <a href="../index.html">Inicio</a><span aria-hidden="true">/</span><span>Horarios</span>
+          </nav>
+        </div>
+      </section>
+
+      <section class="seccion">
+        <div class="contenedor">
+          <header class="sec-head reveal">
+            <p class="eyebrow">Horarios</p>
+            <h2 class="sec-title">Nuestras reuniones <em>de la semana</em></h2>
+            <p class="sec-sub">
+              La agenda se repite todas las semanas. Puedes llegar unos
+              minutos antes para acomodarte con calma.
+            </p>
+          </header>
+
+          <!-- main.js inyecta las filas desde HORARIOS en js/datos.js -->
+          <div class="tabla-scroll reveal">
+            <table class="tabla">
+              <thead>
+                <tr><th>Día</th><th>Hora</th><th>Actividad</th><th>Lugar</th></tr>
+              </thead>
+              <tbody id="tablaHorarios"></tbody>
+            </table>
+          </div>
+
+          <div class="agenda__pie reveal">
+            <p>Templo: 2262 W 5400 S, Salt Lake City, UT 84129 · Taylorsville.</p>
+            <a class="enlace-flecha"
+               href="https://maps.google.com/?q=2262+W+5400+S,+Salt+Lake+City,+UT+84129"
+               target="_blank" rel="noopener">Ver en el mapa</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion seccion--papel">
+        <div class="contenedor">
+          <header class="sec-head sec-head--centro reveal">
+            <p class="eyebrow">Semana a semana</p>
+            <h2 class="sec-title">Vista de <em>la semana</em></h2>
+          </header>
+          <!-- main.js arma la semana desde AGENDA en js/datos.js -->
+          <div class="agenda__semana reveal" id="agendaSemanal"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="footer">
       <div class="contenedor">
-        <h1>Horarios</h1>
+        <div class="footer__grid">
+          <div>
+            <div class="footer__logo">
+              <img src="../img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial" />
+            </div>
+            <p class="footer__lema">
+              Movimiento Misionero Mundial en Utah. Una iglesia de fe y
+              esperanza para toda la familia, en Taylorsville, Salt Lake City.
+            </p>
+            <div class="footer__redes">
+              <a href="https://www.facebook.com/mmmoficial" target="_blank" rel="noopener" aria-label="Facebook">
+                <svg viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+              </a>
+              <a href="https://www.youtube.com/@mmmoficial" target="_blank" rel="noopener" aria-label="YouTube">
+                <svg viewBox="0 0 576 512"><path d="M549.65 124.08c-6.28-23.65-24.79-42.28-48.28-48.6C458.78 64 288 64 288 64S117.22 64 74.63 75.48c-23.49 6.32-42 24.95-48.28 48.6C15 167.06 15 256.3 15 256.3s0 89.24 11.35 132.22c6.28 23.65 24.79 41.5 48.28 47.82C117.22 448 288 448 288 448s170.78 0 213.37-11.66c23.49-6.32 42-24.17 48.28-47.82C561 345.54 561 256.3 561 256.3s0-89.24-11.35-132.22zM232.15 337.6V175l142.77 81.3z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/mmmoficial" target="_blank" rel="noopener" aria-label="Instagram">
+                <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <nav aria-label="Enlaces del sitio">
+            <h2 class="footer__titulo">Navegación</h2>
+            <ul class="footer__lista">
+              <li><a href="../index.html">Inicio</a></li>
+              <li><a href="nosotros.html">Nosotros</a></li>
+              <li><a href="representantes.html">Representantes</a></li>
+              <li><a href="horarios.html">Horarios</a></li>
+              <li><a href="noticias.html">Noticias</a></li>
+            </ul>
+          </nav>
+
+          <nav aria-label="Enlaces externos">
+            <h2 class="footer__titulo">Medios</h2>
+            <ul class="footer__lista">
+              <li><a href="https://mmmoficial.org/" target="_blank" rel="noopener">MMM Internacional</a></li>
+              <li><a href="https://betheltv.tv/" target="_blank" rel="noopener">Bethel Televisión</a></li>
+              <li><a href="http://bethelradio.fm" target="_blank" rel="noopener">Bethel Radio</a></li>
+              <li><a href="https://impactoevangelistico.net/" target="_blank" rel="noopener">Impacto Evangelístico</a></li>
+            </ul>
+          </nav>
+
+          <div>
+            <h2 class="footer__titulo">Visítanos</h2>
+            <p class="footer__dato">
+              <strong>Templo</strong>
+              2262 W 5400 S, Salt Lake City, UT 84129<br />
+              Taylorsville, Utah
+            </p>
+            <p class="footer__dato">
+              <strong>Contacto</strong>
+              <a href="tel:3856229878">(385) 622-9878</a><br />
+              <a href="mailto:info@mmmli.org">info@mmmli.org</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="footer__base">
+          <p>&copy; <span id="anio"></span> Movimiento Misionero Mundial · Utah. Todos los derechos reservados.</p>
+          <p>Hecho con fe para nuestra comunidad.</p>
+        </div>
       </div>
-    </section>
+    </footer>
 
-    <section class="seccion contenedor">
-      <h2 class="seccion__titulo">Horarios de actividades</h2>
-      <!-- main.js inyecta las filas desde HORARIOS en js/datos.js -->
-      <div class="tabla-scroll">
-        <table class="tabla">
-          <thead>
-            <tr><th>Día</th><th>Hora</th><th>Actividad</th><th>Lugar</th></tr>
-          </thead>
-          <tbody id="tablaHorarios"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+    <a class="flotante"
+       href="https://wa.me/51988071855?text=Hola%2C%20quisiera%20m%C3%A1s%20informaci%C3%B3n"
+       target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp">
+      <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
+    </a>
 
-  <footer class="footer">
-    <div class="contenedor">
-      <p>&copy; <span id="anio"></span> MMM. Todos los derechos reservados.</p>
-    </div>
-  </footer>
-
-  <script src="../js/datos.js"></script>
-  <script src="../js/main.js"></script>
-</body>
+    <script src="../js/datos.js"></script>
+    <script src="../js/main.js"></script>
+  </body>
 </html>
