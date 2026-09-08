@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   pintarAgenda();
   pintarNoticias();
   proximoCulto();
+  volverArriba();
   animarAlDesplazar();
 });
 
@@ -189,6 +190,28 @@ function iniciarSlider() {
 
   mostrar(0);
   arrancar();
+}
+
+/* --- Inicio estando ya en el inicio ---------------------------
+   El logo y el enlace "Inicio" recargaban la página. Si ya estamos
+   en ella basta con subir hasta arriba.
+   -------------------------------------------------------------- */
+function volverArriba() {
+  if (location.pathname.includes("/paginas/")) return;
+
+  const enlaces = document.querySelectorAll('a[href="index.html"]');
+  if (!enlaces.length) return;
+
+  const sinMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  enlaces.forEach((enlace) => {
+    enlace.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: sinMovimiento ? "auto" : "smooth" });
+      /* Quita el ancla de la barra de direcciones si quedó alguna */
+      history.replaceState(null, "", location.pathname + location.search);
+    });
+  });
 }
 
 /* --- Formato de fecha en español ----------------------------- */

@@ -28,6 +28,16 @@ function iniciarLemas() {
   const botones = [...scroller.querySelectorAll(".gl-year-trigger")];
   let actual = -1;
 
+  /* Centra un año dentro de la tira moviendo solo su barra
+     horizontal. Antes se usaba scrollIntoView, que además arrastraba
+     la página hasta esta sección nada más abrir el inicio. */
+  function centrar(boton, comportamiento = "auto") {
+    const destino =
+      boton.offsetLeft - (scroller.clientWidth - boton.offsetWidth) / 2;
+
+    scroller.scrollTo({ left: Math.max(destino, 0), behavior: comportamiento });
+  }
+
   function mostrar(indice, desplazar = true) {
     if (indice === actual) return;
     actual = indice;
@@ -51,13 +61,7 @@ function iniciarLemas() {
     `;
 
     botones.forEach((b, i) => b.classList.toggle("active", i === indice));
-    if (desplazar) {
-      botones[indice].scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
-    }
+    if (desplazar) centrar(botones[indice], "smooth");
 
     requestAnimationFrame(() => vista.classList.remove("gl-loading"));
   }
@@ -77,8 +81,6 @@ function iniciarLemas() {
   );
 
   mostrar(0, false);
-  /* Centra el activo una vez que el navegador ya midio la tira */
-  requestAnimationFrame(() =>
-    botones[0].scrollIntoView({ inline: "center", block: "nearest" })
-  );
+  /* Centra el activo una vez que el navegador ya midió la tira */
+  requestAnimationFrame(() => centrar(botones[0]));
 }
