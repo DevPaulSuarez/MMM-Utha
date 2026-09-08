@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMM | Horarios</title>
+  <link rel="icon" href="../img/logo/favicon.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+  <header class="header">
+    <div class="contenedor header__interior">
+      <div class="header__cristal" aria-hidden="true"></div>
+      <a class="logo" href="../index.html">
+        <img src="../img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial">
+      </a>
+
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menú">☰</button>
+
+      <nav class="nav" id="nav">
+        <a href="../index.html" class="nav__link">Inicio</a>
+        <a href="nosotros.html" class="nav__link">Nosotros</a>
+        <a href="representantes.html" class="nav__link">Representantes</a>
+        <a href="horarios.html" class="nav__link nav__link--activo">Horarios</a>
+        <a href="noticias.html" class="nav__link">Noticias</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="encabezado-pagina">
+      <div class="contenedor">
+        <h1>Horarios</h1>
+      </div>
+    </section>
+
+    <section class="seccion contenedor">
+      <h2 class="seccion__titulo">Horarios de actividades</h2>
+      <!-- main.js inyecta las filas desde HORARIOS en js/datos.js -->
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr><th>Día</th><th>Hora</th><th>Actividad</th><th>Lugar</th></tr>
+          </thead>
+          <tbody id="tablaHorarios"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="contenedor">
+      <p>&copy; <span id="anio"></span> MMM. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="../js/datos.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>
