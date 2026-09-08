@@ -334,14 +334,74 @@ h1, h2, h3, h4 {
 .header--menu-abierto .nav__toggle span::before { transform: translateY(6px) rotate(45deg); }
 .header--menu-abierto .nav__toggle span::after  { transform: translateY(-6px) rotate(-45deg); }
 
+/* 5. Portada --------------------------------------------------- */
+/* Una sola imagen y el mensaje de bienvenida encima. Es la que se
+   mete bajo la barra, así el menú tiene fondo oscuro detrás. */
+.portada {
+  position: relative;
+  overflow: hidden;
+  background: var(--ink);
+  margin-top: calc(-1 * var(--alto-header, 76px));
+  height: calc(clamp(520px, 62vh, 720px) + var(--alto-header, 76px));
+}
+
+.portada__fondo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.05);
+  animation: portadaZoom 12s var(--ease) forwards;
+}
+
+@keyframes portadaZoom { to { transform: scale(1); } }
+
+/* Velo para que el texto se lea sobre la foto */
+.portada__velo {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(8, 20, 32, .86) 0%, rgba(8, 20, 32, .55) 45%, rgba(8, 20, 32, .18) 78%),
+    linear-gradient(to top, rgba(8, 20, 32, .7) 0%, transparent 55%);
+}
+
+.portada__contenido {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding-top: var(--alto-header, 76px);
+}
+
+/* El mensaje entra de a poco al abrir la página */
+.portada .hero__texto > * { animation: portadaEntra .9s var(--ease) backwards; }
+.portada .hero__marca    { animation-delay: .15s; }
+.portada .hero__titulo   { animation-delay: .28s; }
+.portada .hero__bajada   { animation-delay: .4s; }
+.portada .hero__acciones { animation-delay: .52s; }
+
+@keyframes portadaEntra {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portada__fondo { animation: none; transform: none; }
+  .portada .hero__texto > * { animation: none; }
+}
+
 /* 5. Hero ------------------------------------------------------ */
+/* El slider va debajo de la portada: ya no se mete bajo la barra */
 .hero {
   position: relative;
   overflow: hidden;
   background: var(--ink);
-  /* Se mete bajo el header para que el cristal tenga imagen detrás */
-  margin-top: calc(-1 * var(--alto-header, 76px));
-  height: calc(clamp(560px, 78vh, 820px) + var(--alto-header, 76px));
+  height: clamp(300px, 40vw, 560px);
 }
 
 .slider__pista {
@@ -363,24 +423,14 @@ h1, h2, h3, h4 {
 
 @keyframes heroZoom { to { transform: scale(1); } }
 
-/* Velo para que el texto se lea sobre cualquier foto */
+/* Sombra fina abajo para que los puntos no se pierdan en una foto
+   clara; el slider ya no lleva texto encima */
 .hero__velo {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background:
-    linear-gradient(to right, rgba(8, 20, 32, .82) 0%, rgba(8, 20, 32, .5) 45%, rgba(8, 20, 32, .15) 75%),
-    linear-gradient(to top, rgba(8, 20, 32, .75) 0%, transparent 55%);
-}
-
-.hero__contenido {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  padding-top: var(--alto-header, 76px);
+  background: linear-gradient(to top, rgba(8, 20, 32, .45) 0%, transparent 22%);
 }
 
 .hero__texto { max-width: 40rem; color: #fff; }
@@ -1410,17 +1460,49 @@ a.barra-info__item:hover { background: #16293c; }
   .header .nav .nav__link::after { left: 1rem; transform: none; }
 
 
-  /* Hero: la imagen se muestra entera (los banners traen su propio
+  /* Portada: la imagen se ve entera (los banners traen su propio
      arte y recortarlos les comía el título) y el mensaje va debajo,
-     sobre la banda oscura. El bloque sigue metido bajo la barra
-     para que el menú conserve el fondo oscuro. */
+     sobre la banda oscura. Sigue metida bajo la barra para que el
+     menú conserve el fondo oscuro. */
+  .portada {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    margin-top: calc(-1 * var(--alto-header, 76px));
+    padding-top: var(--alto-header, 76px);
+  }
+
+  .portada__fondo {
+    position: static;
+    order: 1;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    transform: none;
+    animation: none;
+  }
+
+  .portada__velo { display: none; }
+
+  .portada__contenido {
+    position: static;
+    order: 2;
+    padding: 1.5rem 0 2.6rem;
+  }
+
+  .hero__texto { max-width: none; }
+  .hero__marca { margin-bottom: 1rem; }
+  .hero__bajada { font-size: var(--t-md); }
+  .hero__acciones { margin-top: 1.6rem; }
+  .hero__acciones .btn { flex: 1 1 auto; }
+
+  /* El slider queda como una franja de imágenes */
   .hero {
     display: flex;
     flex-direction: column;
     height: auto;
     min-height: 0;
-    margin-top: calc(-1 * var(--alto-header, 76px));
-    padding-top: var(--alto-header, 76px);
+    padding-bottom: .35rem;
     background: var(--ink);
   }
 
@@ -1446,18 +1528,6 @@ a.barra-info__item:hover { background: #16293c; }
     order: 2;
     padding: .35rem 0 0;
   }
-
-  .hero__contenido {
-    position: static;
-    order: 3;
-    padding: 1.4rem 0 2.6rem;
-  }
-
-  .hero__texto { max-width: none; }
-  .hero__marca { margin-bottom: 1rem; }
-  .hero__bajada { font-size: var(--t-md); }
-  .hero__acciones { margin-top: 1.6rem; }
-  .hero__acciones .btn { flex: 1 1 auto; }
 
   /* Portada de las páginas internas: sin solape, con aire propio */
   .encabezado-pagina {

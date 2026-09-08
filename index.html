@@ -50,17 +50,17 @@
     </header>
 
     <main id="contenido">
-      <!-- ===== Hero · las imágenes salen de BANNERS en js/datos.js ===== -->
-      <section
-        class="hero"
-        id="banner"
-        aria-label="Bienvenida"
-        aria-roledescription="carrusel"
-      >
-        <div class="slider__pista" id="bannerPista"></div>
-        <div class="hero__velo" aria-hidden="true"></div>
+      <!-- ===== Portada ===== -->
+      <section class="portada" aria-label="Bienvenida">
+        <img
+          class="portada__fondo"
+          src="img/fondos/Lema_Familia_2026.png"
+          alt=""
+          fetchpriority="high"
+        />
+        <div class="portada__velo" aria-hidden="true"></div>
 
-        <div class="hero__contenido">
+        <div class="portada__contenido">
           <div class="contenedor">
             <div class="hero__texto">
               <p class="hero__marca"><i aria-hidden="true"></i> Taylorsville · Utah</p>
@@ -80,6 +80,17 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- ===== Hero · las imágenes salen de BANNERS en js/datos.js ===== -->
+      <section
+        class="hero"
+        id="banner"
+        aria-label="Bienvenida"
+        aria-roledescription="carrusel"
+      >
+        <div class="slider__pista" id="bannerPista"></div>
+        <div class="hero__velo" aria-hidden="true"></div>
 
         <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
                 type="button" aria-label="Banner anterior">❮</button>

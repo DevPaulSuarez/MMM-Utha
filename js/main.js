@@ -72,11 +72,9 @@ function ajustarHeader() {
   const header = document.querySelector(".header");
   if (!header) return;
 
-  const banner = document.getElementById("banner");
-  const portada = document.querySelector(".encabezado-pagina");
-  /* Fondo oscuro detrás de la barra: el hero del inicio o la
-     portada de las páginas internas */
-  const oscuro = banner || portada;
+  /* Fondo oscuro detrás de la barra: la portada del inicio o la
+     de las páginas internas */
+  const oscuro = document.querySelector(".portada, .encabezado-pagina");
 
   const revisar = () => {
     const alto = header.offsetHeight;
