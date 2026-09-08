@@ -219,12 +219,14 @@ function pintarHorarios() {
   const cuerpo = document.getElementById("tablaHorarios");
   if (!cuerpo || typeof HORARIOS === "undefined") return;
 
+  /* data-titulo lo usa el CSS: en el celular la tabla se convierte
+     en fichas y cada dato necesita su rótulo al lado */
   cuerpo.innerHTML = HORARIOS.map(h => `
     <tr>
-      <td>${h.dia}</td>
-      <td>${h.hora}</td>
-      <td>${h.actividad}</td>
-      <td>${h.lugar}</td>
+      <td data-titulo="Día">${h.dia}</td>
+      <td data-titulo="Hora">${h.hora}</td>
+      <td data-titulo="Actividad">${h.actividad}</td>
+      <td data-titulo="Lugar">${h.lugar}</td>
     </tr>
   `).join("");
 }

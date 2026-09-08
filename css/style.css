@@ -76,6 +76,7 @@
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 
 body {
+  -webkit-tap-highlight-color: rgba(226, 104, 15, .15);
   font-family: var(--fuente);
   font-size: var(--t-md);
   color: var(--tinta);
@@ -219,6 +220,13 @@ h1, h2, h3, h4 {
 
 .header--desplazado .header__cristal { opacity: 1; }
 .header--desplazado .header__interior { box-shadow: var(--sombra); }
+
+/* Sobre el hero o la portada oscura el cristal se tiñe de oscuro:
+   con el blanco, las letras blancas del menú se perdían al bajar */
+.header:not(.header--sobre-claro) .header__cristal {
+  background: rgba(11, 24, 37, .55);
+  border-color: rgba(255, 255, 255, .14);
+}
 
 .header .logo,
 .header .nav,
@@ -439,7 +447,7 @@ h1, h2, h3, h4 {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: clamp(1.5rem, 4vh, 2.6rem);
+  bottom: clamp(.9rem, 3vh, 2.2rem);
   z-index: 4;
   display: flex;
   justify-content: center;
@@ -449,15 +457,19 @@ h1, h2, h3, h4 {
 .slider__punto {
   width: 30px;
   height: 3px;
-  padding: 0;
+  /* El relleno agranda la zona que se puede tocar con el dedo sin
+     engordar la barrita: se pinta solo sobre el contenido */
+  padding: 11px 0;
+  box-sizing: content-box;
+  background-clip: content-box;
   border: 0;
   border-radius: 3px;
-  background: rgba(255, 255, 255, .35);
+  background-color: rgba(255, 255, 255, .35);
   cursor: pointer;
-  transition: background .3s var(--ease), width .3s var(--ease);
+  transition: background-color .3s var(--ease), width .3s var(--ease);
 }
-.slider__punto:hover { background: rgba(255, 255, 255, .6); }
-.slider__punto--activo { width: 46px; background: var(--acento); }
+.slider__punto:hover { background-color: rgba(255, 255, 255, .6); }
+.slider__punto--activo { width: 46px; background-color: var(--acento); }
 
 .hero__flecha {
   position: absolute;
@@ -1302,21 +1314,26 @@ a.barra-info__item:hover { background: #16293c; }
   }
 
   .gl-viewport { flex-direction: column; height: auto; }
-  .gl-col-img { flex: 0 0 240px; }
+  .gl-col-img { flex: 0 0 220px; }
   .gl-col-content { padding: 1.75rem 1.5rem 2rem; }
   .gl-white-card { max-height: none; }
-  .gl-body-p { overflow-y: visible; }
+  .gl-body-p { overflow-y: visible; padding-right: 0; }
   .gl-dock-nav {
     position: static;
     order: -1;
     padding: 1rem 1.25rem 0;
     background: var(--papel-2);
   }
+  .gl-btn-arrow { width: 40px; height: 40px; }
+  .gl-year-trigger { padding: .6rem 1rem; }
 }
 
+/* ---- Celulares y tabletas verticales ------------------------- */
 @media (max-width: 820px) {
   .nav__toggle { display: grid; }
   .header__cta { display: none; }
+
+  .header__interior { padding: .5rem .6rem .5rem 1rem; }
 
   .header .nav {
     position: absolute;
@@ -1330,11 +1347,14 @@ a.barra-info__item:hover { background: #16293c; }
     background: rgba(255, 255, 255, .96);
     border: 1px solid var(--linea);
     box-shadow: var(--sombra-lg);
+    /* Si la lista no entra en pantalla, se desplaza dentro del panel */
+    max-height: calc(100svh - var(--alto-header, 76px) - 2rem);
+    overflow-y: auto;
   }
 
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .header .nav {
-      background: rgba(255, 255, 255, .82);
+      background: rgba(255, 255, 255, .88);
       -webkit-backdrop-filter: blur(18px) saturate(180%);
               backdrop-filter: blur(18px) saturate(180%);
     }
@@ -1345,44 +1365,204 @@ a.barra-info__item:hover { background: #16293c; }
   .header .nav .nav__link {
     color: var(--ink);
     text-shadow: none;
-    padding: .8rem 1rem;
+    padding: .85rem 1rem;   /* zona de toque cómoda */
     border-radius: var(--radio-sm);
     font-size: var(--t-md);
   }
-  .header .nav .nav__link:hover { background: var(--papel-2); }
+  .header .nav .nav__link:hover,
+  .header .nav .nav__link--activo { background: var(--papel-2); }
   .header .nav .nav__link::after { left: 1rem; transform: none; }
 
   .nav__cta-movil {
     margin-top: .5rem;
     text-align: center;
-    background: var(--acento);
+    background: var(--acento) !important;
     color: #fff !important;
     font-weight: 600;
   }
-  .nav__cta-movil:hover { background: var(--acento-osc) !important; }
+  .nav__cta-movil::after { display: none; }
 
+  /* Hero: la imagen se muestra entera (los banners traen su propio
+     arte y recortarlos les comía el título) y el mensaje va debajo,
+     sobre la banda oscura. El bloque sigue metido bajo la barra
+     para que el menú conserve el fondo oscuro. */
   .hero {
-    margin-top: 0;
+    display: flex;
+    flex-direction: column;
     height: auto;
-    min-height: 88vh;
+    min-height: 0;
+    margin-top: calc(-1 * var(--alto-header, 76px));
+    padding-top: var(--alto-header, 76px);
+    background: var(--ink);
   }
-  .hero__contenido { position: relative; inset: auto; padding: 8rem 0 6rem; }
-  .slider__pista { position: absolute; inset: 0; }
+
+  .slider__pista { position: relative; order: 1; height: auto; }
+  .slider__slide { height: auto; }
+  /* Los banners no vienen todos con la misma proporción (16:9 y
+     2.25:1): se encajan enteros dentro de una franja 16:9 y el
+     sobrante lo cubre el fondo oscuro, así no se corta el arte */
+  .slider__imagen {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    background: var(--ink);
+    transform: none;
+    animation: none;
+  }
+
+  .hero__velo { display: none; }
   .hero__flecha { display: none; }
-  .slider__puntos { justify-content: center; }
+
+  .slider__puntos {
+    position: static;
+    order: 2;
+    padding: .35rem 0 0;
+  }
+
+  .hero__contenido {
+    position: static;
+    order: 3;
+    padding: 1.4rem 0 2.6rem;
+  }
+
+  .hero__texto { max-width: none; }
+  .hero__marca { margin-bottom: 1rem; }
+  .hero__bajada { font-size: var(--t-md); }
+  .hero__acciones { margin-top: 1.6rem; }
+  .hero__acciones .btn { flex: 1 1 auto; }
+
+  /* Portada de las páginas internas: sin solape, con aire propio */
+  .encabezado-pagina {
+    margin-top: calc(-1 * var(--alto-header, 76px));
+    padding-top: calc(var(--alto-header, 76px) + 2.5rem);
+    padding-bottom: 2.5rem;
+  }
+  .encabezado-pagina::after { width: 90vw; height: 90vw; right: -30%; }
 
   .somos__cifras { grid-template-columns: 1fr 1fr; }
+  .somos__acciones .btn { flex: 1 1 auto; }
   .agenda__semana { grid-template-columns: repeat(2, 1fr); }
   .agenda__dia { min-height: 0; }
   .medios__grid { grid-template-columns: 1fr; }
-  .encabezado-pagina { margin-top: 0; padding-top: clamp(2.5rem, 8vw, 4rem); }
   .logo img { height: 40px; }
+
+  /* Que el botón flotante no tape el cierre del pie */
+  .footer__base { padding-bottom: 5rem; }
 }
 
-@media (max-width: 560px) {
-  .grid-noticias { grid-template-columns: 1fr; }
-  .tarjeta-noticia--compacta { height: 165px; }
-  .footer__grid { grid-template-columns: 1fr; }
-  .agenda__semana { grid-template-columns: 1fr; }
+/* ---- Celulares --------------------------------------------- */
+@media (max-width: 640px) {
+  :root { --seccion: 3.25rem; }
+
+  .contenedor { width: min(100% - 2rem, var(--ancho-max)); }
+
+  .sec-head { margin-bottom: 1.75rem; }
+  .sec-sub { font-size: var(--t-md); }
+
+  /* Botones a lo ancho: más fáciles de acertar con el pulgar */
+  .hero__acciones,
+  .somos__acciones { flex-direction: column; align-items: stretch; }
+  .hero__acciones .btn,
+  .somos__acciones .btn,
+  .noticias__pie .btn { width: 100%; }
+
+  .barra-info__item { padding: 1.15rem .25rem; }
+  .barra-info__valor { font-size: .97rem; }
+
+  .somos__cifras { border-radius: var(--radio); }
+  .cifra { padding: 1.25rem 1.1rem; }
+
+  /* Agenda: en columna se lee mejor como lista, día a la izquierda
+     y las actividades a la derecha */
+  .agenda__semana { grid-template-columns: 1fr; gap: 8px; }
+
+  .agenda__dia {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    align-items: start;
+    gap: .35rem 1rem;
+    padding: .95rem 1.1rem;
+  }
+  .agenda__nombre {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    align-self: center;
+  }
+  .agenda__dia ul { gap: .55rem; }
+  .agenda__dia--libre { border-style: solid; opacity: .75; }
+  .agenda__dia--hoy .agenda__nombre { border: 0; }
+
+  .agenda__pie { flex-direction: column; align-items: flex-start; }
+
+  /* Noticias: la destacada arriba y las demás en una columna */
+  .grid-noticias { grid-template-columns: 1fr; gap: 12px; }
+  .tarjeta-noticia--destacada { min-height: 260px; }
+  .tarjeta-noticia--destacada .tarjeta-noticia__texto { padding: 1.3rem 1.4rem; }
+  .tarjeta-noticia--compacta { height: 160px; }
+
+  /* Horarios: la tabla pasa a fichas y deja de moverse en horizontal */
+  .tabla-scroll { overflow-x: visible; border: 0; }
+  .tabla { min-width: 0; }
+  .tabla thead { display: none; }
+  .tabla tbody, .tabla tr, .tabla td { display: block; width: 100%; }
+
+  .tabla tr {
+    margin-bottom: .75rem;
+    padding: .35rem 0;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    background: var(--papel);
+  }
+  .tabla tbody tr:hover { background: var(--papel); }
+
+  .tabla td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .5rem 1.1rem;
+    border: 0;
+    text-align: right;
+  }
+  .tabla td::before {
+    content: attr(data-titulo);
+    flex-shrink: 0;
+    color: var(--tenue);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+  .tabla td:first-child {
+    padding-top: .8rem;
+    font-family: var(--display);
+    font-size: var(--t-lg);
+  }
+  .tabla td:last-child { padding-bottom: .8rem; }
+
+  .gl-col-img { flex: 0 0 180px; }
+  .gl-main-h1 { flex-direction: column; align-items: flex-start; gap: .2rem; }
+  .gl-verse-box { font-size: .92rem; }
+
+  .oracion__caja { padding: 1.4rem 1.25rem; }
+
+  .footer__grid { grid-template-columns: 1fr; gap: 2.25rem; }
   .footer__base { justify-content: center; text-align: center; }
+
+  .flotante { width: 52px; height: 52px; }
+}
+
+/* ---- Celulares pequeños -------------------------------------- */
+@media (max-width: 380px) {
+  .agenda__dia { grid-template-columns: 1fr; }
+  .agenda__nombre { align-self: start; }
+  .hero__marca { font-size: .7rem; }
+  .logo img { height: 36px; }
+}
+
+/* En pantallas cortas y apaisadas el hero no se estira de más */
+@media (max-width: 820px) and (orientation: landscape) {
+  .slider__imagen { max-height: 68svh; }
 }
