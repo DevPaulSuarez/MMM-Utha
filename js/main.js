@@ -116,24 +116,44 @@ function iniciarSlider() {
     </div>
   `).join("");
 
+  /* Cada punto lleva dentro la barra que marca el tiempo que falta
+     para pasar al siguiente */
   puntos.innerHTML = BANNERS.map((_, i) => `
     <button class="slider__punto" type="button" role="tab"
-            data-indice="${i}" aria-label="Ir al banner ${i + 1}"></button>
+            data-indice="${i}" aria-label="Ir al banner ${i + 1}">
+      <span class="slider__punto-barra"></span>
+    </button>
   `).join("");
 
   const listaPuntos = [...puntos.querySelectorAll(".slider__punto")];
+  const diapositivas = [...pista.querySelectorAll(".slider__slide")];
   const total = BANNERS.length;
   let actual = 0;
   let temporizador = null;
   const INTERVALO = 6000;
 
+  /* El CSS usa este tiempo para la barra de avance de los puntos */
+  slider.style.setProperty("--slider-tiempo", `${INTERVALO}ms`);
+
+  const contador = document.getElementById("bannerActual");
+  const contadorTotal = document.getElementById("bannerTotal");
+  const dosDigitos = (n) => String(n).padStart(2, "0");
+  if (contadorTotal) contadorTotal.textContent = dosDigitos(total);
+
   function mostrar(indice) {
     actual = (indice + total) % total;
     pista.style.transform = `translateX(-${actual * 100}%)`;
+
+    /* La clase marca la diapositiva visible: el CSS le da el
+       acercamiento lento mientras está en pantalla */
+    diapositivas.forEach((d, i) => d.classList.toggle("es-activa", i === actual));
+
     listaPuntos.forEach((p, i) => {
       p.classList.toggle("slider__punto--activo", i === actual);
       p.setAttribute("aria-selected", i === actual);
     });
+
+    if (contador) contador.textContent = dosDigitos(actual + 1);
   }
 
   const siguiente = () => mostrar(actual + 1);
@@ -142,11 +162,13 @@ function iniciarSlider() {
   function arrancar() {
     if (total < 2) return;
     detener();
+    slider.classList.remove("hero--pausado");
     temporizador = setInterval(siguiente, INTERVALO);
   }
   function detener() {
     clearInterval(temporizador);
     temporizador = null;
+    slider.classList.add("hero--pausado");
   }
   /* Reinicia el automático después de una acción manual */
   const tras = (accion) => () => { accion(); arrancar(); };

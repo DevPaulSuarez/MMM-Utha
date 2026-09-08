@@ -357,11 +357,20 @@ h1, h2, h3, h4 {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.06);
-  animation: heroZoom 9s var(--ease) forwards;
+  transform: scale(1.04);
+  transition: transform 1.2s var(--ease);
 }
 
-@keyframes heroZoom { to { transform: scale(1); } }
+/* La foto en pantalla se acerca despacio; al salir vuelve a su
+   sitio, así el movimiento nunca se acumula */
+.slider__slide.es-activa .slider__imagen {
+  animation: heroZoom 8s ease-out forwards;
+}
+
+@keyframes heroZoom {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1.12); }
+}
 
 /* Velo para que el texto se lea sobre cualquier foto */
 .hero__velo {
@@ -381,9 +390,23 @@ h1, h2, h3, h4 {
   display: flex;
   align-items: center;
   padding-top: var(--alto-header, 76px);
+  /* Deja libre la franja de los controles */
+  padding-bottom: 5.5rem;
 }
 
 .hero__texto { max-width: 40rem; color: #fff; }
+
+/* El mensaje entra de a poco al abrir la página */
+.hero__texto > * { animation: heroEntra .9s var(--ease) backwards; }
+.hero__marca    { animation-delay: .15s; }
+.hero__titulo   { animation-delay: .28s; }
+.hero__bajada   { animation-delay: .4s; }
+.hero__acciones { animation-delay: .52s; }
+
+@keyframes heroEntra {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
 
 .hero__marca {
   display: inline-flex;
@@ -443,64 +466,140 @@ h1, h2, h3, h4 {
   margin-top: 2.2rem;
 }
 
-/* Controles del slider */
-.slider__puntos {
+/* Controles del slider ---------------------------------------- */
+.hero__controles {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: clamp(.9rem, 3vh, 2.2rem);
-  z-index: 4;
+  bottom: 0;
+  z-index: 5;
+  padding-block: clamp(1rem, 2.5vh, 1.9rem);
+  /* Un velo propio para que los controles se lean sobre la foto */
+  background: linear-gradient(to top, rgba(8, 20, 32, .6), transparent);
+}
+
+.hero__controles-fila {
   display: flex;
-  justify-content: center;
-  gap: .55rem;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.25rem);
+}
+
+/* Contador 01 — 03 */
+.slider__contador {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-shrink: 0;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+.slider__contador-linea {
+  width: 26px;
+  height: 1px;
+  background: rgba(255, 255, 255, .45);
+}
+.slider__contador-total {
+  color: rgba(255, 255, 255, .55);
+  font-size: .95rem;
+  font-weight: 400;
+}
+
+/* Barras de avance */
+.slider__puntos {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex: 1 1 auto;
 }
 
 .slider__punto {
-  width: 30px;
+  position: relative;
+  width: 34px;
   height: 3px;
   /* El relleno agranda la zona que se puede tocar con el dedo sin
-     engordar la barrita: se pinta solo sobre el contenido */
-  padding: 11px 0;
+     engordar la barrita */
+  padding: 12px 0;
   box-sizing: content-box;
-  background-clip: content-box;
   border: 0;
-  border-radius: 3px;
-  background-color: rgba(255, 255, 255, .35);
+  background: none;
   cursor: pointer;
-  transition: background-color .3s var(--ease), width .3s var(--ease);
+  transition: width .45s var(--ease);
 }
-.slider__punto:hover { background-color: rgba(255, 255, 255, .6); }
-.slider__punto--activo { width: 46px; background-color: var(--acento); }
+
+/* El riel */
+.slider__punto::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .3);
+  transition: background .3s var(--ease);
+}
+.slider__punto:hover::before { background: rgba(255, 255, 255, .55); }
+
+/* Lo recorrido del tiempo que falta para el siguiente banner */
+.slider__punto-barra {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 3px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: var(--acento);
+}
+
+.slider__punto--activo { width: 62px; }
+.slider__punto--activo .slider__punto-barra {
+  animation: avanceSlider var(--slider-tiempo, 6000ms) linear forwards;
+}
+/* Mientras el visitante mira o toca, el avance se congela */
+.hero--pausado .slider__punto--activo .slider__punto-barra {
+  animation-play-state: paused;
+}
+
+@keyframes avanceSlider { to { width: 100%; } }
+
+/* Flechas */
+.slider__flechas { display: flex; gap: .5rem; flex-shrink: 0; }
 
 .hero__flecha {
-  position: absolute;
-  top: 50%;
-  z-index: 4;
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  transform: translateY(-50%);
-  border: 1px solid rgba(255, 255, 255, .3);
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, .28);
   border-radius: 50%;
   background: rgba(255, 255, 255, .08);
-  -webkit-backdrop-filter: blur(6px);
-          backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 1rem;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity .3s var(--ease), background .3s var(--ease);
+  transition: background .3s var(--ease), border-color .3s var(--ease),
+              transform .3s var(--ease);
 }
-.hero:hover .hero__flecha,
-.hero__flecha:focus-visible { opacity: 1; }
-.hero__flecha:hover { background: rgba(255, 255, 255, .22); }
-.hero__flecha--prev { left: clamp(.8rem, 2vw, 2rem); }
-.hero__flecha--next { right: clamp(.8rem, 2vw, 2rem); }
+.hero__flecha svg { width: 20px; height: 20px; fill: currentColor; }
+.hero__flecha:hover {
+  background: #fff;
+  border-color: #fff;
+  color: var(--ink);
+  transform: translateY(-2px);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .slider__pista { transition: none; }
+  .slider__slide.es-activa .slider__imagen,
   .slider__imagen { animation: none; transform: none; }
+  .hero__texto > * { animation: none; }
+  .slider__punto--activo .slider__punto-barra { animation: none; width: 100%; }
 }
 
 /* 6. Componentes ----------------------------------------------- */
@@ -1429,23 +1528,31 @@ a.barra-info__item:hover { background: #16293c; }
   /* Los banners no vienen todos con la misma proporción (16:9 y
      2.25:1): se encajan enteros dentro de una franja 16:9 y el
      sobrante lo cubre el fondo oscuro, así no se corta el arte */
-  .slider__imagen {
+  .slider__imagen,
+  .slider__slide.es-activa .slider__imagen {
     height: auto;
     aspect-ratio: 16 / 9;
     object-fit: contain;
     background: var(--ink);
+    /* Sin acercamiento: la imagen se ve entera y no debe moverse */
     transform: none;
     animation: none;
   }
 
   .hero__velo { display: none; }
-  .hero__flecha { display: none; }
 
-  .slider__puntos {
+  /* Los controles dejan de flotar: van entre la imagen y el texto,
+     con las barras centradas. El contador y las flechas sobran
+     cuando se puede deslizar con el dedo. */
+  .hero__controles {
     position: static;
     order: 2;
-    padding: .35rem 0 0;
+    padding: .55rem 0 0;
+    background: none;
   }
+  .slider__contador,
+  .slider__flechas { display: none; }
+  .slider__puntos { justify-content: center; }
 
   .hero__contenido {
     position: static;

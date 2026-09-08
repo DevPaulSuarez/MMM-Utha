@@ -81,52 +81,28 @@
           </div>
         </div>
 
-        <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
-                type="button" aria-label="Banner anterior">❮</button>
-        <button class="hero__flecha hero__flecha--next" id="bannerNext"
-                type="button" aria-label="Banner siguiente">❯</button>
+        <!-- Controles: contador, barras de avance y flechas -->
+        <div class="hero__controles">
+          <div class="contenedor hero__controles-fila">
+            <p class="slider__contador" aria-hidden="true">
+              <span id="bannerActual">01</span>
+              <span class="slider__contador-linea"></span>
+              <span class="slider__contador-total" id="bannerTotal">01</span>
+            </p>
 
-        <div class="slider__puntos" id="bannerPuntos" role="tablist"
-             aria-label="Seleccionar banner"></div>
-      </section>
+            <div class="slider__puntos" id="bannerPuntos" role="tablist"
+                 aria-label="Seleccionar banner"></div>
 
-      <!-- ===== Contacto rápido ===== -->
-      <section class="barra-info" id="visitanos" aria-label="Cómo encontrarnos">
-        <div class="contenedor">
-          <div class="barra-info__grid">
-            <a class="barra-info__item" data-mapa href="https://www.google.com/maps/search/?api=1&amp;query=2262%20W%205400%20S%2C%20Salt%20Lake%20City%2C%20UT%2084129"
-               target="_blank" rel="noopener">
-              <span class="barra-info__icono" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z"/></svg>
-              </span>
-              <span class="barra-info__dato">
-                <span class="barra-info__rotulo">Dónde estamos</span>
-                <span class="barra-info__valor">2262 W 5400 S, Salt Lake City, UT 84129</span>
-                <span class="barra-info__extra">Taylorsville, Utah · Estados Unidos</span>
-              </span>
-            </a>
-
-            <a class="barra-info__item" href="tel:3856229878">
-              <span class="barra-info__icono" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1Z"/></svg>
-              </span>
-              <span class="barra-info__dato">
-                <span class="barra-info__rotulo">Llámanos</span>
-                <span class="barra-info__valor">(385) 622-9878</span>
-                <span class="barra-info__extra">info@mmmli.org</span>
-              </span>
-            </a>
-
-            <a class="barra-info__item" href="#agenda">
-              <span class="barra-info__icono" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2Zm13 8H4v10h16Z"/></svg>
-              </span>
-              <span class="barra-info__dato">
-                <span class="barra-info__rotulo">Próximo culto</span>
-                <span class="barra-info__valor" id="proximoCulto">Consulta la agenda</span>
-                <span class="barra-info__extra">Todas las semanas en el templo</span>
-              </span>
-            </a>
+            <div class="slider__flechas">
+              <button class="hero__flecha" id="bannerPrev" type="button"
+                      aria-label="Banner anterior">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4 1.4-1.4L10.8 12l6-6z"/></svg>
+              </button>
+              <button class="hero__flecha" id="bannerNext" type="button"
+                      aria-label="Banner siguiente">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 4.6 7.2 6l6 6-6 6 1.4 1.4L16 12z"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -170,6 +146,47 @@
               <p class="cifra__num">1</p>
               <p class="cifra__txt">Mensaje: Cristo, la esperanza del mundo</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Contacto rápido ===== -->
+      <section class="barra-info" id="visitanos" aria-label="Cómo encontrarnos">
+        <div class="contenedor">
+          <div class="barra-info__grid">
+            <a class="barra-info__item" data-mapa href="https://www.google.com/maps/search/?api=1&amp;query=2262%20W%205400%20S%2C%20Salt%20Lake%20City%2C%20UT%2084129"
+               target="_blank" rel="noopener">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Dónde estamos</span>
+                <span class="barra-info__valor">2262 W 5400 S, Salt Lake City, UT 84129</span>
+                <span class="barra-info__extra">Taylorsville, Utah · Estados Unidos</span>
+              </span>
+            </a>
+
+            <a class="barra-info__item" href="tel:3856229878">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Llámanos</span>
+                <span class="barra-info__valor">(385) 622-9878</span>
+                <span class="barra-info__extra">info@mmmli.org</span>
+              </span>
+            </a>
+
+            <a class="barra-info__item" href="#agenda">
+              <span class="barra-info__icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2Zm13 8H4v10h16Z"/></svg>
+              </span>
+              <span class="barra-info__dato">
+                <span class="barra-info__rotulo">Próximo culto</span>
+                <span class="barra-info__valor" id="proximoCulto">Consulta la agenda</span>
+                <span class="barra-info__extra">Todas las semanas en el templo</span>
+              </span>
+            </a>
           </div>
         </div>
       </section>
