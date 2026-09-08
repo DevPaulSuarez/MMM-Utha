@@ -19,15 +19,15 @@ const UBICACION = {
    definitivas solo cambia la ruta de cada "imagen". */
 const BANNERS = [
   {
-    imagen: "img/fondos/Lema_Familia_2026.png",
+    imagen: "img/fondos/Lema_Familia_2026.webp",
     alt: "Lema Familia 2026"
   },
   {
-    imagen: "img/fondos/portada_mmm_2026_2.png",
+    imagen: "img/fondos/portada_mmm_2026_2.webp",
     alt: "Lema Familia 2026"
   },
   {
-    imagen: "img/fondos/portada_mmm_2026_3.jpg",
+    imagen: "img/fondos/portada_mmm_2026_3.webp",
     alt: "Lema Familia 2026"
   }
 ];

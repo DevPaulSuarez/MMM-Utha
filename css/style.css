@@ -1251,6 +1251,66 @@ a.barra-info__item:hover { background: #16293c; }
 }
 .medio:hover .medio__ir { background: var(--acento); border-color: var(--acento); color: #fff; }
 
+/* 7.7 Mapa ------------------------------------------------------ */
+.mapa__caja {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-lg);
+  background: var(--papel);
+  box-shadow: var(--sombra);
+}
+
+.mapa__marco {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border: 0;
+  display: block;
+  /* El mapa de Google llega muy saturado: se apaga un punto para
+     que acompañe al resto de la página */
+  filter: saturate(.85) contrast(1.02);
+}
+
+.mapa__ficha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .9rem;
+  padding: clamp(1.6rem, 3vw, 2.4rem);
+  background: var(--papel);
+}
+
+.mapa__rotulo {
+  color: var(--acento);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.mapa__direccion {
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  line-height: 1.45;
+  color: var(--ink);
+}
+.mapa__direccion span {
+  font-family: var(--fuente);
+  font-size: var(--t-sm);
+  color: var(--tenue);
+}
+
+.mapa__ficha .btn { margin-top: .35rem; }
+
+@media (max-width: 900px) {
+  .mapa__caja { grid-template-columns: 1fr; }
+  .mapa__marco { min-height: 300px; }
+  .mapa__ficha { align-items: center; text-align: center; }
+  .mapa__ficha .btn { width: 100%; }
+}
+
 /* 7.7 Oración --------------------------------------------------- */
 .oracion {
   position: relative;
