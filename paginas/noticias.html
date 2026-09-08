@@ -58,19 +58,57 @@
       <section class="seccion">
         <div class="contenedor">
           <header class="sec-head reveal">
-            <p class="eyebrow">Noticias</p>
-            <h2 class="sec-title">Lo que sucede <em>en la iglesia</em></h2>
+            <p class="eyebrow">Últimas publicaciones</p>
+            <h2 class="sec-title">Lo que Dios hace <em>en el mundo</em></h2>
             <p class="sec-sub">
-              Actividades, campañas y avisos de nuestra congregación en Utah.
+              Las mismas noticias que ves en el inicio, tomadas del sitio
+              oficial del Movimiento Misionero Mundial.
             </p>
           </header>
 
-          <!-- main.js inyecta las tarjetas desde NOTICIAS en js/datos.js -->
-          <div class="grid reveal" id="listaNoticias"></div>
+          <!-- noticias-externas.js las trae de mmmoficial.org -->
+          <div id="lista-noticias-externas" class="grid-noticias reveal">
+            <p>Cargando noticias…</p>
+          </div>
 
           <div class="noticias__pie reveal">
             <a class="btn btn--linea" href="https://mmmoficial.org/noticias/"
-               target="_blank" rel="noopener">Noticias del MMM internacional</a>
+               target="_blank" rel="noopener">Ver todas en mmmoficial.org</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion seccion--papel">
+        <div class="contenedor">
+          <header class="sec-head sec-head--centro reveal">
+            <p class="eyebrow">Nuestra iglesia</p>
+            <h2 class="sec-title">Actividades <em>en Utah</em></h2>
+            <p class="sec-sub">
+              Avisos y campañas de la congregación de Taylorsville.
+            </p>
+          </header>
+
+          <!-- main.js inyecta las tarjetas desde NOTICIAS en js/datos.js;
+               la sección se oculta sola mientras no haya publicaciones -->
+          <div class="grid reveal" id="listaNoticias"></div>
+        </div>
+      </section>
+
+      <section class="seccion oracion">
+        <div class="contenedor oracion__grid">
+          <div class="reveal">
+            <p class="eyebrow">Sigue la obra</p>
+            <h2>Acompáñanos <em>durante la semana</em></h2>
+            <p>
+              Radio, televisión y publicaciones del Movimiento Misionero
+              Mundial para alimentar tu fe cada día.
+            </p>
+          </div>
+          <div class="oracion__caja reveal">
+            <h3>Nuestros medios</h3>
+            <p>Bethel Televisión, Bethel Radio e Impacto Evangelístico.</p>
+            <a class="btn btn--primario" href="../index.html#medios">Ver los medios</a>
+            <p class="oracion__nota">Disponibles desde cualquier dispositivo</p>
           </div>
         </div>
       </section>
@@ -152,5 +190,6 @@
 
     <script src="../js/datos.js"></script>
     <script src="../js/main.js"></script>
+    <script src="../js/noticias-externas.js"></script>
   </body>
 </html>

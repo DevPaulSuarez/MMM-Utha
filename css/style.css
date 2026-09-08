@@ -675,6 +675,12 @@ h1, h2, h3, h4 {
 /* 7.1 Barra de contacto ---------------------------------------- */
 .barra-info { background: var(--ink); color: #fff; }
 
+/* Cuando sigue a la portada oscura de una página interna, una línea
+   fina la separa sin cortar la mancha de color */
+.barra-info--pegada .barra-info__grid {
+  border-top: 1px solid rgba(255, 255, 255, .12);
+}
+
 .barra-info__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

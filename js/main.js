@@ -302,6 +302,14 @@ function pintarNoticias() {
   const ordenadas = [...NOTICIAS].sort((a, b) => b.fecha.localeCompare(a.fecha));
   const lista = cont.id === "noticiasDestacadas" ? ordenadas.slice(0, 3) : ordenadas;
 
+  /* Sin publicaciones propias la sección entera se retira: vale más
+     una página limpia que un hueco vacío */
+  if (!lista.length) {
+    const seccion = cont.closest("section");
+    if (seccion) seccion.hidden = true;
+    return;
+  }
+
   cont.innerHTML = lista.map(n => `
     <article class="tarjeta">
       <img src="${RUTA}${n.imagen}" alt="${n.titulo}" loading="lazy"
