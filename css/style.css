@@ -600,6 +600,17 @@ h1, h2, h3, h4 {
 }
 .tarjeta--sin-foto h3 { padding-top: 1.2rem; }
 
+/* Aviso cuando una rejilla se queda sin contenido que mostrar */
+.vacio {
+  grid-column: 1 / -1;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border: 1px dashed var(--linea);
+  border-radius: var(--radio);
+  background: var(--papel-2);
+  color: var(--tenue);
+  text-align: center;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));

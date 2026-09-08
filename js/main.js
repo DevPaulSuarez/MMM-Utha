@@ -302,11 +302,14 @@ function pintarNoticias() {
   const ordenadas = [...NOTICIAS].sort((a, b) => b.fecha.localeCompare(a.fecha));
   const lista = cont.id === "noticiasDestacadas" ? ordenadas.slice(0, 3) : ordenadas;
 
-  /* Sin publicaciones propias la sección entera se retira: vale más
-     una página limpia que un hueco vacío */
+  /* Sin publicaciones cargadas se avisa en vez de dejar un hueco */
   if (!lista.length) {
-    const seccion = cont.closest("section");
-    if (seccion) seccion.hidden = true;
+    cont.innerHTML = `
+      <p class="vacio">
+        Estamos preparando las próximas actividades.
+        Escríbenos y te avisamos en cuanto haya novedades.
+      </p>
+    `;
     return;
   }
 
