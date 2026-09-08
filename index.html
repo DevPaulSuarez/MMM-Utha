@@ -60,94 +60,13 @@
         <div class="slider__pista" id="bannerPista"></div>
         <div class="hero__velo" aria-hidden="true"></div>
 
-        <div class="hero__contenido">
-          <div class="contenedor">
-            <div class="hero__texto">
-              <p class="hero__marca"><i aria-hidden="true"></i> Taylorsville · Utah</p>
-              <h1 class="hero__titulo">
-                Somos un lugar de <em>fe</em>
-                <b>y esperanza.</b>
-              </h1>
-              <p class="hero__bajada">
-                Una comunidad del Movimiento Misionero Mundial donde las
-                familias crecen, se restauran y encuentran un hogar. Ven tal
-                como eres: aquí hay un lugar para ti.
-              </p>
-              <div class="hero__acciones">
-                <a class="btn btn--primario" href="#visitanos">Planea tu visita</a>
-                <a class="btn btn--claro" href="#agenda">Ver horarios</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
+                type="button" aria-label="Banner anterior">❮</button>
+        <button class="hero__flecha hero__flecha--next" id="bannerNext"
+                type="button" aria-label="Banner siguiente">❯</button>
 
-        <!-- Controles: contador, barras de avance y flechas -->
-        <div class="hero__controles">
-          <div class="contenedor hero__controles-fila">
-            <p class="slider__contador" aria-hidden="true">
-              <span id="bannerActual">01</span>
-              <span class="slider__contador-linea"></span>
-              <span class="slider__contador-total" id="bannerTotal">01</span>
-            </p>
-
-            <div class="slider__puntos" id="bannerPuntos" role="tablist"
-                 aria-label="Seleccionar banner"></div>
-
-            <div class="slider__flechas">
-              <button class="hero__flecha" id="bannerPrev" type="button"
-                      aria-label="Banner anterior">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 4.6 8 12l7.4 7.4 1.4-1.4L10.8 12l6-6z"/></svg>
-              </button>
-              <button class="hero__flecha" id="bannerNext" type="button"
-                      aria-label="Banner siguiente">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 4.6 7.2 6l6 6-6 6 1.4 1.4L16 12z"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== Quiénes somos ===== -->
-      <section class="seccion" id="nosotros">
-        <div class="contenedor somos__grid">
-          <div class="somos__texto reveal">
-            <header class="sec-head">
-              <p class="eyebrow">Quiénes somos</p>
-              <h2 class="sec-title">
-                Bienvenidos al <em>Movimiento Misionero Mundial</em>
-              </h2>
-            </header>
-            <p>
-              Somos una obra de fe presente en más de 80 países, comprometida
-              en compartir el mensaje de nuestro Señor Jesucristo para
-              transformar vidas, restaurar familias y fomentar una fe viva que
-              impacta al mundo.
-            </p>
-            <div class="somos__acciones">
-              <a class="btn btn--oscuro" href="paginas/nosotros.html">Conoce nuestra historia</a>
-              <a class="btn btn--linea" href="paginas/representantes.html">Nuestros pastores</a>
-            </div>
-          </div>
-
-          <div class="somos__cifras reveal">
-            <div class="cifra">
-              <p class="cifra__num">80<span>+</span></p>
-              <p class="cifra__txt">Países donde la obra está presente</p>
-            </div>
-            <div class="cifra">
-              <p class="cifra__num">60<span>+</span></p>
-              <p class="cifra__txt">Años sirviendo a las familias</p>
-            </div>
-            <div class="cifra">
-              <p class="cifra__num">4</p>
-              <p class="cifra__txt">Reuniones cada semana en el templo</p>
-            </div>
-            <div class="cifra">
-              <p class="cifra__num">1</p>
-              <p class="cifra__txt">Mensaje: Cristo, la esperanza del mundo</p>
-            </div>
-          </div>
-        </div>
+        <div class="slider__puntos" id="bannerPuntos" role="tablist"
+             aria-label="Seleccionar banner"></div>
       </section>
 
       <!-- ===== Contacto rápido ===== -->
@@ -187,6 +106,60 @@
                 <span class="barra-info__extra">Todas las semanas en el templo</span>
               </span>
             </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Quiénes somos ===== -->
+      <section class="seccion" id="nosotros">
+        <div class="contenedor somos__grid">
+          <div class="somos__texto reveal">
+            <header class="sec-head">
+              <p class="eyebrow eyebrow--lugar">
+                <i aria-hidden="true"></i> Taylorsville · Utah
+              </p>
+              <h1 class="sec-title sec-title--grande">
+                Somos un lugar de <em>fe</em><b>y esperanza.</b>
+              </h1>
+            </header>
+            <p class="somos__entrada">
+              Una comunidad del Movimiento Misionero Mundial donde las familias
+              crecen, se restauran y encuentran un hogar. Ven tal como eres:
+              aquí hay un lugar para ti.
+            </p>
+            <p>
+              Somos una obra de fe presente en más de 80 países, comprometida
+              en compartir el mensaje de nuestro Señor Jesucristo para
+              transformar vidas, restaurar familias y fomentar una fe viva que
+              impacta al mundo.
+            </p>
+            <div class="somos__acciones">
+              <a class="btn btn--primario" href="paginas/horarios.html">Planea tu visita</a>
+              <a class="btn btn--linea" href="#agenda">Ver horarios</a>
+            </div>
+            <p class="somos__enlaces">
+              <a class="enlace-flecha" href="paginas/nosotros.html">Conoce nuestra historia</a>
+              <a class="enlace-flecha" href="paginas/representantes.html">Nuestros pastores</a>
+            </p>
+          </div>
+
+          <div class="somos__cifras reveal">
+            <div class="cifra">
+              <p class="cifra__num">80<span>+</span></p>
+              <p class="cifra__txt">Países donde la obra está presente</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">60<span>+</span></p>
+              <p class="cifra__txt">Años sirviendo a las familias</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">4</p>
+              <p class="cifra__txt">Reuniones cada semana en el templo</p>
+            </div>
+            <div class="cifra">
+              <p class="cifra__num">1</p>
+              <p class="cifra__txt">Mensaje: Cristo, la esperanza del mundo</p>
+            </div>
           </div>
         </div>
       </section>
