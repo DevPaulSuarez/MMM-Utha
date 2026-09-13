@@ -6,7 +6,11 @@
    que agregar un campo nuevo es: columna en MySQL + línea aquí.
 
    Tipos: texto (con max), entero, fecha (AAAA-MM-DD),
-          anio (4 cifras), dia (1 = lunes … 7 = domingo)
+          hora (HH:MM, 24 horas), anio (4 cifras),
+          dia (1 = lunes … 7 = domingo), opcion (una de "opciones")
+
+   El programa de cada culto no está aquí: tiene su propio
+   endpoint (programa.php) porque se guarda completo de una vez.
    ============================================================ */
 
 return [
@@ -51,30 +55,59 @@ return [
             'descripcion' => ['tipo' => 'texto', 'max' => 2000],
             'foto'        => ['tipo' => 'texto', 'max' => 500],
             'orden'       => ['tipo' => 'entero'],
+            /* 1 = aparece en la web. Los que crea el pastor salen
+               visibles; los perfiles de miembros nacen ocultos
+               (registro.php) hasta que él los apruebe. */
+            'visible'     => ['tipo' => 'entero', 'defecto' => 1],
         ],
     ],
 
-    'horarios' => [
-        'tabla'  => 'horarios',
-        'orden'  => 'orden, id',
+    /* Cultos que se repiten cada semana. Borrar uno borra también
+       sus programas. */
+    'cultos' => [
+        'tabla'  => 'cultos',
+        'orden'  => 'dia, hora_inicio, id',
         'campos' => [
-            'dia'       => ['tipo' => 'texto', 'max' => 30, 'requerido' => true],
-            'hora'      => ['tipo' => 'texto', 'max' => 50, 'requerido' => true],
-            'actividad' => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
-            'lugar'     => ['tipo' => 'texto', 'max' => 150],
-            'orden'     => ['tipo' => 'entero'],
+            'dia'         => ['tipo' => 'dia', 'requerido' => true],
+            'nombre'      => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
+            'hora_inicio' => ['tipo' => 'hora', 'requerido' => true],
+            'hora_fin'    => ['tipo' => 'hora'],
+            'lugar'       => ['tipo' => 'texto', 'max' => 150],
         ],
     ],
 
-    /* Cada fila es un evento; datos.php los agrupa por día */
-    'agenda' => [
-        'tabla'  => 'agenda_eventos',
-        'orden'  => 'dia, orden, id',
+    /* Cultos que se agregan en una fecha puntual (p. ej. un culto de
+       jóvenes algún jueves). datos.php solo muestra los que no pasaron. */
+    'cultos_extra' => [
+        'tabla'  => 'cultos_extra',
+        'orden'  => 'fecha, hora_inicio, id',
         'campos' => [
-            'dia'    => ['tipo' => 'dia', 'requerido' => true],
-            'nombre' => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
-            'hora'   => ['tipo' => 'texto', 'max' => 50, 'requerido' => true],
-            'orden'  => ['tipo' => 'entero'],
+            'fecha'       => ['tipo' => 'fecha', 'requerido' => true],
+            'nombre'      => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
+            'hora_inicio' => ['tipo' => 'hora', 'requerido' => true],
+            'hora_fin'    => ['tipo' => 'hora'],
+            'lugar'       => ['tipo' => 'texto', 'max' => 150],
+        ],
+    ],
+
+    /* Eventos con fecha: ventas de comida, paseos, visitas a hospitales,
+       evangelismo… Platillo y país se usan en las ventas de comida.
+       datos.php solo muestra las que no pasaron. */
+    'actividades' => [
+        'tabla'  => 'actividades',
+        'orden'  => 'fecha, hora_inicio, id',
+        'campos' => [
+            'tipo'        => ['tipo' => 'opcion', 'requerido' => true,
+                              'opciones' => ['comida', 'paseo', 'hospital', 'evangelismo', 'otra']],
+            'titulo'      => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
+            'fecha'       => ['tipo' => 'fecha', 'requerido' => true],
+            'hora_inicio' => ['tipo' => 'hora'],
+            'hora_fin'    => ['tipo' => 'hora'],
+            'lugar'       => ['tipo' => 'texto', 'max' => 200],
+            'descripcion' => ['tipo' => 'texto', 'max' => 2000],
+            'platillo'    => ['tipo' => 'texto', 'max' => 150],
+            'pais'        => ['tipo' => 'texto', 'max' => 100],
+            'imagen'      => ['tipo' => 'texto', 'max' => 500],
         ],
     ],
 

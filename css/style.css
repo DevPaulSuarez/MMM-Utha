@@ -667,6 +667,24 @@ h1, h2, h3, h4 {
 }
 .tarjeta--sin-foto h3 { padding-top: 1.2rem; }
 
+/* Datos cortos en fila (Cuándo, Lugar, Platillo…), usados en las
+   actividades */
+.tarjeta__datos {
+  display: grid;
+  gap: .4rem;
+  padding: .85rem 1.4rem 0;
+  font-size: var(--t-sm);
+}
+.tarjeta__datos div {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: .75rem;
+}
+.tarjeta__datos dt { color: var(--tenue); }
+.tarjeta__datos dd { color: var(--ink); font-weight: 500; }
+.tarjeta__datos:last-child { padding-bottom: 1.5rem; }
+.tarjeta__datos + p { padding-top: .9rem; }
+
 /* Aviso cuando una rejilla se queda sin contenido que mostrar */
 .vacio {
   grid-column: 1 / -1;
@@ -922,6 +940,136 @@ a.barra-info__item:hover { background: #16293c; }
   border-top: 1px solid var(--linea);
   color: var(--tenue);
   font-size: var(--t-sm);
+}
+
+.agenda__fecha { color: var(--tenue); font-weight: 500; letter-spacing: .04em; }
+.agenda__dia--hoy .agenda__fecha { color: rgba(255, 255, 255, .6); }
+
+/* Cultos con programa: toda la fila lleva al detalle */
+.agenda__enlace {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  margin: -.35rem -.5rem;
+  padding: .35rem .5rem;
+  border-radius: var(--radio-sm);
+  transition: background .2s var(--ease);
+}
+.agenda__enlace:hover,
+.agenda__enlace:focus-visible { background: var(--acento-luz); }
+.agenda__dia--hoy .agenda__enlace:hover,
+.agenda__dia--hoy .agenda__enlace:focus-visible { background: rgba(255, 255, 255, .08); }
+
+.agenda__marca {
+  align-self: flex-start;
+  margin-top: .15rem;
+  padding: .05rem .45rem;
+  border-radius: 99px;
+  background: var(--acento-luz);
+  color: var(--acento-osc);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.agenda__dia--hoy .agenda__marca { background: rgba(255, 255, 255, .12); color: #fff; }
+
+.agenda__programa { color: var(--acento); font-size: var(--t-xs); font-weight: 600; }
+.agenda__programa::after { content: " →"; }
+
+/* 7.3b Programa del culto ---------------------------------------- */
+.programa {
+  display: grid;
+  gap: var(--s-2);
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.programa__bloque {
+  padding: 1.3rem 1.5rem 1.4rem;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+
+.programa__rol {
+  margin-bottom: 1rem;
+  padding-bottom: .7rem;
+  border-bottom: 1px solid var(--linea);
+  font-family: var(--fuente);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+
+.programa__lista { display: grid; gap: .85rem; list-style: none; }
+.programa__persona { display: flex; align-items: center; gap: .9rem; }
+
+.programa__lista--numerada { counter-reset: turno; }
+.programa__lista--numerada .programa__persona::before {
+  counter-increment: turno;
+  content: counter(turno);
+  min-width: 1.2rem;
+  color: var(--tenue);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  text-align: right;
+}
+
+.programa__avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--papel-3);
+}
+.programa__avatar::before {
+  content: attr(data-iniciales);
+  color: var(--ink-suave);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.programa__avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.programa__nombre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.programa__texto { display: grid; gap: .15rem; }
+.programa__detalle { color: var(--tenue); font-size: var(--t-sm); }
+
+.programa__visita {
+  padding: .05rem .5rem;
+  border-radius: 99px;
+  background: var(--acento-luz);
+  color: var(--acento-osc);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.programa__pie {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--s-4);
 }
 
 /* 7.4 Noticias -------------------------------------------------- */

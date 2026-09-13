@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MMM Utah | Actividades</title>
-    <meta name="description" content="Actividades, campañas y encuentros del Movimiento Misionero Mundial en Utah." />
+    <title>MMM Utah | Programa del culto</title>
+    <meta name="description" content="Quiénes participan en el próximo culto del Movimiento Misionero Mundial en Taylorsville, Utah." />
     <meta name="theme-color" content="#0f2133" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="MMM Utah" />
     <meta property="og:locale" content="es_ES" />
-    <meta property="og:title" content="MMM Utah | Actividades" />
-    <meta property="og:description" content="Actividades, campañas y encuentros del Movimiento Misionero Mundial en Utah." />
+    <meta property="og:title" content="MMM Utah | Programa del culto" />
+    <meta property="og:description" content="Quiénes participan en el próximo culto del Movimiento Misionero Mundial en Taylorsville, Utah." />
     <meta property="og:image" content="../img/compartir.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -41,8 +41,8 @@
           <a href="../index.html" class="nav__link">Inicio</a>
           <a href="nosotros.html" class="nav__link">Nosotros</a>
           <a href="representantes.html" class="nav__link">Representantes</a>
-          <a href="horarios.html" class="nav__link">Horarios</a>
-          <a href="noticias.html" class="nav__link nav__link--activo">Actividades</a>
+          <a href="horarios.html" class="nav__link nav__link--activo">Horarios</a>
+          <a href="noticias.html" class="nav__link">Actividades</a>
         </nav>
 
         <a class="header__cta" data-mapa href="https://www.google.com/maps/search/?api=1&amp;query=2262%20W%205400%20S%2C%20Salt%20Lake%20City%2C%20UT%2084129"
@@ -56,68 +56,24 @@
     <main id="contenido">
       <section class="encabezado-pagina">
         <div class="contenedor">
-          <p class="eyebrow">Actividades</p>
-          <h1>Lo que viene en <em>nuestra iglesia</em></h1>
-          <p>Campañas, encuentros y avisos de la congregación de Taylorsville.</p>
+          <p class="eyebrow">Programa del culto</p>
+          <!-- main.js reemplaza título y fecha con los del culto -->
+          <h1 id="programaTitulo">Programa del <em>culto</em></h1>
+          <p id="programaCuando">Cargando el programa…</p>
         </div>
       </section>
 
       <section class="seccion">
         <div class="contenedor">
-          <header class="sec-head reveal">
-            <p class="eyebrow">Próximas actividades</p>
-            <h2 class="sec-title">Te esperamos <em>para compartir</em></h2>
-            <p class="sec-sub">
-              Ventas de comida, paseos, visitas a hospitales y salidas a
-              invitar a nuestra comunidad.
-            </p>
-          </header>
+          <!-- main.js arma el programa desde CULTOS, CULTOS_EXTRA y
+               PROGRAMAS en js/datos.js -->
+          <div class="programa reveal" id="programaCulto"></div>
 
-          <!-- main.js inyecta las tarjetas desde ACTIVIDADES en js/datos.js -->
-          <div class="grid reveal" id="proximasActividades"></div>
-        </div>
-      </section>
-
-      <section class="seccion seccion--papel">
-        <div class="contenedor">
-          <header class="sec-head reveal">
-            <p class="eyebrow">Nuestra iglesia</p>
-            <h2 class="sec-title">Lo que vivimos <em>en Utah</em></h2>
-            <p class="sec-sub">
-              Campañas, encuentros y avisos de la congregación de
-              Taylorsville.
-            </p>
-          </header>
-
-          <!-- main.js inyecta las tarjetas desde NOTICIAS en js/datos.js -->
-          <div class="grid reveal" id="listaNoticias"></div>
-        </div>
-      </section>
-
-      <section class="seccion oracion">
-        <div class="contenedor oracion__grid">
-          <div class="reveal">
-            <p class="eyebrow">Participa</p>
-            <h2>¿Quieres ser parte de <em>la próxima</em>?</h2>
-            <p>
-              Escríbenos y te avisamos de cada actividad, o ven directamente:
-              las puertas están abiertas para ti y tu familia.
-            </p>
-          </div>
-          <div class="oracion__caja reveal">
-            <h3>Mantente al tanto</h3>
-            <p>Te contamos lo que viene y cómo puedes acompañarnos.</p>
-            <a class="btn btn--primario"
-               href="https://wa.me/51988071855?text=Hola%2C%20quisiera%20saber%20sobre%20las%20pr%C3%B3ximas%20actividades"
-               target="_blank" rel="noopener">
-              <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
-              Escribir por WhatsApp
-            </a>
-            <p class="oracion__nota">O llámanos al (385) 622-9878</p>
+          <div class="programa__pie reveal">
+            <a class="enlace-flecha" href="horarios.html">Ver todos los horarios</a>
           </div>
         </div>
       </section>
-
     </main>
 
     <footer class="footer">

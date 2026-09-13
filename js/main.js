@@ -19,8 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
 DATOS_LISTOS.then(() => {
   iniciarSlider();
   pintarRepresentantes();
-  pintarHorarios();
   pintarAgenda();
+  pintarPrograma();
+  pintarActividades();
   pintarNoticias();
   proximoCulto();
   enlazarMapa();
@@ -318,53 +319,120 @@ function pintarRepresentantes() {
   `).join("");
 }
 
-/* --- Horarios ------------------------------------------------- */
-function pintarHorarios() {
-  const cuerpo = document.getElementById("tablaHorarios");
-  if (!cuerpo || typeof HORARIOS === "undefined") return;
+/* --- Cultos ---------------------------------------------------
+   CULTOS se repiten cada semana (dia: 1 = lunes … 7 = domingo) y
+   CULTOS_EXTRA caen en una fecha. De ahí salen las fechas concretas
+   que usan la agenda, el próximo culto y la página del programa.
+   -------------------------------------------------------------- */
+const DIAS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-  /* data-titulo lo usa el CSS: en el celular la tabla se convierte
-     en fichas y cada dato necesita su rótulo al lado */
-  cuerpo.innerHTML = HORARIOS.map(h => `
-    <tr>
-      <td data-titulo="Día">${h.dia}</td>
-      <td data-titulo="Hora">${h.hora}</td>
-      <td data-titulo="Actividad">${h.actividad}</td>
-      <td data-titulo="Lugar">${h.lugar}</td>
-    </tr>
-  `).join("");
+/* Lo que llega de la aplicación se escribe como texto, nunca como HTML */
+function escapar(texto) {
+  return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[c]);
 }
 
-/* --- Agenda semanal -------------------------------------------
-   La semana se repite igual, así que sale de AGENDA (js/datos.js).
-   Se marca el día de hoy.
+/* Fecha local como "AAAA-MM-DD" (toISOString pasa a UTC y de noche
+   daría el día siguiente) */
+function fechaISO(fecha) {
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  return `${fecha.getFullYear()}-${mes}-${dia}`;
+}
+
+function sumarDias(fecha, dias) {
+  return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate() + dias);
+}
+
+function aMinutos(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + m;
+}
+
+/* "19:00" → ["7:00", "p. m."] */
+function partesHora(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  return [`${h % 12 || 12}:${String(m).padStart(2, "0")}`, h < 12 ? "a. m." : "p. m."];
+}
+
+/* "7:00 - 9:00 p. m." o "10:00 a. m. - 1:00 p. m.", como se
+   escribía antes a mano */
+function formatearHorario(inicio, fin) {
+  const [ti, si] = partesHora(inicio);
+  if (!fin) return `${ti} ${si}`;
+  const [tf, sf] = partesHora(fin);
+  return si === sf ? `${ti} - ${tf} ${sf}` : `${ti} ${si} - ${tf} ${sf}`;
+}
+
+/* Cultos de una fecha ordenados por hora, cada uno con su programa
+   si el pastor ya lo cargó */
+function cultosDelDia(fecha) {
+  const iso = fechaISO(fecha);
+  const dia = fecha.getDay() || 7;
+
+  const fijos = CULTOS
+    .filter((c) => Number(c.dia) === dia)
+    .map((c) => ({
+      ...c,
+      fecha: iso,
+      extra: false,
+      programa: PROGRAMAS.find((p) => Number(p.culto_id) === Number(c.id) && p.fecha === iso)
+    }));
+
+  const extras = CULTOS_EXTRA
+    .filter((c) => c.fecha === iso)
+    .map((c) => ({
+      ...c,
+      extra: true,
+      programa: PROGRAMAS.find((p) => Number(p.culto_extra_id) === Number(c.id))
+    }));
+
+  return [...fijos, ...extras].sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
+}
+
+function enlacePrograma(culto) {
+  const consulta = culto.extra ? `extra=${culto.id}` : `culto=${culto.id}&fecha=${culto.fecha}`;
+  return `${RUTA}paginas/programa.html?${consulta}`;
+}
+
+/* --- Agenda ---------------------------------------------------
+   Los próximos siete días, empezando por hoy. Los cultos que ya
+   tienen programa llevan a la página de quiénes participan.
    -------------------------------------------------------------- */
 function pintarAgenda() {
   const cont = document.getElementById("agendaSemanal");
-  if (!cont || typeof AGENDA === "undefined") return;
+  if (!cont) return;
 
-  /* getDay() empieza en domingo; AGENDA empieza en lunes */
-  const hoy = (new Date().getDay() + 6) % 7;
+  const hoy = new Date();
 
-  cont.innerHTML = AGENDA.map((d, i) => {
+  cont.innerHTML = Array.from({ length: 7 }, (_, i) => {
+    const fecha = sumarDias(hoy, i);
+    const cultos = cultosDelDia(fecha);
+
     const clases = [
       "agenda__dia",
-      d.eventos.length ? "" : "agenda__dia--libre",
-      i === hoy ? "agenda__dia--hoy" : ""
+      cultos.length ? "" : "agenda__dia--libre",
+      i === 0 ? "agenda__dia--hoy" : ""
     ].filter(Boolean).join(" ");
 
-    const eventos = d.eventos.length
-      ? d.eventos.map(e => `
-          <li>
-            <span class="agenda__hora">${e.hora}</span>
-            <span class="agenda__evento">${e.nombre}</span>
-          </li>
-        `).join("")
+    const eventos = cultos.length
+      ? cultos.map((c) => {
+          const detalle = `
+            <span class="agenda__hora">${formatearHorario(c.hora_inicio, c.hora_fin)}</span>
+            <span class="agenda__evento">${escapar(c.nombre)}</span>
+            ${c.extra ? `<span class="agenda__marca">Especial</span>` : ""}
+            ${c.programa ? `<span class="agenda__programa">Ver programa</span>` : ""}
+          `;
+          return c.programa
+            ? `<li><a class="agenda__enlace" href="${enlacePrograma(c)}">${detalle}</a></li>`
+            : `<li>${detalle}</li>`;
+        }).join("")
       : `<li class="agenda__sin">Sin actividades</li>`;
 
     return `
       <article class="${clases}">
-        <h3 class="agenda__nombre">${d.dia}</h3>
+        <h3 class="agenda__nombre">${DIAS[fecha.getDay()]} <span class="agenda__fecha">${fecha.getDate()}</span></h3>
         <ul>${eventos}</ul>
       </article>
     `;
@@ -372,26 +440,213 @@ function pintarAgenda() {
 }
 
 /* --- Próximo culto --------------------------------------------
-   Recorre la semana desde hoy y muestra la primera actividad que
-   encuentra en la barra de contacto del inicio.
+   El primero, desde ahora, que todavía no terminó. Sin hora de fin
+   se da por terminado a las dos horas de empezar.
    -------------------------------------------------------------- */
 function proximoCulto() {
   const destino = document.getElementById("proximoCulto");
-  if (!destino || typeof AGENDA === "undefined") return;
+  if (!destino) return;
 
-  const hoy = (new Date().getDay() + 6) % 7;
+  const ahora = new Date();
+  const minutos = ahora.getHours() * 60 + ahora.getMinutes();
 
-  for (let i = 0; i < AGENDA.length; i++) {
-    const dia = AGENDA[(hoy + i) % AGENDA.length];
-    if (!dia.eventos.length) continue;
+  for (let i = 0; i < 14; i++) {
+    const fecha = sumarDias(ahora, i);
+    const culto = cultosDelDia(fecha).find((c) =>
+      i > 0 || (c.hora_fin ? aMinutos(c.hora_fin) : aMinutos(c.hora_inicio) + 120) > minutos
+    );
+    if (!culto) continue;
 
-    const cuando = i === 0 ? "Hoy" : dia.dia;
-    destino.textContent = `${cuando} · ${dia.eventos[0].hora}`;
+    const cuando = i === 0 ? "Hoy" : i === 1 ? "Mañana" : DIAS[fecha.getDay()];
+    destino.textContent = `${cuando} · ${formatearHorario(culto.hora_inicio, culto.hora_fin)}`;
 
     const detalle = destino.nextElementSibling;
-    if (detalle) detalle.textContent = dia.eventos[0].nombre;
+    if (detalle) detalle.textContent = culto.nombre;
     return;
   }
+}
+
+/* --- Programa de un culto -------------------------------------
+   paginas/programa.html?culto=2&fecha=2026-09-19   culto fijo
+   paginas/programa.html?extra=5                     culto extra
+   -------------------------------------------------------------- */
+const ROLES_PROGRAMA = [
+  { rol: "presentador", titulo: "Presentador" },
+  { rol: "participacion", titulo: "Participaciones", numerada: true },
+  { rol: "predicacion", titulo: "Predicación" },
+  { rol: "alabanza", titulo: "Alabanza" }
+];
+
+function buscarCultoDePagina() {
+  const params = new URLSearchParams(location.search);
+
+  if (params.has("extra")) {
+    const extra = CULTOS_EXTRA.find((c) => String(c.id) === params.get("extra"));
+    return extra && cultosDelDia(new Date(`${extra.fecha}T00:00:00`))
+      .find((c) => c.extra && c.id === extra.id);
+  }
+
+  const fecha = params.get("fecha") || "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return undefined;
+  return cultosDelDia(new Date(`${fecha}T00:00:00`))
+    .find((c) => !c.extra && String(c.id) === params.get("culto"));
+}
+
+function iniciales(nombre) {
+  return nombre.trim().split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase();
+}
+
+const PRESENTACIONES = { musica: "Música", lectura: "Lectura", testimonio: "Testimonio" };
+
+/* Sin foto, o si no carga, quedan las iniciales del fondo. Debajo del
+   nombre va lo que el participante eligió presentar, si ya lo dijo. */
+function personaPrograma(p) {
+  const foto = p.foto
+    ? `<img src="${escapar(rutaImagen(p.foto))}" alt="" loading="lazy" onerror="this.remove()">`
+    : "";
+  const presentacion = PRESENTACIONES[p.presentacion]
+    ? [PRESENTACIONES[p.presentacion], p.detalle].filter(Boolean).join(" · ")
+    : "";
+  return `
+    <li class="programa__persona">
+      <span class="programa__avatar" data-iniciales="${escapar(iniciales(p.nombre))}">${foto}</span>
+      <span class="programa__texto">
+        <span class="programa__nombre">
+          ${escapar(p.nombre)}
+          ${p.representante_id ? "" : `<span class="programa__visita">Visita</span>`}
+        </span>
+        ${presentacion ? `<span class="programa__detalle">${escapar(presentacion)}</span>` : ""}
+      </span>
+    </li>
+  `;
+}
+
+function pintarPrograma() {
+  const cont = document.getElementById("programaCulto");
+  if (!cont) return;
+
+  const culto = buscarCultoDePagina();
+  if (!culto) {
+    cont.innerHTML = `
+      <p class="vacio">
+        No encontramos este culto: puede que ya haya pasado.
+        Revisa los próximos en la agenda.
+      </p>
+    `;
+    return;
+  }
+
+  const dia = new Date(`${culto.fecha}T00:00:00`).toLocaleDateString("es-ES", {
+    weekday: "long", day: "numeric", month: "long"
+  });
+  const cuando = [
+    dia.charAt(0).toUpperCase() + dia.slice(1),
+    formatearHorario(culto.hora_inicio, culto.hora_fin),
+    culto.lugar
+  ].filter(Boolean).join(" · ");
+
+  document.title = `MMM Utah | ${culto.nombre}`;
+  const titulo = document.getElementById("programaTitulo");
+  const subtitulo = document.getElementById("programaCuando");
+  if (titulo) titulo.textContent = culto.nombre;
+  if (subtitulo) subtitulo.textContent = cuando;
+
+  const participantes = culto.programa ? culto.programa.participantes : [];
+  if (!participantes.length) {
+    cont.innerHTML = `
+      <p class="vacio">
+        Todavía no se publicó el programa de este culto. Vuelve a
+        mirar más cerca de la fecha.
+      </p>
+    `;
+    return;
+  }
+
+  cont.innerHTML = ROLES_PROGRAMA.map(({ rol, titulo: nombreRol, numerada }) => {
+    const personas = participantes.filter((p) => p.rol === rol);
+    if (!personas.length) return "";
+
+    const lista = numerada ? "ol" : "ul";
+    return `
+      <section class="programa__bloque">
+        <h2 class="programa__rol">${nombreRol}</h2>
+        <${lista} class="programa__lista${numerada ? " programa__lista--numerada" : ""}">
+          ${personas.map(personaPrograma).join("")}
+        </${lista}>
+      </section>
+    `;
+  }).join("");
+}
+
+/* --- Actividades ----------------------------------------------
+   Las próximas, en la página Actividades. Cada tipo nombra el lugar
+   a su manera; platillo y país solo los usan las ventas de comida.
+   -------------------------------------------------------------- */
+const TIPOS_ACTIVIDAD = {
+  comida: { nombre: "Venta de comida", lugar: "Lugar" },
+  paseo: { nombre: "Paseo", lugar: "Destino" },
+  hospital: { nombre: "Visita a hospitales", lugar: "Hospital" },
+  evangelismo: { nombre: "Evangelismo", lugar: "Punto de encuentro" },
+  otra: { nombre: "Actividad", lugar: "Lugar" }
+};
+
+function pintarActividades() {
+  const cont = document.getElementById("proximasActividades");
+  if (!cont) return;
+
+  /* La API ya manda solo las próximas; se filtra igual por si la
+     página se abre días después o se usa la copia datos.json */
+  const hoy = fechaISO(new Date());
+  const lista = ACTIVIDADES
+    .filter((a) => a.fecha >= hoy)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora_inicio || "").localeCompare(b.hora_inicio || ""));
+
+  if (!lista.length) {
+    cont.innerHTML = `
+      <p class="vacio">
+        Pronto anunciaremos las próximas actividades. Escríbenos y te
+        avisamos en cuanto haya novedades.
+      </p>
+    `;
+    return;
+  }
+
+  cont.innerHTML = lista.map((a) => {
+    const tipo = TIPOS_ACTIVIDAD[a.tipo] || TIPOS_ACTIVIDAD.otra;
+    const dia = new Date(`${a.fecha}T00:00:00`).toLocaleDateString("es-ES", {
+      weekday: "long", day: "numeric", month: "long"
+    });
+    const cuando = [
+      dia.charAt(0).toUpperCase() + dia.slice(1),
+      a.hora_inicio ? formatearHorario(a.hora_inicio, a.hora_fin) : ""
+    ].filter(Boolean).join(" · ");
+
+    const datos = [
+      ["Cuándo", cuando],
+      [tipo.lugar, a.lugar],
+      ["Platillo", a.platillo],
+      ["País", a.pais]
+    ].filter(([, valor]) => valor);
+
+    const imagen = a.imagen
+      ? `<img src="${escapar(rutaImagen(a.imagen))}" alt="" loading="lazy"
+             onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">`
+      : "";
+
+    return `
+      <article class="tarjeta${a.imagen ? "" : " tarjeta--sin-foto"}">
+        ${imagen}
+        <p class="tarjeta__cargo">${tipo.nombre}</p>
+        <h3>${escapar(a.titulo)}</h3>
+        <dl class="tarjeta__datos">
+          ${datos.map(([rotulo, valor]) => `
+            <div><dt>${rotulo}</dt><dd>${escapar(valor)}</dd></div>
+          `).join("")}
+        </dl>
+        ${a.descripcion ? `<p>${escapar(a.descripcion)}</p>` : ""}
+      </article>
+    `;
+  }).join("");
 }
 
 /* --- Noticias -------------------------------------------------

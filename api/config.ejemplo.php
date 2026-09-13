@@ -22,4 +22,8 @@ return [
 
     /* Tamaño máximo por imagen, en megas */
     'imagen_max_mb' => 5,
+
+    /* Zona horaria de la iglesia: define qué es "hoy" para mostrar
+       solo los cultos y programas que todavía no pasaron */
+    'zona_horaria' => 'America/Denver',
 ];

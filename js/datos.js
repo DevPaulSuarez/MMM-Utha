@@ -23,8 +23,10 @@ let UBICACION = { direccion: "", coordenadas: "" };
 let BANNERS = [];
 let LEMAS = [];
 let REPRESENTANTES = [];
-let HORARIOS = [];
-let AGENDA = [];
+let CULTOS = [];        /* se repiten cada semana */
+let CULTOS_EXTRA = [];  /* en una fecha puntual, de hoy en adelante */
+let PROGRAMAS = [];     /* quiénes participan en cada culto */
+let ACTIVIDADES = [];   /* ventas, paseos, visitas… de hoy en adelante */
 let NOTICIAS = [];
 
 /* Rutas de imagen. Las del proyecto y las que sube la aplicación
@@ -65,8 +67,10 @@ const DATOS_LISTOS = cargarDatos()
     BANNERS = datos.banners || [];
     LEMAS = datos.lemas || [];
     REPRESENTANTES = datos.representantes || [];
-    HORARIOS = datos.horarios || [];
-    AGENDA = datos.agenda || [];
+    CULTOS = datos.cultos || [];
+    CULTOS_EXTRA = datos.cultos_extra || [];
+    PROGRAMAS = datos.programas || [];
+    ACTIVIDADES = datos.actividades || [];
     NOTICIAS = datos.noticias || [];
     return datos;
   })

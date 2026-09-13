@@ -13,9 +13,12 @@ CREATE TABLE usuarios (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   usuario    VARCHAR(50)  NOT NULL UNIQUE,
   clave_hash VARCHAR(255) NOT NULL,
-  nombre     VARCHAR(100) NOT NULL DEFAULT '',
-  activo     TINYINT(1)   NOT NULL DEFAULT 1,
-  creado     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+  nombre      VARCHAR(100) NOT NULL DEFAULT '',
+  -- admin: el pastor (crear-usuario.php); miembro: se registra en la app
+  rol         VARCHAR(20)  NOT NULL DEFAULT 'miembro',
+  activo      TINYINT(1)   NOT NULL DEFAULT 1,
+  ip_registro VARCHAR(45)  NOT NULL DEFAULT '',
+  creado      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Solo se guarda el hash sha256 del token, nunca el token
@@ -34,6 +37,21 @@ CREATE TABLE intentos_login (
   ip    VARCHAR(45) NOT NULL,
   fecha DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX (ip, fecha)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Avisos dentro de la app. tipo: programa, actividad, perfil, miembro, respuesta
+CREATE TABLE avisos (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id   INT UNSIGNED NOT NULL,
+  tipo         VARCHAR(20)  NOT NULL,
+  titulo       VARCHAR(200) NOT NULL,
+  mensaje      VARCHAR(500) NOT NULL DEFAULT '',
+  programa_id  INT UNSIGNED NULL,
+  actividad_id INT UNSIGNED NULL,
+  leido        TINYINT(1)   NOT NULL DEFAULT 0,
+  creado       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (usuario_id, leido),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --- Contenido del sitio ------------------------------------
@@ -67,27 +85,90 @@ CREATE TABLE representantes (
   cargo       VARCHAR(150) NOT NULL DEFAULT '',
   descripcion TEXT         NOT NULL,
   foto        VARCHAR(500) NOT NULL DEFAULT '',
-  orden       INT          NOT NULL DEFAULT 0
+  orden       INT          NOT NULL DEFAULT 0,
+  -- 1 = aparece en la web; los perfiles de miembros esperan al pastor
+  visible     TINYINT(1)   NOT NULL DEFAULT 1,
+  -- Cuenta de la app dueña de este perfil, si la tiene
+  usuario_id  INT UNSIGNED NULL UNIQUE,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE horarios (
-  id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  dia       VARCHAR(30)  NOT NULL,
-  hora      VARCHAR(50)  NOT NULL,
-  actividad VARCHAR(150) NOT NULL,
-  lugar     VARCHAR(150) NOT NULL DEFAULT '',
-  orden     INT          NOT NULL DEFAULT 0
+-- --- Cultos -------------------------------------------------
+
+-- Cultos que se repiten cada semana. dia: 1 = lunes … 7 = domingo
+CREATE TABLE cultos (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  dia         TINYINT UNSIGNED NOT NULL,
+  nombre      VARCHAR(150)     NOT NULL,
+  hora_inicio TIME             NOT NULL,
+  hora_fin    TIME             NULL,
+  lugar       VARCHAR(150)     NOT NULL DEFAULT '',
+  INDEX (dia, hora_inicio)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- dia: 1 = lunes … 7 = domingo
-CREATE TABLE agenda_eventos (
-  id     INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  dia    TINYINT UNSIGNED NOT NULL,
-  nombre VARCHAR(150)     NOT NULL,
-  hora   VARCHAR(50)      NOT NULL,
-  orden  INT              NOT NULL DEFAULT 0,
-  INDEX (dia)
+-- Cultos que se agregan en una fecha puntual (un culto de jóvenes, etc.)
+CREATE TABLE cultos_extra (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  fecha       DATE         NOT NULL,
+  nombre      VARCHAR(150) NOT NULL,
+  hora_inicio TIME         NOT NULL,
+  hora_fin    TIME         NULL,
+  lugar       VARCHAR(150) NOT NULL DEFAULT '',
+  INDEX (fecha)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Programa de un culto en una fecha: de un culto fijo (culto_id + fecha)
+-- o de un culto extra (culto_extra_id). Borrar el culto borra su programa.
+CREATE TABLE programas (
+  id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  culto_id       INT UNSIGNED NULL,
+  culto_extra_id INT UNSIGNED NULL,
+  fecha          DATE         NOT NULL,
+  UNIQUE (culto_id, fecha),
+  UNIQUE (culto_extra_id),
+  INDEX (fecha),
+  FOREIGN KEY (culto_id)       REFERENCES cultos(id)       ON DELETE CASCADE,
+  FOREIGN KEY (culto_extra_id) REFERENCES cultos_extra(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Quién participa. rol: presentador, participacion, predicacion, alabanza.
+-- Es un representante (representante_id) o una visita (nombre de a
+-- quién representa, p. ej. "Iglesia de Ogden").
+CREATE TABLE participaciones (
+  id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  programa_id      INT UNSIGNED NOT NULL,
+  rol              VARCHAR(20)  NOT NULL,
+  representante_id INT UNSIGNED NULL,
+  nombre           VARCHAR(150) NOT NULL DEFAULT '',
+  -- Lo que el participante eligió: musica, lectura o testimonio
+  presentacion     VARCHAR(20)  NOT NULL DEFAULT '',
+  detalle          VARCHAR(200) NOT NULL DEFAULT '',
+  orden            INT          NOT NULL DEFAULT 0,
+  INDEX (programa_id, orden),
+  FOREIGN KEY (programa_id)      REFERENCES programas(id)      ON DELETE CASCADE,
+  FOREIGN KEY (representante_id) REFERENCES representantes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --- Actividades --------------------------------------------
+
+-- Eventos con fecha. tipo: comida, paseo, hospital, evangelismo, otra.
+-- platillo y pais se usan en las ventas de comida.
+CREATE TABLE actividades (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  tipo        VARCHAR(20)  NOT NULL,
+  titulo      VARCHAR(150) NOT NULL,
+  fecha       DATE         NOT NULL,
+  hora_inicio TIME         NULL,
+  hora_fin    TIME         NULL,
+  lugar       VARCHAR(200) NOT NULL DEFAULT '',
+  descripcion TEXT         NOT NULL,
+  platillo    VARCHAR(150) NOT NULL DEFAULT '',
+  pais        VARCHAR(100) NOT NULL DEFAULT '',
+  imagen      VARCHAR(500) NOT NULL DEFAULT '',
+  INDEX (fecha)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --- Noticias -----------------------------------------------
 
 CREATE TABLE noticias (
   id      INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -147,17 +228,11 @@ INSERT INTO representantes (nombre, cargo, descripcion, foto, orden) VALUES
   ('Nombre Apellido', 'Secretario/a', 'Breve reseña del representante.', 'img/representantes/representante-02.jpg', 2),
   ('Nombre Apellido', 'Tesorero/a', 'Breve reseña del representante.', 'img/representantes/representante-03.jpg', 3);
 
-INSERT INTO horarios (dia, hora, actividad, lugar, orden) VALUES
-  ('Miércoles', '7:00 - 8:00 p. m.', 'Culto de oración', 'Templo', 1),
-  ('Viernes', '7:00 - 9:00 p. m.', 'Culto general', 'Templo', 2),
-  ('Domingo', '10:00 a. m. - 1:00 p. m.', 'Escuela dominical', 'Templo', 3),
-  ('Domingo', '3:00 - 6:00 p. m.', 'Culto de la tarde', 'Templo', 4);
-
-INSERT INTO agenda_eventos (dia, nombre, hora, orden) VALUES
-  (3, 'Culto de oración', '7:00 - 8:00 p. m.', 1),
-  (5, 'Culto general', '7:00 - 9:00 p. m.', 1),
-  (7, 'Escuela dominical', '10:00 a. m. - 1:00 p. m.', 1),
-  (7, 'Culto de la tarde', '3:00 - 6:00 p. m.', 2);
+INSERT INTO cultos (dia, nombre, hora_inicio, hora_fin, lugar) VALUES
+  (3, 'Culto de oración', '19:00', '20:00', 'Templo'),
+  (5, 'Culto general', '19:00', '21:00', 'Templo'),
+  (7, 'Escuela dominical', '10:00', '13:00', 'Templo'),
+  (7, 'Culto de la tarde', '15:00', '18:00', 'Templo');
 
 INSERT INTO noticias (titulo, fecha, resumen, imagen) VALUES
   ('Título de la noticia 1', '2026-02-15', 'Resumen breve de la noticia para mostrar en la tarjeta.', 'img/noticias/noticia-01.jpg'),

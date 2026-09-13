@@ -1,6 +1,8 @@
 <?php
 /* ============================================================
-   MMM · Crear un usuario de la aplicación
+   MMM · Crear un administrador de la aplicación (el pastor)
+   Los miembros se registran solos desde la app; este script es
+   para las cuentas que pueden cambiar el contenido del sitio.
    Se usa desde la terminal, nunca por web:
 
      php api/crear-usuario.php <usuario> "<Nombre visible>"
@@ -47,7 +49,7 @@ if (pedirClave('Repetir contraseña: ') !== $clave) {
 $sql = fn(string $texto) => "'" . str_replace(["\\", "'"], ["\\\\", "''"], $texto) . "'";
 
 echo "\nPegar esto en phpMyAdmin > SQL:\n\n";
-echo 'INSERT INTO usuarios (usuario, clave_hash, nombre) VALUES ('
+echo 'INSERT INTO usuarios (usuario, clave_hash, nombre, rol) VALUES ('
     . $sql($usuario) . ', '
     . $sql(password_hash($clave, PASSWORD_DEFAULT)) . ', '
-    . $sql($nombre) . ");\n\n";
+    . $sql($nombre) . ", 'admin');\n\n";

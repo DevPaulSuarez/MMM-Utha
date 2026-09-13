@@ -15,7 +15,7 @@
 require __DIR__ . '/conexion.php';
 
 exigirMetodo('POST');
-exigirToken($db);
+$autor = exigirAdmin($db);
 
 $SECCIONES = require __DIR__ . '/secciones.php';
 $pedido    = leerJson();
@@ -41,7 +41,8 @@ if (!empty($seccion['unica'])) {
     if ($id === false) {
         responder(['error' => 'Falta un "id" válido'], 400);
     }
-    if (!leerRegistro($db, $tabla, $id)) {
+    $anterior = leerRegistro($db, $tabla, $id);
+    if (!$anterior) {
         responder(['error' => 'No existe el registro'], 404);
     }
 } elseif ($accion !== 'crear') {
@@ -58,7 +59,11 @@ switch ($accion) {
         $db->prepare("INSERT INTO `$tabla` ($columnas) VALUES ($marcas)")
            ->execute(array_values($campos));
 
-        responder(['ok' => true, 'registro' => leerRegistro($db, $tabla, (int) $db->lastInsertId())], 201);
+        $registro = leerRegistro($db, $tabla, (int) $db->lastInsertId());
+        if ($nombreSeccion === 'actividades') {
+            avisarActividad($db, $registro, (int) $autor['id']);
+        }
+        responder(['ok' => true, 'registro' => $registro], 201);
 
     case 'editar':
         $campos = validarCampos($seccion['campos'], $pedido['datos'] ?? null, false);
@@ -70,7 +75,15 @@ switch ($accion) {
         $db->prepare("UPDATE `$tabla` SET $asignaciones WHERE id = ?")
            ->execute([...array_values($campos), $id]);
 
-        responder(['ok' => true, 'registro' => leerRegistro($db, $tabla, $id)]);
+        $registro = leerRegistro($db, $tabla, $id);
+
+        /* El pastor aprobó el perfil de un miembro: se le avisa */
+        if ($nombreSeccion === 'representantes' && $registro['usuario_id']
+            && !$anterior['visible'] && $registro['visible']) {
+            crearAviso($db, [(int) $registro['usuario_id']], 'perfil',
+                'Tu perfil ya aparece en la web', 'El pastor aprobó tu perfil de representante.');
+        }
+        responder(['ok' => true, 'registro' => $registro]);
 
     case 'borrar':
         $db->prepare("DELETE FROM `$tabla` WHERE id = ?")->execute([$id]);
@@ -78,11 +91,40 @@ switch ($accion) {
 }
 
 /* --- Utilidades ------------------------------------------------ */
+
+/* Actividad nueva de hoy en adelante: aviso a todas las cuentas
+   activas, menos a quien la creó */
+function avisarActividad(PDO $db, array $actividad, int $autorId): void
+{
+    if ($actividad['fecha'] < date('Y-m-d')) {
+        return;
+    }
+
+    $tipos = ['comida' => 'Venta de comida', 'paseo' => 'Paseo', 'hospital' => 'Visita a hospitales',
+              'evangelismo' => 'Evangelismo', 'otra' => 'Actividad'];
+
+    $consulta = $db->prepare('SELECT id FROM usuarios WHERE activo = 1 AND id <> ?');
+    $consulta->execute([$autorId]);
+
+    $cuando = ucfirst(fechaLegible($actividad['fecha']))
+        . ($actividad['hora_inicio'] ? ' · ' . horaLegible($actividad['hora_inicio']) : '');
+
+    crearAviso(
+        $db,
+        array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN)),
+        'actividad',
+        'Nueva actividad: ' . $actividad['titulo'],
+        ($tipos[$actividad['tipo']] ?? 'Actividad') . ' · ' . $cuando,
+        null,
+        (int) $actividad['id']
+    );
+}
 function leerRegistro(PDO $db, string $tabla, int $id): ?array
 {
     $consulta = $db->prepare("SELECT * FROM `$tabla` WHERE id = ?");
     $consulta->execute([$id]);
-    return $consulta->fetch() ?: null;
+    $fila = $consulta->fetch();
+    return $fila ? acortarHoras($fila) : null;
 }
 
 /* Deja solo los campos permitidos, ya limpios. Al crear, los
@@ -107,7 +149,11 @@ function validarCampos(array $definicion, mixed $datos, bool $esNuevo): array
             if ($esNuevo && !empty($regla['requerido'])) {
                 $errores[$campo] = 'Es obligatorio';
             } elseif ($esNuevo) {
-                $limpios[$campo] = $regla['tipo'] === 'entero' ? 0 : '';
+                $limpios[$campo] = $regla['defecto'] ?? match ($regla['tipo']) {
+                    'entero' => 0,
+                    'hora'   => null,
+                    default  => '',
+                };
             }
             continue;
         }
@@ -147,10 +193,17 @@ function validarValor(mixed $valor, array $regla): array
 
     $texto = trim((string) $valor);
     if ($texto === '') {
-        return empty($regla['requerido']) ? ['', null] : [null, 'Es obligatorio'];
+        /* Una hora opcional vacía se guarda como NULL, no como texto */
+        $vacio = $regla['tipo'] === 'hora' ? null : '';
+        return empty($regla['requerido']) ? [$vacio, null] : [null, 'Es obligatorio'];
     }
 
     switch ($regla['tipo']) {
+        case 'hora':
+            if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $texto)) {
+                return [null, 'Debe tener formato HH:MM (24 horas)'];
+            }
+            break;
         case 'fecha':
             $fecha = DateTime::createFromFormat('!Y-m-d', $texto);
             if (!$fecha || $fecha->format('Y-m-d') !== $texto) {
@@ -160,6 +213,11 @@ function validarValor(mixed $valor, array $regla): array
         case 'anio':
             if (!preg_match('/^\d{4}$/', $texto)) {
                 return [null, 'Debe ser un año de 4 cifras'];
+            }
+            break;
+        case 'opcion':
+            if (!in_array($texto, $regla['opciones'], true)) {
+                return [null, 'Debe ser una de: ' . implode(', ', $regla['opciones'])];
             }
             break;
         default:

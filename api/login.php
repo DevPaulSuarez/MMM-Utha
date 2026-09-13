@@ -35,7 +35,7 @@ if ($usuario === '' || $clave === '') {
     responder(['error' => 'Usuario y contraseña son obligatorios'], 400);
 }
 
-$consulta = $db->prepare('SELECT id, usuario, nombre, clave_hash FROM usuarios WHERE usuario = ? AND activo = 1');
+$consulta = $db->prepare('SELECT id, usuario, nombre, rol, clave_hash FROM usuarios WHERE usuario = ? AND activo = 1');
 $consulta->execute([$usuario]);
 $fila = $consulta->fetch();
 
@@ -59,20 +59,14 @@ $db->prepare('DELETE FROM intentos_login WHERE ip = ?')->execute([$ip]);
 $db->exec('DELETE FROM tokens WHERE vence <= NOW()');
 $db->exec('DELETE FROM intentos_login WHERE fecha <= NOW() - INTERVAL 1 DAY');
 
-$token = bin2hex(random_bytes(32));
-
-$db->prepare('INSERT INTO tokens (usuario_id, token_hash, vence) VALUES (?, ?, NOW() + INTERVAL ? DAY)')
-   ->execute([$fila['id'], hashToken($token), (int) $CONFIG['token_dias']]);
-
-$consulta = $db->prepare('SELECT vence FROM tokens WHERE token_hash = ?');
-$consulta->execute([hashToken($token)]);
+$sesion = crearToken($db, (int) $fila['id'], (int) $CONFIG['token_dias']);
 
 responder([
-    'token'   => $token,
-    'vence'   => $consulta->fetchColumn(),
+    ...$sesion,
     'usuario' => [
         'id'      => (int) $fila['id'],
         'usuario' => $fila['usuario'],
         'nombre'  => $fila['nombre'],
+        'rol'     => $fila['rol'],
     ],
 ]);
