@@ -2,11 +2,10 @@
    MMM · Lemas por año
    Adaptación del bloque del sitio internacional. Alli el cambio
    de año se hacia por AJAX contra WordPress (?anio=XXXX); aqui
-   los datos estan en LEMAS (js/datos.js) y el cambio es local.
+   los datos estan en LEMAS (api/datos.php) y el cambio es local.
    ============================================================ */
 
-document.addEventListener("DOMContentLoaded", iniciarLemas);
-
+/* Lo llama main.js cuando termina de llegar el contenido */
 function iniciarLemas() {
   const vista = document.getElementById("gl-main");
   if (!vista || typeof LEMAS === "undefined" || !LEMAS.length) return;
@@ -45,7 +44,7 @@ function iniciarLemas() {
 
     vista.classList.add("gl-loading");
 
-    fondo.style.backgroundImage = `url("${lema.imagen}")`;
+    fondo.style.backgroundImage = `url("${rutaImagen(lema.imagen)}")`;
     ficha.innerHTML = `
       <div class="gl-header-tag">
         <img src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"

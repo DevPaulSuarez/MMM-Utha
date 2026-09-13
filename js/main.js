@@ -1,13 +1,22 @@
 /* ============================================================
    MMM · Lógica del sitio
-   Depende de js/datos.js (debe cargarse antes que este archivo).
+   Depende de js/datos.js (debe cargarse antes que este archivo):
+   de allí salen RUTA, rutaImagen() y el contenido del JSON.
    ============================================================ */
 
+/* Lo que no depende del contenido se arma apenas está la página */
 document.addEventListener("DOMContentLoaded", () => {
   menuResponsive();
   anioActual();
   ajustarHeader();
   encogerPortada();
+  volverArriba();
+});
+
+/* Lo que se pinta desde el contenido espera a que termine de
+   llegar. DATOS_LISTOS lo define js/datos.js y siempre
+   se resuelve, aunque la carga falle. */
+DATOS_LISTOS.then(() => {
   iniciarSlider();
   pintarRepresentantes();
   pintarHorarios();
@@ -15,12 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
   pintarNoticias();
   proximoCulto();
   enlazarMapa();
-  volverArriba();
+
+  /* lemas.js se carga después que este archivo, pero para cuando
+     llegan los datos ya está disponible */
+  if (typeof iniciarLemas === "function") iniciarLemas();
+
+  /* Al final, con el contenido ya en su lugar: así los bloques se
+     miden con su alto real y la aparición se ve como corresponde */
   animarAlDesplazar();
 });
-
-/* Prefijo de rutas: las páginas dentro de /paginas necesitan "../" */
-const RUTA = location.pathname.includes("/paginas/") ? "../" : "";
 
 /* --- Menú hamburguesa ---------------------------------------- */
 function menuResponsive() {
@@ -159,7 +171,7 @@ function iniciarSlider() {
   pista.innerHTML = BANNERS.map((b, i) => `
     <div class="slider__slide" role="group" aria-roledescription="diapositiva"
          aria-label="${i + 1} de ${BANNERS.length}">
-      <img class="slider__imagen" src="${RUTA}${b.imagen}" alt="${b.alt || ""}"
+      <img class="slider__imagen" src="${rutaImagen(b.imagen)}" alt="${b.alt || ""}"
            ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>
     </div>
   `).join("");
@@ -297,7 +309,7 @@ function pintarRepresentantes() {
 
   cont.innerHTML = REPRESENTANTES.map(r => `
     <article class="tarjeta">
-      <img src="${RUTA}${r.foto}" alt="${r.nombre}" loading="lazy"
+      <img src="${rutaImagen(r.foto)}" alt="${r.nombre}" loading="lazy"
            onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
       <p class="tarjeta__cargo">${r.cargo}</p>
       <h3>${r.nombre}</h3>
@@ -407,7 +419,7 @@ function pintarNoticias() {
 
   cont.innerHTML = lista.map(n => `
     <article class="tarjeta">
-      <img src="${RUTA}${n.imagen}" alt="${n.titulo}" loading="lazy"
+      <img src="${rutaImagen(n.imagen)}" alt="${n.titulo}" loading="lazy"
            onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
       <p class="tarjeta__fecha">${formatearFecha(n.fecha)}</p>
       <h3>${n.titulo}</h3>
