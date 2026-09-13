@@ -1,0 +1,12 @@
+# Aplicación Flutter: repositorio aparte, clonado aquí
+app/
+
+# Contraseñas del backend
+api/config.php
+
+# Imágenes que sube la aplicación (viven en el hosting)
+subidas/*
+!subidas/.htaccess
+
+# Archivos de macOS
+.DS_Store

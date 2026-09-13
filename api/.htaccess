@@ -1,0 +1,16 @@
+# MMM · Reglas de la carpeta api (Apache)
+
+Options -Indexes
+
+# En hostings con PHP como CGI/FastCGI el encabezado Authorization
+# no llega a PHP si no se pasa a mano: sin esto el token no se ve
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+# Archivos internos: se incluyen desde PHP pero no se sirven por web
+<FilesMatch "^(config|config\.ejemplo|conexion|secciones|crear-usuario)\.php$|\.(sql|md)$">
+  Require all denied
+</FilesMatch>
