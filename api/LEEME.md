@@ -24,6 +24,21 @@ Requiere PHP 8.1 o superior con `pdo_mysql`, `mbstring` y `fileinfo`. Funciona c
 6. Probar: abrir `https://tudominio.org/api/datos.php` tiene que mostrar el JSON.
 7. La web ya pide el contenido a `api/datos.php` (ver `js/datos.js`). Si la API no responde, usa la copia `js/datos.json`, que no se actualiza sola.
 
+### Web y API en servidores distintos
+
+La web puede ir en un hosting gratuito (solo archivos estáticos) y el backend en un VPS:
+
+| Servidor | Qué lleva |
+|---|---|
+| VPS (PHP + MySQL) | `api/`, `subidas/` e `img/` |
+| Hosting de la web | `index.html`, `paginas/`, `css/`, `js/` e `img/` |
+
+1. En `js/datos.js`, poner la dirección del VPS en `SERVIDOR` (`"https://api.tudominio.org"`). La web pide ahí `api/datos.php` y las fotos `subidas/…`; las de `img/` las sigue sirviendo su propio hosting.
+2. Compilar la app con `--dart-define=SITIO_URL=https://api.tudominio.org`. La app resuelve contra el VPS también las fotos de `img/`, por eso esa carpeta va en los dos.
+3. El VPS tiene que tener **https**: una web con https no puede pedir datos a una dirección http.
+4. `datos.php` ya permite que lo lea cualquier dominio. El resto de la API no lo usa la web, solo la app, que no pasa por esa restricción del navegador.
+5. Los `.htaccess` son de Apache. Con Nginx hay que traducir sus reglas: bloquear `config.php`, `conexion.php`, `secciones.php`, `crear-usuario.php`, los `.sql` y `.md` de `api/`, y no ejecutar PHP dentro de `subidas/`.
+
 ## Respuestas
 
 Todas son JSON. Si algo sale mal llega un código HTTP de error y `{ "error": "mensaje" }`.

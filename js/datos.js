@@ -11,11 +11,18 @@
 /* Prefijo de rutas: las páginas dentro de /paginas necesitan "../" */
 const RUTA = location.pathname.includes("/paginas/") ? "../" : "";
 
+/* Servidor con la API y las fotos que sube la aplicación, sin barra
+   final. Vacío: el mismo sitio que sirve la web (en local, php -S).
+   Si la web está en un hosting y la API en otro (el VPS), va la
+   dirección de ese servidor, con https: "https://api.tudominio.org" */
+const SERVIDOR = "";
+const RUTA_SERVIDOR = SERVIDOR ? SERVIDOR.replace(/\/+$/, "") + "/" : RUTA;
+
 /* De dónde se pide el contenido, en orden. Primero la API; si no
    responde (el sitio servido sin PHP, la base caída), la copia
    estática js/datos.json, para que la página no quede vacía.
    Esa copia no se actualiza sola: puede estar atrasada. */
-const DATOS_URLS = [`${RUTA}api/datos.php`, `${RUTA}js/datos.json`];
+const DATOS_URLS = [`${RUTA_SERVIDOR}api/datos.php`, `${RUTA}js/datos.json`];
 
 /* Contenido del sitio. Empiezan vacíos y se llenan al terminar la
    carga; main.js pinta recién entonces. */
@@ -29,13 +36,15 @@ let PROGRAMAS = [];     /* quiénes participan en cada culto */
 let ACTIVIDADES = [];   /* ventas, paseos, visitas… de hoy en adelante */
 let NOTICIAS = [];
 
-/* Rutas de imagen. Las del proyecto y las que sube la aplicación
-   ("subidas/…") se escriben desde la raíz y necesitan el prefijo;
-   las que ya son direcciones completas se dejan tal cual. */
+/* Rutas de imagen. Las del proyecto ("img/…") y las que sube la
+   aplicación ("subidas/…") se escriben desde la raíz y necesitan
+   el prefijo; las subidas viven en el SERVIDOR de la API. Las que
+   ya son direcciones completas se dejan tal cual. */
 function rutaImagen(src) {
   if (!src) return "";
   const absoluta = /^(https?:)?\/\//i.test(src) || src.startsWith("/") || src.startsWith("data:");
-  return absoluta ? src : RUTA + src;
+  if (absoluta) return src;
+  return (src.startsWith("subidas/") ? RUTA_SERVIDOR : RUTA) + src;
 }
 
 /* cache: "no-cache" hace que el navegador revalide en cada visita:
