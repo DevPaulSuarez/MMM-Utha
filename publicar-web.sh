@@ -3,8 +3,9 @@
 # MMM · Subir la web (solo lo que ve el público) al hosting gratuito
 #   ./publicar-web.sh
 #
-# Sube index.html, paginas/, css/, js/ e img/ por FTP. Nunca sube
-# api/, subidas/ ni app/: el backend vive en el VPS.
+# Arma la web con preparar-web.sh y sube _publico/ por FTP: index.html,
+# paginas/, css/, js/, img/ y el .htaccess. Nunca api/, subidas/ ni
+# app/: el backend vive en el VPS.
 # Los datos de acceso están en .web.env (copiar web.ejemplo.env).
 # ============================================================
 set -euo pipefail
@@ -21,12 +22,11 @@ if [[ -n "$(git status --porcelain -- index.html paginas css js img)" ]]; then
   echo "Aviso: hay cambios sin commit. Se sube lo que está en la carpeta."
 fi
 
+./preparar-web.sh
+cd _publico
+
 ARCHIVOS=()
-while IFS= read -r archivo; do ARCHIVOS+=("$archivo"); done < <(
-  # originales/: las fuentes de las fotos de portada, la web usa los .webp
-  find index.html paginas css js img -path img/fondos/originales -prune -o \
-       -type f ! -name .DS_Store ! -name .gitkeep -print | sort
-)
+while IFS= read -r archivo; do ARCHIVOS+=("${archivo#./}"); done < <(find . -type f | sort)
 
 echo "Se suben ${#ARCHIVOS[@]} archivos a $FTP_HOST/$FTP_CARPETA"
 read -r -p "¿Seguir? [s/N] " respuesta

@@ -16,3 +16,7 @@ subidas/*
 
 # Datos de FTP para publicar-web.sh
 .web.env
+
+# Web armada por preparar-web.sh
+_publico/
+web-mmm.zip
