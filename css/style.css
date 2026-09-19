@@ -1638,17 +1638,16 @@ a.barra-info__item:hover { background: #16293c; }
 @media (max-width: 820px) {
   .nav__toggle { display: grid; }
 
-  /* El botón del mapa se queda, en redondo y solo con el pin: en el
-     menú ya no hay un enlace equivalente */
+  /* El botón del mapa se queda con su texto, más compacto: en el menú
+     no hay un enlace equivalente. Pin y texto centrados */
   .header__cta {
     order: 2;
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    border-radius: 50%;
+    justify-content: center;
+    gap: .4rem;
+    padding: .55rem .95rem;
+    font-size: .82rem;
   }
-  .header__cta svg { width: 18px; height: 18px; }
-  .header__cta-txt { display: none; }
+  .header__cta svg { width: 16px; height: 16px; }
 
   .nav__toggle { order: 3; }
 
@@ -1702,47 +1701,43 @@ a.barra-info__item:hover { background: #16293c; }
   .header .nav .nav__link::after { left: 1rem; transform: none; }
 
 
-  /* Portada: la imagen se ve entera (los banners traen su propio
-     arte y recortarlos les comía el título) y el mensaje va debajo,
-     sobre la banda oscura. Sigue metida bajo la barra para que el
-     menú conserve el fondo oscuro. */
+  /* Portada: igual que en pantalla grande, la foto a pantalla completa
+     y el mensaje encima. La foto es vertical, así que en el celular
+     entra casi entera: se ancla arriba para que el letrero se vea, y
+     el mensaje va abajo, sobre un velo que oscurece desde el pie.
+     El marco no se encoge (main.js no lo mueve en el celular) y la
+     portada crece si el texto no entra en pantallas bajas. */
   .portada {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     height: auto;
     min-height: 100svh;
-    margin-top: calc(-1 * var(--alto-header, 76px));
-    padding-top: var(--alto-header, 76px);
   }
 
-  /* Aquí el marco no se encoge: solo ordena imagen y mensaje */
   .portada__marco {
-    position: static;
+    position: relative;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     flex: 1 1 auto;
     transform: none;
     border-radius: 0;
   }
 
-  .portada__fondo {
-    position: static;
-    order: 1;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: contain;
-    transform: none;
-    animation: none;
+  .portada__fondo { object-position: center 18%; }
+
+  .portada__velo {
+    background: linear-gradient(to top,
+      rgba(8, 20, 32, .94) 0%,
+      rgba(8, 20, 32, .78) 38%,
+      rgba(8, 20, 32, .25) 68%,
+      rgba(8, 20, 32, .45) 100%);
   }
 
-  .portada__velo { display: none; }
-
+  /* Deja libre arriba al menos un tercio de pantalla para la foto */
   .portada__contenido {
-    position: static;
-    order: 2;
-    padding: 1.5rem 0 2.6rem;
+    position: relative;
+    inset: auto;
+    flex: 1 1 auto;
+    align-items: flex-end;
+    padding: calc(var(--alto-header, 76px) + 33svh) 0 2.4rem;
     opacity: 1;
   }
 
@@ -1872,7 +1867,19 @@ a.barra-info__item:hover { background: #16293c; }
   .agenda__dia { grid-template-columns: 1fr; }
   .agenda__nombre { align-self: start; }
   .hero__marca { font-size: .7rem; }
-  .logo img { height: 36px; }
+}
+
+/* ---- Celulares angostos: logo más chico para que entren el logo,
+   "Cómo llegar" y el menú en una sola fila ------------------------ */
+@media (max-width: 400px) {
+  .logo img { height: 34px; }
+  .header__cta { padding-inline: .8rem; }
+}
+
+/* Por debajo de 340px no entra el texto: queda solo el pin, en redondo */
+@media (max-width: 340px) {
+  .header__cta { width: 42px; height: 42px; padding: 0; border-radius: 50%; }
+  .header__cta-txt { display: none; }
 }
 
 /* En pantallas cortas y apaisadas el hero no se estira de más */

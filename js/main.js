@@ -127,8 +127,8 @@ function ajustarHeader() {
    La portada abre a pantalla completa; durante el primer tramo de
    desplazamiento se va reduciendo y redondeando. Aquí solo se
    calcula cuánto se ha bajado (0 a 1) y el CSS hace el resto.
-   En el celular no se aplica: allí la imagen se ve entera y el
-   mensaje va debajo.
+   En el celular no se aplica: allí la portada crece con el texto y
+   encogerla lo cortaría.
    -------------------------------------------------------------- */
 function encogerPortada() {
   const portada = document.querySelector(".portada");
