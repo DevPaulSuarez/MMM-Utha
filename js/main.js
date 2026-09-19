@@ -56,14 +56,22 @@ function menuResponsive() {
     if (e.target.closest(".nav__link")) alternar(false);
   });
 
-  /* Y también con Escape o al tocar fuera */
+  /* Y también con Escape o al tocar fuera. Al cerrar sin elegir nada
+     el foco vuelve al botón: si se queda dentro del panel oculto, con
+     teclado o lector de pantalla no se sabe dónde está. */
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && nav.classList.contains("nav--abierto")) alternar(false);
+    if (e.key === "Escape" && nav.classList.contains("nav--abierto")) {
+      alternar(false);
+      boton.focus();
+    }
   });
 
   document.addEventListener("click", (e) => {
     if (!nav.classList.contains("nav--abierto")) return;
-    if (!e.target.closest(".header__interior")) alternar(false);
+    if (!e.target.closest(".header__interior")) {
+      alternar(false);
+      if (nav.contains(document.activeElement)) boton.focus();
+    }
   });
 }
 
@@ -172,7 +180,7 @@ function iniciarSlider() {
   pista.innerHTML = BANNERS.map((b, i) => `
     <div class="slider__slide" role="group" aria-roledescription="diapositiva"
          aria-label="${i + 1} de ${BANNERS.length}">
-      <img class="slider__imagen" src="${rutaImagen(b.imagen)}" alt="${b.alt || ""}"
+      <img class="slider__imagen" src="${escapar(rutaImagen(b.imagen))}" alt="${escapar(b.alt || "")}"
            ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'}>
     </div>
   `).join("");
@@ -308,13 +316,18 @@ function pintarRepresentantes() {
   const cont = document.getElementById("listaRepresentantes");
   if (!cont || typeof REPRESENTANTES === "undefined") return;
 
+  if (!REPRESENTANTES.length) {
+    pintarVacio(cont, "Estamos actualizando esta sección. Vuelve en unos días.");
+    return;
+  }
+
   cont.innerHTML = REPRESENTANTES.map(r => `
     <article class="tarjeta">
-      <img src="${rutaImagen(r.foto)}" alt="${r.nombre}" loading="lazy"
+      <img src="${escapar(rutaImagen(r.foto))}" alt="${escapar(r.nombre)}" loading="lazy"
            onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
-      <p class="tarjeta__cargo">${r.cargo}</p>
-      <h3>${r.nombre}</h3>
-      <p>${r.descripcion}</p>
+      <p class="tarjeta__cargo">${escapar(r.cargo)}</p>
+      <h3>${escapar(r.nombre)}</h3>
+      <p>${escapar(r.descripcion)}</p>
     </article>
   `).join("");
 }
@@ -331,6 +344,27 @@ function escapar(texto) {
   return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   })[c]);
+}
+
+/* Rellena una sección que quedó sin nada que mostrar.
+   Un hueco vacío se lee como "no hay nada programado", que no es lo
+   mismo que "no se pudo cargar": si DATOS_OK es false lo dice y ofrece
+   reintentar, en vez de dar por buena una página sin contenido. */
+function pintarVacio(cont, texto) {
+  const fallo = typeof DATOS_OK !== "undefined" && !DATOS_OK;
+
+  if (!fallo) {
+    cont.innerHTML = `<p class="vacio">${texto}</p>`;
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="vacio vacio--error">
+      <p>No pudimos cargar esta información. Revisa tu conexión e inténtalo de nuevo.</p>
+      <button class="btn btn--linea" type="button">Reintentar</button>
+    </div>
+  `;
+  cont.querySelector("button").addEventListener("click", () => location.reload());
 }
 
 /* Fecha local como "AAAA-MM-DD" (toISOString pasa a UTC y de noche
@@ -392,7 +426,12 @@ function cultosDelDia(fecha) {
 }
 
 function enlacePrograma(culto) {
-  const consulta = culto.extra ? `extra=${culto.id}` : `culto=${culto.id}&fecha=${culto.fecha}`;
+  /* encodeURIComponent, no escapar(): esto va en la consulta de una
+     dirección, no en el texto de la página */
+  const id = encodeURIComponent(culto.id);
+  const consulta = culto.extra
+    ? `extra=${id}`
+    : `culto=${id}&fecha=${encodeURIComponent(culto.fecha)}`;
   return `${RUTA}paginas/programa.html?${consulta}`;
 }
 
@@ -403,6 +442,14 @@ function enlacePrograma(culto) {
 function pintarAgenda() {
   const cont = document.getElementById("agendaSemanal");
   if (!cont) return;
+
+  /* Sin horarios cargados los siete días saldrían "Sin actividades":
+     eso afirma que no hay cultos, y puede que sí los haya. */
+  if (!CULTOS.length && !CULTOS_EXTRA.length) {
+    pintarVacio(cont, `Estamos actualizando los horarios. Escríbenos y te
+      confirmamos el próximo culto.`);
+    return;
+  }
 
   const hoy = new Date();
 
@@ -527,12 +574,8 @@ function pintarPrograma() {
 
   const culto = buscarCultoDePagina();
   if (!culto) {
-    cont.innerHTML = `
-      <p class="vacio">
-        No encontramos este culto: puede que ya haya pasado.
-        Revisa los próximos en la agenda.
-      </p>
-    `;
+    pintarVacio(cont, `No encontramos este culto: puede que ya haya pasado.
+      Revisa los próximos en la agenda.`);
     return;
   }
 
@@ -602,12 +645,8 @@ function pintarActividades() {
     .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora_inicio || "").localeCompare(b.hora_inicio || ""));
 
   if (!lista.length) {
-    cont.innerHTML = `
-      <p class="vacio">
-        Pronto anunciaremos las próximas actividades. Escríbenos y te
-        avisamos en cuanto haya novedades.
-      </p>
-    `;
+    pintarVacio(cont, `Pronto anunciaremos las próximas actividades. Escríbenos y te
+      avisamos en cuanto haya novedades.`);
     return;
   }
 
@@ -663,22 +702,18 @@ function pintarNoticias() {
 
   /* Sin publicaciones cargadas se avisa en vez de dejar un hueco */
   if (!lista.length) {
-    cont.innerHTML = `
-      <p class="vacio">
-        Estamos preparando las próximas actividades.
-        Escríbenos y te avisamos en cuanto haya novedades.
-      </p>
-    `;
+    pintarVacio(cont, `Estamos preparando las próximas actividades.
+      Escríbenos y te avisamos en cuanto haya novedades.`);
     return;
   }
 
   cont.innerHTML = lista.map(n => `
     <article class="tarjeta">
-      <img src="${rutaImagen(n.imagen)}" alt="${n.titulo}" loading="lazy"
+      <img src="${escapar(rutaImagen(n.imagen))}" alt="${escapar(n.titulo)}" loading="lazy"
            onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
       <p class="tarjeta__fecha">${formatearFecha(n.fecha)}</p>
-      <h3>${n.titulo}</h3>
-      <p>${n.resumen}</p>
+      <h3>${escapar(n.titulo)}</h3>
+      <p>${escapar(n.resumen)}</p>
     </article>
   `).join("");
 }

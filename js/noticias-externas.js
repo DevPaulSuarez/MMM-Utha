@@ -28,12 +28,14 @@ function paisDe(post) {
 function plantilla(post, imagen, clase) {
   const pais = paisDe(post);
   return `
-    <a class="tarjeta-noticia ${clase}" href="${post.link}"
+    <a class="tarjeta-noticia ${clase}" href="${escapar(post.link)}"
        target="_blank" rel="noopener">
-      ${imagen ? `<img src="${imagen}" alt="">` : ""}
-      ${pais ? `<span class="tarjeta-noticia__pais">${pais}</span>` : ""}
+      ${imagen ? `<img src="${escapar(imagen)}" alt="" loading="lazy" decoding="async">` : ""}
+      ${pais ? `<span class="tarjeta-noticia__pais">${escapar(pais)}</span>` : ""}
       <div class="tarjeta-noticia__texto">
         <p class="tarjeta-noticia__fecha">${fechaLegible(post.date)}</p>
+        <!-- rendered ya viene de WordPress con las entidades escapadas
+             (&#8211; y compañía): escaparlo otra vez las mostraría -->
         <h3>${post.title.rendered}</h3>
       </div>
     </a>
@@ -44,8 +46,14 @@ async function cargarNoticiasExternas() {
   const contenedor = document.getElementById("lista-noticias-externas");
   if (!contenedor) return;
 
+  contenedor.innerHTML = `<p class="vacio">Cargando noticias…</p>`;
+
   try {
-    const res = await fetch(NOTICIAS_URL);
+    /* El timeout evita quedarse en "Cargando noticias…" para siempre
+       si mmmoficial.org acepta la conexión y no contesta */
+    const res = await fetch(NOTICIAS_URL, {
+      signal: AbortSignal.timeout(6000),
+    });
     if (!res.ok) throw new Error("Respuesta no válida del servidor");
 
     const posts = await res.json();
@@ -63,8 +71,18 @@ async function cargarNoticiasExternas() {
       .join("");
   } catch (error) {
     console.error("Error al cargar noticias externas:", error);
-    contenedor.innerHTML =
-      "<p>No se pudieron cargar las noticias en este momento.</p>";
+    contenedor.innerHTML = `
+      <div class="vacio vacio--error">
+        <p>
+          No pudimos traer las noticias del sitio internacional.
+          Abajo tienes el enlace para verlas allá.
+        </p>
+        <button class="btn btn--linea" type="button">Reintentar</button>
+      </div>
+    `;
+    contenedor
+      .querySelector("button")
+      .addEventListener("click", cargarNoticiasExternas);
   }
 }
 

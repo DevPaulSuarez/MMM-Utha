@@ -7,35 +7,33 @@
    7. Secciones     8. Footer              9. Responsive
    ============================================================ */
 
-/* Tipografías: display editorial + interfaz neutra */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap");
+/* Las tipografías se cargan con <link> en el <head> de cada página:
+   un @import aquí encadena HTML → style.css → fonts.googleapis.com y
+   retrasa el primer pintado. */
 
 /* 1. Tokens --------------------------------------------------- */
 :root {
-  /* Color · una sola familia fría + un acento cálido */
-  --ink:        #0f2133;   /* titulares y fondos oscuros   */
-  --ink-suave:  #34485c;   /* texto fuerte                 */
-  --tinta:      #4a5b6b;   /* cuerpo de texto              */
-  --tenue:      #7d8b98;   /* metadatos                    */
+  /* Color · una sola familia fría + un acento cálido.
+     Los contrastes anotados son sobre --papel (blanco); el mínimo
+     que se acepta en el sitio es 4.5:1 (WCAG AA, texto normal). */
+  --ink:        #0f2133;   /* titulares y fondos oscuros   16.2:1 */
+  --ink-suave:  #34485c;   /* texto fuerte                  8.9:1 */
+  --tinta:      #4a5b6b;   /* cuerpo de texto               6.6:1 */
+  --tenue:      #5f6e7b;   /* metadatos                     5.2:1 */
 
-  --acento:     #e2680f;   /* naranja de marca             */
-  --acento-osc: #c25706;
-  --acento-luz: rgba(226, 104, 15, .1);
+  /* El naranja de marca vive en rellenos y bordes; como texto sobre
+     claro solo da 3.4:1, así que para eso existe --acento-texto. */
+  --acento:       #e2680f; /* relleno decorativo, sin texto encima */
+  --acento-osc:   #c25706; /* relleno con texto blanco       4.5:1 */
+  --acento-prof:  #a8460a; /* el mismo relleno, al pasar     5.9:1 */
+  --acento-texto: #b34e08; /* naranja como texto sobre claro 5.2:1 */
+  --acento-luz:   rgba(226, 104, 15, .1);
 
   --papel:      #ffffff;
   --papel-2:    #f7f6f3;   /* crema muy suave              */
   --papel-3:    #eeece6;
   --linea:      #e6e3dd;
   --linea-luz:  rgba(255, 255, 255, .16);
-
-  /* Compatibilidad con nombres antiguos usados en el JS/HTML */
-  --color-principal: var(--ink);
-  --color-acento:    var(--acento);
-  --color-texto:     var(--tinta);
-  --color-gris:      var(--tenue);
-  --borde:           var(--linea);
-  --color-naranja:   var(--acento);
-  --color-fecha:     var(--acento);
 
   /* Tipografía */
   --display: "Fraunces", "Iowan Old Style", Georgia, serif;
@@ -99,7 +97,7 @@ h1, h2, h3, h4 {
   letter-spacing: -.015em;
 }
 
-::selection { background: var(--acento); color: #fff; }
+::selection { background: var(--acento-osc); color: #fff; }
 
 :focus-visible {
   outline: 2px solid var(--acento);
@@ -125,7 +123,7 @@ h1, h2, h3, h4 {
   align-items: center;
   gap: .7rem;
   margin-bottom: .9rem;
-  color: var(--acento);
+  color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .18em;
@@ -141,7 +139,7 @@ h1, h2, h3, h4 {
 }
 
 .sec-title { font-size: var(--t-2xl); }
-.sec-title em { font-style: italic; color: var(--acento); }
+.sec-title em { font-style: italic; color: var(--acento-texto); }
 
 .sec-sub {
   margin-top: var(--s-2);
@@ -200,32 +198,68 @@ h1, h2, h3, h4 {
   gap: var(--s-3);
   padding: .55rem .8rem .55rem 1.1rem;
   border-radius: 999px;
-  transition: box-shadow .35s var(--ease), background .35s var(--ease);
 }
 
 /* Cristal esmerilado: capa aparte para que el menú móvil, que es
-   hijo del header, conserve un fondo real que difuminar */
+   hijo del header, conserve un fondo real que difuminar.
+
+   Se arma en capas, como el vidrio de los sistemas operativos:
+   - tinte translúcido con un degradé de luz arriba
+   - desenfoque fuerte con saturación, para que lo de atrás se lea
+     como color y no como formas
+   - borde de un pelo que marca el contorno sobre fondos del mismo tono
+   - brillo interior arriba y sombra en dos niveles: una corta que lo
+     asienta y una larga y suave que lo despega de la página */
 .header__cristal {
+  --cristal-tinte: rgba(255, 255, 255, .66);
+  --cristal-borde: rgba(15, 33, 51, .08);
+  --cristal-brillo: rgba(255, 255, 255, .9);
+  --cristal-sombra:
+    0 1px 2px rgba(15, 33, 51, .05),
+    0 12px 32px -12px rgba(15, 33, 51, .22);
+
   position: absolute;
   inset: 0;
   border-radius: inherit;
   opacity: 0;
-  background: rgba(255, 255, 255, .82);
-  border: 1px solid rgba(255, 255, 255, .5);
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-          backdrop-filter: blur(18px) saturate(180%);
-  transition: opacity .4s var(--ease);
+  background-color: rgba(255, 255, 255, .96);
+  /* Luz de arriba: fija, sirve igual para el tinte claro y el oscuro.
+     El tinte va aparte, en background-color, porque un degradé no se
+     anima y el cambio de oscuro a claro saltaría de golpe */
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 70%);
+  border: 1px solid var(--cristal-borde);
+  box-shadow: inset 0 1px 0 var(--cristal-brillo), var(--cristal-sombra);
+  transition:
+    opacity .4s var(--ease),
+    background-color .4s var(--ease),
+    border-color .4s var(--ease),
+    box-shadow .4s var(--ease);
   pointer-events: none;
 }
 
+/* Sin backdrop-filter el tinte translúcido dejaría pasar el texto de
+   atrás sin difuminar: ahí se queda el relleno casi opaco de arriba */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header__cristal {
+    background-color: var(--cristal-tinte);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+            backdrop-filter: blur(24px) saturate(190%);
+  }
+}
+
 .header--desplazado .header__cristal { opacity: 1; }
-.header--desplazado .header__interior { box-shadow: var(--sombra); }
 
 /* Sobre el hero o la portada oscura el cristal se tiñe de oscuro:
    con el blanco, las letras blancas del menú se perdían al bajar */
 .header:not(.header--sobre-claro) .header__cristal {
-  background: rgba(11, 24, 37, .55);
-  border-color: rgba(255, 255, 255, .14);
+  --cristal-tinte: rgba(11, 24, 37, .42);
+  --cristal-borde: rgba(255, 255, 255, .12);
+  --cristal-brillo: rgba(255, 255, 255, .14);
+  --cristal-sombra: 0 12px 32px -12px rgba(0, 0, 0, .45);
+  background-color: rgba(11, 24, 37, .9);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header:not(.header--sobre-claro) .header__cristal { background-color: var(--cristal-tinte); }
 }
 
 .header .logo,
@@ -286,7 +320,7 @@ h1, h2, h3, h4 {
   gap: .45rem;
   padding: .62rem 1.15rem;
   border-radius: 999px;
-  background: var(--acento);
+  background: var(--acento-osc);
   color: #fff;
   font-size: var(--t-sm);
   font-weight: 600;
@@ -590,11 +624,11 @@ h1, h2, h3, h4 {
 .btn svg { width: 1.05em; height: 1.05em; fill: currentColor; }
 
 .btn--primario {
-  background: var(--acento);
+  background: var(--acento-osc);
   color: #fff;
   box-shadow: 0 10px 24px -10px rgba(226, 104, 15, .85);
 }
-.btn--primario:hover { background: var(--acento-osc); }
+.btn--primario:hover { background: var(--acento-prof); }
 
 .btn--linea {
   border-color: var(--linea);
@@ -620,7 +654,7 @@ h1, h2, h3, h4 {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-  color: var(--acento);
+  color: var(--acento-texto);
   font-weight: 600;
   font-size: var(--t-sm);
 }
@@ -650,7 +684,7 @@ h1, h2, h3, h4 {
 .tarjeta__cargo,
 .tarjeta__fecha {
   padding: .35rem 1.4rem 0 !important;
-  color: var(--acento);
+  color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .12em;
@@ -696,34 +730,20 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
+/* La misma ficha cuando no se pudo cargar el contenido: borde entero y
+   acento de alerta para que no se confunda con "todavía no hay nada" */
+.vacio--error {
+  border-style: solid;
+  border-color: var(--acento-osc);
+  color: var(--ink-suave);
+}
+.vacio--error p { margin-bottom: 1.2rem; }
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
   gap: var(--s-3);
 }
-
-/* Tabla */
-.tabla-scroll {
-  overflow-x: auto;
-  border: 1px solid var(--linea);
-  border-radius: var(--radio);
-}
-.tabla { width: 100%; border-collapse: collapse; min-width: 560px; }
-.tabla th {
-  background: var(--papel-2);
-  color: var(--ink);
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  text-align: left;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--linea);
-}
-.tabla td { padding: 1.05rem 1.25rem; border-bottom: 1px solid var(--linea); }
-.tabla tbody tr:last-child td { border-bottom: 0; }
-.tabla tbody tr:hover { background: var(--papel-2); }
-.tabla td:first-child { color: var(--ink); font-weight: 600; }
 
 /* Encabezado de páginas internas */
 .encabezado-pagina {
@@ -756,17 +776,6 @@ h1, h2, h3, h4 {
   max-width: 55ch;
   color: rgba(255, 255, 255, .72);
 }
-.migas {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: .5rem;
-  margin-top: var(--s-3);
-  color: rgba(255, 255, 255, .55);
-  font-size: var(--t-xs);
-}
-.migas a:hover { color: #fff; }
-
 /* 7. Secciones -------------------------------------------------- */
 /* 7.1 Barra de contacto ---------------------------------------- */
 .barra-info { background: var(--ink); color: #fff; }
@@ -802,7 +811,7 @@ a.barra-info__item:hover { background: #16293c; }
   height: 42px;
   border-radius: 50%;
   background: var(--acento-luz);
-  color: var(--acento);
+  color: var(--acento-texto);
 }
 .barra-info__icono svg { width: 19px; height: 19px; fill: currentColor; }
 
@@ -861,7 +870,7 @@ a.barra-info__item:hover { background: #16293c; }
   line-height: 1;
   color: var(--ink);
 }
-.cifra__num span { color: var(--acento); }
+.cifra__num span { color: var(--acento-texto); }
 .cifra__txt {
   margin-top: .5rem;
   color: var(--tenue);
@@ -904,7 +913,7 @@ a.barra-info__item:hover { background: #16293c; }
 .agenda__dia li { display: flex; flex-direction: column; gap: .1rem; }
 
 .agenda__hora {
-  color: var(--acento);
+  color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 700;
 }
@@ -927,6 +936,11 @@ a.barra-info__item:hover { background: #16293c; }
   color: var(--acento);
 }
 .agenda__dia--hoy .agenda__evento { color: #fff; }
+
+/* Dentro de la tarjeta oscura del día de hoy el naranja de marca sí
+   contrasta (4.8:1), así que recupera el tono vivo */
+.agenda__dia--hoy .agenda__hora,
+.agenda__dia--hoy .agenda__programa { color: var(--acento); }
 .agenda__dia--hoy .agenda__sin { color: rgba(255, 255, 255, .5); }
 
 .agenda__pie {
@@ -974,7 +988,7 @@ a.barra-info__item:hover { background: #16293c; }
 }
 .agenda__dia--hoy .agenda__marca { background: rgba(255, 255, 255, .12); color: #fff; }
 
-.agenda__programa { color: var(--acento); font-size: var(--t-xs); font-weight: 600; }
+.agenda__programa { color: var(--acento-texto); font-size: var(--t-xs); font-weight: 600; }
 .agenda__programa::after { content: " →"; }
 
 /* 7.3b Programa del culto ---------------------------------------- */
@@ -1001,7 +1015,7 @@ a.barra-info__item:hover { background: #16293c; }
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--acento);
+  color: var(--acento-texto);
 }
 
 .programa__lista { display: grid; gap: .85rem; list-style: none; }
@@ -1212,7 +1226,7 @@ a.barra-info__item:hover { background: #16293c; }
 }
 .gl-header-tag img { width: 13px; filter: brightness(0) saturate(100%) invert(45%) sepia(72%) saturate(2200%) hue-rotate(1deg); }
 .gl-tag-txt {
-  color: var(--acento);
+  color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .18em;
@@ -1397,7 +1411,7 @@ a.barra-info__item:hover { background: #16293c; }
   font-size: .8rem;
   transition: background .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease);
 }
-.medio:hover .medio__ir { background: var(--acento); border-color: var(--acento); color: #fff; }
+.medio:hover .medio__ir { background: var(--acento-osc); border-color: var(--acento-osc); color: #fff; }
 
 /* 7.7 Mapa ------------------------------------------------------ */
 .mapa__caja {
@@ -1431,7 +1445,7 @@ a.barra-info__item:hover { background: #16293c; }
 }
 
 .mapa__rotulo {
-  color: var(--acento);
+  color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 600;
   letter-spacing: .16em;
@@ -1552,7 +1566,7 @@ a.barra-info__item:hover { background: #16293c; }
   border-radius: 50%;
   transition: background .25s var(--ease), border-color .25s var(--ease), transform .25s var(--ease);
 }
-.footer__redes a:hover { background: var(--acento); border-color: var(--acento); transform: translateY(-2px); }
+.footer__redes a:hover { background: var(--acento-osc); border-color: var(--acento-osc); transform: translateY(-2px); }
 .footer__redes svg { width: 16px; height: 16px; fill: currentColor; color: #fff; }
 
 .footer__base {
@@ -1655,8 +1669,11 @@ a.barra-info__item:hover { background: #16293c; }
     padding: .9rem;
     border-radius: var(--radio-lg);
     background: rgba(255, 255, 255, .96);
-    border: 1px solid var(--linea);
-    box-shadow: var(--sombra-lg);
+    border: 1px solid rgba(15, 33, 51, .08);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .9),
+      0 1px 2px rgba(15, 33, 51, .05),
+      var(--sombra-lg);
     /* Si la lista no entra en pantalla, se desplaza dentro del panel */
     max-height: calc(100svh - var(--alto-header, 76px) - 2rem);
     overflow-y: auto;
@@ -1664,9 +1681,10 @@ a.barra-info__item:hover { background: #16293c; }
 
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     .header .nav {
-      background: rgba(255, 255, 255, .88);
-      -webkit-backdrop-filter: blur(18px) saturate(180%);
-              backdrop-filter: blur(18px) saturate(180%);
+      /* Más tinte que la barra: aquí se lee una lista de texto */
+      background: rgba(255, 255, 255, .8);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+              backdrop-filter: blur(24px) saturate(190%);
     }
   }
 
@@ -1836,47 +1854,6 @@ a.barra-info__item:hover { background: #16293c; }
   .tarjeta-noticia--destacada { min-height: 260px; }
   .tarjeta-noticia--destacada .tarjeta-noticia__texto { padding: 1.3rem 1.4rem; }
   .tarjeta-noticia--compacta { height: 160px; }
-
-  /* Horarios: la tabla pasa a fichas y deja de moverse en horizontal */
-  .tabla-scroll { overflow-x: visible; border: 0; }
-  .tabla { min-width: 0; }
-  .tabla thead { display: none; }
-  .tabla tbody, .tabla tr, .tabla td { display: block; width: 100%; }
-
-  .tabla tr {
-    margin-bottom: .75rem;
-    padding: .35rem 0;
-    border: 1px solid var(--linea);
-    border-radius: var(--radio);
-    background: var(--papel);
-  }
-  .tabla tbody tr:hover { background: var(--papel); }
-
-  .tabla td {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: .5rem 1.1rem;
-    border: 0;
-    text-align: right;
-  }
-  .tabla td::before {
-    content: attr(data-titulo);
-    flex-shrink: 0;
-    color: var(--tenue);
-    font-size: var(--t-xs);
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    text-align: left;
-  }
-  .tabla td:first-child {
-    padding-top: .8rem;
-    font-family: var(--display);
-    font-size: var(--t-lg);
-  }
-  .tabla td:last-child { padding-bottom: .8rem; }
 
   .gl-col-img { flex: 0 0 180px; }
   .gl-main-h1 { flex-direction: column; align-items: flex-start; gap: .2rem; }

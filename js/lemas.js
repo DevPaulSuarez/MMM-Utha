@@ -8,7 +8,16 @@
 /* Lo llama main.js cuando termina de llegar el contenido */
 function iniciarLemas() {
   const vista = document.getElementById("gl-main");
-  if (!vista || typeof LEMAS === "undefined" || !LEMAS.length) return;
+  if (!vista || typeof LEMAS === "undefined") return;
+
+  /* Sin lemas el visor se queda como un recuadro blanco vacío al lado
+     de un fondo sin imagen. Se reemplaza por el aviso de main.js. */
+  if (!LEMAS.length) {
+    const aviso = document.createElement("div");
+    vista.replaceWith(aviso);
+    pintarVacio(aviso, "Estamos preparando esta sección. Vuelve pronto.");
+    return;
+  }
 
   const fondo = document.getElementById("gl-bg-target");
   const ficha = document.getElementById("gl-ajax-container");
@@ -18,8 +27,8 @@ function iniciarLemas() {
   scroller.innerHTML = LEMAS.map(
     (l, i) => `
       <button type="button" class="gl-year-trigger" data-indice="${i}">
-        <strong>${l.anio}</strong>
-        <span>${l.titulo}</span>
+        <strong>${escapar(l.anio)}</strong>
+        <span>${escapar(l.titulo)}</span>
       </button>
     `
   ).join("");
@@ -44,19 +53,24 @@ function iniciarLemas() {
 
     vista.classList.add("gl-loading");
 
-    fondo.style.backgroundImage = `url("${rutaImagen(lema.imagen)}")`;
+    /* Las comillas romperían el url(...) de la declaración */
+    const imagen = rutaImagen(lema.imagen).replace(/["\\]/g, "");
+    fondo.style.backgroundImage = `url("${imagen}")`;
+
+    /* Lo que escribe el pastor desde la aplicación es texto: solo los
+       saltos de línea se convierten en HTML, ya escapado el resto. */
     ficha.innerHTML = `
       <div class="gl-header-tag">
         <img src="https://mmmoficial.org/wp-content/uploads/2026/01/mmm_oficial_03.png"
-             width="15" alt="">
+             width="15" height="15" alt="">
         <span class="gl-tag-txt">Lemas</span>
       </div>
-      <h1 class="gl-main-h1">
-        ${lema.titulo}
-        <span class="gl-year-light">${lema.anio}</span>
-      </h1>
-      <div class="gl-body-p">${lema.texto.replace(/\n/g, "<br>")}</div>
-      <div class="gl-verse-box">${lema.verso}</div>
+      <h3 class="gl-main-h1">
+        ${escapar(lema.titulo)}
+        <span class="gl-year-light">${escapar(lema.anio)}</span>
+      </h3>
+      <div class="gl-body-p">${escapar(lema.texto).replace(/\n/g, "<br>")}</div>
+      <div class="gl-verse-box">${escapar(lema.verso)}</div>
     `;
 
     botones.forEach((b, i) => b.classList.toggle("active", i === indice));
