@@ -10,3 +10,6 @@ subidas/*
 
 # Archivos de macOS
 .DS_Store
+
+# Datos del VPS para desplegar.sh
+.desplegar.env

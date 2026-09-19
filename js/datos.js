@@ -12,10 +12,28 @@
 const RUTA = location.pathname.includes("/paginas/") ? "../" : "";
 
 /* Servidor con la API y las fotos que sube la aplicación, sin barra
-   final. Vacío: el mismo sitio que sirve la web (en local, php -S).
-   Si la web está en un hosting y la API en otro (el VPS), va la
-   dirección de ese servidor, con https: "https://api.tudominio.org" */
-const SERVIDOR = "";
+   final. Se elige solo según dónde se abre la página, así el mismo
+   archivo sirve en la computadora y en internet sin tocarlo:
+
+   - En la computadora (localhost, 127.0.0.1, la red de la casa o el
+     archivo abierto directo) es el backend local: php -S en el puerto
+     PUERTO_API_LOCAL. Si la página la sirve otro programa (Live Server,
+     puerto 5500) los datos se piden igual a ese puerto.
+   - En internet es SERVIDOR_PRODUCCION: la dirección del VPS, con https
+     ("https://api.tudominio.org"). Vacío si la web y la API están en el
+     mismo hosting. */
+const SERVIDOR_PRODUCCION = "";
+const PUERTO_API_LOCAL = "8765";
+
+const ES_LOCAL =
+  location.protocol === "file:" ||
+  /^(localhost|127\.0\.0\.1|\[::1\]|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|.+\.local)$/.test(location.hostname);
+
+const SERVIDOR = !ES_LOCAL
+  ? SERVIDOR_PRODUCCION
+  : location.port === PUERTO_API_LOCAL
+    ? ""
+    : `http://${location.hostname || "127.0.0.1"}:${PUERTO_API_LOCAL}`;
 const RUTA_SERVIDOR = SERVIDOR ? SERVIDOR.replace(/\/+$/, "") + "/" : RUTA;
 
 /* De dónde se pide el contenido, en orden. Primero la API; si no
@@ -36,6 +54,11 @@ let PROGRAMAS = [];     /* quiénes participan en cada culto */
 let ACTIVIDADES = [];   /* ventas, paseos, visitas… de hoy en adelante */
 let NOTICIAS = [];
 
+/* false cuando ninguna fuente respondió. Los que pintan lo consultan
+   para avisar en la página en vez de mostrar una sección vacía, que se
+   lee como "no hay nada" cuando en realidad no se pudo cargar. */
+let DATOS_OK = true;
+
 /* Rutas de imagen. Las del proyecto ("img/…") y las que sube la
    aplicación ("subidas/…") se escriben desde la raíz y necesitan
    el prefijo; las subidas viven en el SERVIDOR de la API. Las que
@@ -50,11 +73,20 @@ function rutaImagen(src) {
 /* cache: "no-cache" hace que el navegador revalide en cada visita:
    lo que publique la aplicación se ve enseguida.
    Si el servidor no ejecuta PHP devuelve el código del archivo en
-   vez de JSON; res.json() falla y se pasa a la siguiente fuente. */
+   vez de JSON; res.json() falla y se pasa a la siguiente fuente.
+
+   El timeout corta la espera: sin él, un servidor que acepta la
+   conexión y no contesta deja la página en blanco hasta que el
+   navegador se rinde, en vez de pasar a la copia estática. */
+const ESPERA_MAXIMA = 6000;
+
 async function cargarDatos() {
   for (const url of DATOS_URLS) {
     try {
-      const res = await fetch(url, { cache: "no-cache" });
+      const res = await fetch(url, {
+        cache: "no-cache",
+        signal: AbortSignal.timeout(ESPERA_MAXIMA),
+      });
       if (!res.ok) throw new Error(`respondió ${res.status}`);
       return await res.json();
     } catch (error) {
@@ -84,6 +116,7 @@ const DATOS_LISTOS = cargarDatos()
     return datos;
   })
   .catch((error) => {
+    DATOS_OK = false;
     console.error("El sitio se muestra sin contenido.", error);
     /* Abrir el index con doble clic (file://) no sirve: el navegador
        no deja leer archivos vecinos. Hay que levantar un servidor
