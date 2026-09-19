@@ -21,7 +21,14 @@ if [[ ! -f .desplegar.env ]]; then
 fi
 source .desplegar.env
 
-SSH=(ssh -p "${PUERTO_SSH:-22}" "$VPS")
+# Una sola conexión para todo el script: la contraseña del VPS se
+# escribe una vez al empezar y ssh/rsync reutilizan esa conexión. Se
+# cierra al terminar, aunque algo falle.
+CONEXION="$HOME/.ssh/mmm-%C"
+mkdir -p "$HOME/.ssh"
+SSH_OPCIONES=(-p "${PUERTO_SSH:-22}" -o ControlMaster=auto -o "ControlPath=$CONEXION" -o ControlPersist=10m)
+SSH=(ssh "${SSH_OPCIONES[@]}" "$VPS")
+trap 'ssh "${SSH_OPCIONES[@]}" -O exit "$VPS" 2>/dev/null || true' EXIT
 
 # --- 1. Revisar ---------------------------------------------------
 for archivo in api/*.php; do
@@ -36,11 +43,14 @@ fi
 # -rlptz: carpetas, enlaces, permisos y fechas, comprimido. --delete
 # solo en api/: quita del servidor lo que ya no existe aquí, menos
 # config.php, que está excluido y por eso rsync no lo borra.
-RSYNC=(rsync -rlptz --exclude .DS_Store -e "ssh -p ${PUERTO_SSH:-22}")
+RSYNC=(rsync -rlptz --exclude .DS_Store -e "ssh ${SSH_OPCIONES[*]}")
 
 subir() {
   "${RSYNC[@]}" "$@" --delete --exclude config.php api/ "$VPS:$RUTA/api/"
-  "${RSYNC[@]}" "$@" img/ "$VPS:$RUTA/img/"
+  # img/ es copia exacta de la de aquí, sin las fotos originales de
+  # portada (la web y la app usan los .webp) ni los .gitkeep
+  "${RSYNC[@]}" "$@" --delete --delete-excluded --exclude fondos/originales/ --exclude .gitkeep \
+    img/ "$VPS:$RUTA/img/"
   "${RSYNC[@]}" "$@" subidas/.htaccess "$VPS:$RUTA/subidas/"
   if [[ "${SUBIR_WEB:-no}" == "si" ]]; then
     "${RSYNC[@]}" "$@" index.html "$VPS:$RUTA/"
@@ -50,6 +60,7 @@ subir() {
   fi
 }
 
+echo "Conectando con $VPS (pide la contraseña una sola vez)..."
 "${SSH[@]}" "mkdir -p '$RUTA/api' '$RUTA/img' '$RUTA/subidas'"
 
 echo "== Archivos que cambian en $VPS:$RUTA =="

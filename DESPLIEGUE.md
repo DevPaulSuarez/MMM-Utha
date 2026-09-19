@@ -40,7 +40,7 @@ Así el mismo cambio llega después al servidor sin borrar sus datos.
    ./desplegar.sh
    ```
    Muestra qué archivos cambian, pide confirmación, sube, aplica las migraciones pendientes y prueba `api/datos.php`. Nunca toca el `config.php` ni las fotos de `subidas/` del servidor.
-4. Web en InfinityFree: `./publicar-web.sh`.
+4. Web en InfinityFree: `./preparar-web.sh` y subir `web-mmm.zip` con el File Manager a `htdocs` (extraer y reemplazar), o `./publicar-web.sh` por FTP. Siempre con el script: les pone a los `.css` y `.js` una versión nueva cuando cambian, así los visitantes ven la actualización sin borrar la caché.
 5. App, si cambió: `./compilar.sh ios` o `./compilar.sh android` en `app/MMM-Utha-App`. Siempre usa `entornos/produccion.json`.
 
 **Orden:** primero el backend y después la app. Una app nueva que usa algo de la API que todavía no está en el servidor falla. Al revés no: la app vieja sigue funcionando con la API nueva.
@@ -52,7 +52,7 @@ Sitio: <https://mmmutha.great-site.net>
 1. En el panel de InfinityFree, *SSL Certificates*: activar el certificado gratuito para que la web abra con https. Sin https, la web no puede pedir datos al VPS en https desde algunos navegadores y se ve "No seguro".
 2. En el *File Manager* borrar de `htdocs` los archivos de ejemplo (`index2.html` y similares).
 3. Copiar `web.ejemplo.env` como `.web.env` y poner la clave de FTP (panel → la cuenta → *FTP Details*).
-4. `./publicar-web.sh`: sube `index.html`, `paginas/`, `css/`, `js/` e `img/` a `htdocs`. Nunca `api/`.
+4. `./publicar-web.sh`: arma la web (`preparar-web.sh`) y sube `index.html`, `paginas/`, `css/`, `js/`, `img/` y el `.htaccess` de caché a `htdocs`. Nunca `api/`. Sin FTP: `./preparar-web.sh` y subir `web-mmm.zip` con el File Manager.
 5. Mientras no haya backend, la web muestra la copia `js/datos.json`.
 
 ## Primera vez en el servidor

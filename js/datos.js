@@ -22,7 +22,7 @@ const RUTA = location.pathname.includes("/paginas/") ? "../" : "";
    - En internet es SERVIDOR_PRODUCCION: la dirección del VPS, con https
      ("https://api.tudominio.org"). Vacío si la web y la API están en el
      mismo hosting. */
-const SERVIDOR_PRODUCCION = "";
+const SERVIDOR_PRODUCCION = "https://mmm.devpess.com";
 const PUERTO_API_LOCAL = "8765";
 
 const ES_LOCAL =
