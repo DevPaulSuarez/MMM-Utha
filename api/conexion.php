@@ -38,6 +38,13 @@ $db = new PDO(
     ]
 );
 
+/* NOW() de MySQL en la misma hora que PHP. Un VPS suele estar en UTC:
+   sin esto las fechas de avisos y sesiones quedaban corridas 6 horas
+   respecto de las de PHP y la app decía "hace 6 horas" de algo recién
+   creado. Con la diferencia horaria de hoy, así respeta el horario de
+   verano; no hace falta cargar las zonas horarias en MySQL. */
+$db->exec("SET time_zone = '" . date('P') . "'");
+
 asegurarMaestro($db, $CONFIG['maestro'] ?? []);
 
 /* --- Roles ----------------------------------------------------
