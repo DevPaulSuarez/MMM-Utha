@@ -13,3 +13,6 @@ subidas/*
 
 # Datos del VPS para desplegar.sh
 .desplegar.env
+
+# Datos de FTP para publicar-web.sh
+.web.env

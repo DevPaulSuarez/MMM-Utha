@@ -14,8 +14,9 @@ El mismo código funciona en la computadora y en el servidor sin tocarlo. Lo ún
 1. Abrir AMPPS (MySQL).
 2. Levantar el backend y la web, desde `MMM-Utha`:
    ```bash
-   php -S 0.0.0.0:8765
+   php -d upload_max_filesize=6M -d post_max_size=8M -S 0.0.0.0:8765
    ```
+   Los `-d` dejan subir fotos de hasta 5 MB desde la app (PHP trae 2 MB).
 3. Web: <http://127.0.0.1:8765/>. Live Server (puerto 5500) también funciona: los datos se piden solos al 8765.
 4. App: `flutter run` en `app/MMM-Utha-App`, o *Run and Debug → Local* en VS Code.
    En un celular de verdad: `flutter run --dart-define=SITIO_URL=http://<IP de la Mac>:8765` (`ipconfig getifaddr en0`).
@@ -39,10 +40,20 @@ Así el mismo cambio llega después al servidor sin borrar sus datos.
    ./desplegar.sh
    ```
    Muestra qué archivos cambian, pide confirmación, sube, aplica las migraciones pendientes y prueba `api/datos.php`. Nunca toca el `config.php` ni las fotos de `subidas/` del servidor.
-4. Web en otro hosting: subir `index.html`, `paginas/`, `css/`, `js/` e `img/`.
+4. Web en InfinityFree: `./publicar-web.sh`.
 5. App, si cambió: `./compilar.sh ios` o `./compilar.sh android` en `app/MMM-Utha-App`. Siempre usa `entornos/produccion.json`.
 
 **Orden:** primero el backend y después la app. Una app nueva que usa algo de la API que todavía no está en el servidor falla. Al revés no: la app vieja sigue funcionando con la API nueva.
+
+## Primera vez: la web en InfinityFree
+
+Sitio: <https://mmmutha.great-site.net>
+
+1. En el panel de InfinityFree, *SSL Certificates*: activar el certificado gratuito para que la web abra con https. Sin https, la web no puede pedir datos al VPS en https desde algunos navegadores y se ve "No seguro".
+2. En el *File Manager* borrar de `htdocs` los archivos de ejemplo (`index2.html` y similares).
+3. Copiar `web.ejemplo.env` como `.web.env` y poner la clave de FTP (panel → la cuenta → *FTP Details*).
+4. `./publicar-web.sh`: sube `index.html`, `paginas/`, `css/`, `js/` e `img/` a `htdocs`. Nunca `api/`.
+5. Mientras no haya backend, la web muestra la copia `js/datos.json`.
 
 ## Primera vez en el servidor
 
@@ -58,6 +69,7 @@ Una sola vez, cuando el VPS esté listo (PHP 8.1+ con `pdo_mysql`, `mbstring` y 
      Importar ese archivo en la base del servidor. Trae también las cuentas locales (entre ellas el maestro) y las rutas de fotos: copiar además la carpeta `subidas/` al servidor.
 3. En el servidor, crear `api/config.php` a partir de `api/config.ejemplo.php` con los datos de esa base, la zona horaria y la clave del maestro.
 4. Dar permiso de escritura a `subidas/` para el usuario del servidor web (en Ubuntu con Apache: `sudo chown -R www-data subidas`).
+   Y en el `php.ini` de Apache (`/etc/php/*/apache2/php.ini`): `upload_max_filesize = 6M` y `post_max_size = 8M`; si no, las fotos de más de 2 MB fallan.
 5. Copiar `desplegar.ejemplo.env` como `.desplegar.env` y completarlo.
 6. `./desplegar.sh`
 7. Abrir `https://…/api/datos.php`: tiene que mostrar el JSON. Ese primer pedido crea la cuenta maestra.
