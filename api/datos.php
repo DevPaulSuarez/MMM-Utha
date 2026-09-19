@@ -38,7 +38,7 @@ $ubicacion = $db->query('SELECT direccion, coordenadas FROM ubicacion WHERE id =
 $usuario = usuarioDelToken($db);
 header('Vary: Authorization');
 
-if (($usuario['rol'] ?? '') === 'admin') {
+if (esAdministrador($usuario)) {
     $representantes = $db->query(
         'SELECT r.id, r.nombre, r.cargo, r.descripcion, r.foto, r.orden, r.visible, u.usuario
            FROM representantes r

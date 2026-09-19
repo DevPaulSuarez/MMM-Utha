@@ -1,6 +1,6 @@
 <?php
 /* ============================================================
-   MMM · Crear un administrador de la aplicación (el pastor)
+   MMM · Crear un administrador de la aplicación (rol admin)
    Los miembros se registran solos desde la app; este script es
    para las cuentas que pueden cambiar el contenido del sitio.
    Se usa desde la terminal, nunca por web:

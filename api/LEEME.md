@@ -14,12 +14,8 @@ Requiere PHP 8.1 o superior con `pdo_mysql`, `mbstring` y `fileinfo`. Funciona c
 
 1. Crear una base de datos MySQL y un usuario con permisos sobre ella (en cPanel: *MySQL Databases*).
 2. En phpMyAdmin, entrar a esa base e importar `api/base-de-datos.sql`. Crea las tablas con el contenido actual de `js/datos.json`.
-3. Copiar `api/config.ejemplo.php` como `api/config.php` y completar los datos de la base.
-4. Crear un usuario para la app desde la computadora:
-   ```bash
-   php api/crear-usuario.php pastor "Nombre del Pastor"
-   ```
-   El script pide la contraseña e imprime un `INSERT`. Pegarlo en phpMyAdmin, en la pestaña *SQL*.
+3. Copiar `api/config.ejemplo.php` como `api/config.php` y completar los datos de la base y la clave de la cuenta `maestro`.
+4. La cuenta maestra se crea sola en el primer pedido a la API (basta con abrir `api/datos.php`). Con ella se entra a la app y, en *Usuarios y roles*, se nombra pastor a quien corresponda después de que se registre. Si el usuario elegido para el maestro ya existe en la base, no se crea y queda anotado en el log de errores de PHP.
 5. Subir la web, `api/` y `subidas/` (con su `.htaccess`). La carpeta `app/` no se sube.
 6. Probar: abrir `https://tudominio.org/api/datos.php` tiene que mostrar el JSON.
 7. La web ya pide el contenido a `api/datos.php` (ver `js/datos.js`). Si la API no responde, usa la copia `js/datos.json`, que no se actualiza sola.
@@ -37,7 +33,7 @@ La web puede ir en un hosting gratuito (solo archivos estáticos) y el backend e
 2. Compilar la app con `--dart-define=SITIO_URL=https://api.tudominio.org`. La app resuelve contra el VPS también las fotos de `img/`, por eso esa carpeta va en los dos.
 3. El VPS tiene que tener **https**: una web con https no puede pedir datos a una dirección http.
 4. `datos.php` ya permite que lo lea cualquier dominio. El resto de la API no lo usa la web, solo la app, que no pasa por esa restricción del navegador.
-5. Los `.htaccess` son de Apache. Con Nginx hay que traducir sus reglas: bloquear `config.php`, `conexion.php`, `secciones.php`, `crear-usuario.php`, los `.sql` y `.md` de `api/`, y no ejecutar PHP dentro de `subidas/`.
+5. Los `.htaccess` son de Apache. Con Nginx hay que traducir sus reglas: bloquear `config.php`, `conexion.php`, `secciones.php`, `crear-usuario.php`, `migrar.php`, la carpeta `api/migraciones/`, los `.sql` y `.md` de `api/`, y no ejecutar PHP dentro de `subidas/`.
 
 ## Respuestas
 
@@ -185,11 +181,25 @@ La `ruta` es relativa a la raíz del sitio. Para mostrar la imagen en la app, se
 
 ## Cuentas de miembros y avisos
 
-Hay dos roles:
-- **admin**: el pastor. Se crea con `crear-usuario.php`. Es el único que puede usar `guardar.php` y `programa.php`; con otra cuenta responden `403`.
-- **miembro**: se registra desde la app. Edita su perfil y responde sus participaciones.
+| Rol | Quién es | Qué puede |
+|---|---|---|
+| `maestro` | La cuenta del servidor, creada desde `config.php` | Todo, y nombrar pastores |
+| `pastor` | Lo nombra el maestro | Todo, y elegir quién es `admin` o `miembro` |
+| `admin` | Lo elige el pastor (o `crear-usuario.php`) | Cambiar el contenido del sitio |
+| `miembro` | Se registra desde la app | Editar su perfil y responder sus participaciones |
 
-`datos.php` sin sesión (la web) solo trae los representantes con `visible = 1`. Con el token de un admin trae todos, con `visible` y el `usuario` de cada cuenta. En `programas`, cada participante trae además `presentacion` y `detalle`.
+Los tres primeros son administradores: pueden usar `guardar.php` y `programa.php` (con otra cuenta responden `403`) y reciben los avisos para administradores.
+
+`datos.php` sin sesión (la web) solo trae los representantes con `visible = 1`. Con el token de un administrador trae todos, con `visible` y el `usuario` de cada cuenta. En `programas`, cada participante trae además `presentacion` y `detalle`.
+
+### `GET` / `POST api/usuarios.php` 🔒
+
+Solo para `maestro` y `pastor`; con otra cuenta responde `403`.
+
+- `GET`: `{ "usuarios": [ { "id", "usuario", "nombre", "rol", "creado", "editable" } ], "asignables": ["admin", "miembro"] }`. `editable` dice si quien pide le puede cambiar el rol a esa cuenta.
+- `POST` con `{ "id": 5, "rol": "pastor" }`: cambia el rol y le deja un aviso (`rol`) a esa persona. Responde `{ "ok": true, "usuario": { … } }`.
+
+Nadie cambia su propio rol. El maestro da `pastor`, `admin` o `miembro` a cualquier cuenta menos a sí mismo. El pastor da `admin` o `miembro`, y solo a cuentas que tienen uno de esos dos roles: no puede tocar a otro pastor ni al maestro.
 
 ### `POST api/registro.php`
 
@@ -230,6 +240,7 @@ Se crean avisos cuando:
 |---|---|
 | Alguien se registra (`miembro`) | Los admins |
 | El pastor aprueba un perfil (`perfil`) | Ese miembro |
+| Le cambian el rol a alguien (`rol`) | Esa persona |
 | Alguien entra nuevo a un programa (`programa`) | Esa persona, si tiene cuenta |
 | Un participante elige qué presentará (`respuesta`) | Los admins |
 | Se crea una actividad (`actividad`) | Todas las cuentas, menos quien la creó |
@@ -238,7 +249,9 @@ Los avisos de más de 60 días se borran solos.
 
 ## Agregar un campo nuevo
 
-1. Agregar la columna en MySQL (`ALTER TABLE noticias ADD contenido TEXT NOT NULL;`).
-2. Agregar la línea en `api/secciones.php`.
+1. Crear `api/migraciones/001-noticias-contenido.sql` (el número sigue al último) con `ALTER TABLE noticias ADD contenido TEXT NOT NULL;`.
+2. Aplicarla en la base local: `php api/migrar.php`.
+3. Agregar la línea en `api/secciones.php`.
+4. Al subir, `desplegar.sh` la aplica también en el servidor (ver `DESPLIEGUE.md`).
 
 `datos.php` lo empieza a devolver solo y `guardar.php` lo acepta.

@@ -26,4 +26,14 @@ return [
     /* Zona horaria de la iglesia: define qué es "hoy" para mostrar
        solo los cultos y programas que todavía no pasaron */
     'zona_horaria' => 'America/Denver',
+
+    /* Cuenta maestra: se crea sola en el primer pedido a la API si la
+       base todavía no tiene una. Es la que nombra al pastor desde la
+       app (Usuarios y roles). Cambiar estos datos después no cambia
+       la cuenta ya creada. Sin clave no se crea. */
+    'maestro' => [
+        'usuario' => 'admin',
+        'clave'   => '',   // completar en el servidor
+        'nombre'  => 'Administrador',
+    ],
 ];

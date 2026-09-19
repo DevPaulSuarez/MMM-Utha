@@ -80,7 +80,7 @@ $respuesta = [
 ];
 
 /* Al pastor le sirve saber cuántos perfiles esperan su aprobación */
-if ($usuario['rol'] === 'admin') {
+if (esAdministrador($usuario)) {
     $respuesta['por_aprobar'] = (int) $db->query(
         'SELECT COUNT(*) FROM representantes WHERE visible = 0 AND usuario_id IS NOT NULL'
     )->fetchColumn();

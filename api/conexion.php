@@ -38,6 +38,57 @@ $db = new PDO(
     ]
 );
 
+asegurarMaestro($db, $CONFIG['maestro'] ?? []);
+
+/* --- Roles ----------------------------------------------------
+   maestro  la cuenta del servidor: se crea sola (config.php) y es
+            la única que nombra pastores
+   pastor   administra todo y elige el rol de las demás cuentas
+   admin    cambia el contenido del sitio
+   miembro  se registra desde la app: su perfil y sus participaciones
+   -------------------------------------------------------------- */
+const ROLES_ADMINISTRADORES = ['maestro', 'pastor', 'admin'];
+
+function esAdministrador(?array $usuario): bool
+{
+    return in_array($usuario['rol'] ?? '', ROLES_ADMINISTRADORES, true);
+}
+
+/* Los roles que $rol puede dar, y a quién se los puede cambiar */
+function rolesAsignables(string $rol): array
+{
+    return match ($rol) {
+        'maestro' => ['pastor', 'admin', 'miembro'],
+        'pastor'  => ['admin', 'miembro'],
+        default   => [],
+    };
+}
+
+/* Si la base no tiene cuenta maestra se crea con los datos de
+   config.php: así el primer acceso al servidor recién instalado ya
+   tiene con qué entrar. Si alguien ya se registró con ese usuario no
+   se le toca la cuenta: se anota en el log y se sigue sin maestro. */
+function asegurarMaestro(PDO $db, array $maestro): void
+{
+    $usuario = mb_strtolower(trim((string) ($maestro['usuario'] ?? '')));
+    $clave   = (string) ($maestro['clave'] ?? '');
+    if ($usuario === '' || $clave === '') {
+        return;
+    }
+    if ($db->query("SELECT 1 FROM usuarios WHERE rol = 'maestro' LIMIT 1")->fetchColumn()) {
+        return;
+    }
+
+    $insertar = $db->prepare(
+        "INSERT IGNORE INTO usuarios (usuario, clave_hash, nombre, rol) VALUES (?, ?, ?, 'maestro')"
+    );
+    $insertar->execute([$usuario, password_hash($clave, PASSWORD_DEFAULT), (string) ($maestro['nombre'] ?? 'Administrador')]);
+
+    if ($insertar->rowCount() === 0) {
+        error_log("[MMM api] No se creó la cuenta maestra: el usuario \"$usuario\" ya existe");
+    }
+}
+
 /* --- Respuestas ---------------------------------------------- */
 function responder(array $datos, int $estado = 200): never
 {
@@ -113,11 +164,12 @@ function exigirToken(PDO $db): array
 }
 
 /* Cambiar el contenido del sitio es solo para administradores (el
-   pastor). Los miembros editan su perfil y sus participaciones. */
+   pastor y quienes él elija). Los miembros editan su perfil y sus
+   participaciones. */
 function exigirAdmin(PDO $db): array
 {
     $usuario = exigirToken($db);
-    if ($usuario['rol'] !== 'admin') {
+    if (!esAdministrador($usuario)) {
         responder(['error' => 'Solo el pastor o un administrador puede hacer esto'], 403);
     }
     return $usuario;
@@ -163,7 +215,7 @@ function crearAviso(
 function idsDeAdmins(PDO $db): array
 {
     return array_map('intval', $db->query(
-        "SELECT id FROM usuarios WHERE rol = 'admin' AND activo = 1"
+        "SELECT id FROM usuarios WHERE rol IN ('maestro', 'pastor', 'admin') AND activo = 1"
     )->fetchAll(PDO::FETCH_COLUMN));
 }
 

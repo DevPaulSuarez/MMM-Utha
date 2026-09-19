@@ -2,7 +2,9 @@
 -- MMM · Base de datos
 -- Importar una sola vez en una base vacía (phpMyAdmin > Importar).
 -- Crea las tablas y las llena con el contenido que tenía
--- js/datos.json. Los usuarios se agregan con crear-usuario.php.
+-- js/datos.json. La cuenta maestra se crea sola (config.php).
+-- No editar para cambiar la estructura: eso va en api/migraciones
+-- (ver api/migrar.php), así llega también a las bases que ya existen.
 -- ============================================================
 
 SET NAMES utf8mb4;
@@ -14,7 +16,9 @@ CREATE TABLE usuarios (
   usuario    VARCHAR(50)  NOT NULL UNIQUE,
   clave_hash VARCHAR(255) NOT NULL,
   nombre      VARCHAR(100) NOT NULL DEFAULT '',
-  -- admin: el pastor (crear-usuario.php); miembro: se registra en la app
+  -- maestro: se crea solo desde config.php y nombra pastores
+  -- pastor: administra todo y elige el rol de los demás
+  -- admin: cambia el contenido; miembro: se registra en la app
   rol         VARCHAR(20)  NOT NULL DEFAULT 'miembro',
   activo      TINYINT(1)   NOT NULL DEFAULT 1,
   ip_registro VARCHAR(45)  NOT NULL DEFAULT '',
