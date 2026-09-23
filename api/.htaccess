@@ -11,6 +11,6 @@ Options -Indexes
 </IfModule>
 
 # Archivos internos: se incluyen desde PHP pero no se sirven por web
-<FilesMatch "^(config|config\.ejemplo|conexion|secciones|crear-usuario|migrar)\.php$|\.(sql|md)$">
+<FilesMatch "^(config|config\.ejemplo|conexion|secciones|crear-usuario|migrar|version-app)\.php$|\.(sql|md)$">
   Require all denied
 </FilesMatch>

@@ -16,7 +16,7 @@ Requiere PHP 8.1 o superior con `pdo_mysql`, `mbstring` y `fileinfo`. Funciona c
 2. En phpMyAdmin, entrar a esa base e importar `api/base-de-datos.sql`. Crea las tablas con el contenido actual de `js/datos.json`.
 3. Copiar `api/config.ejemplo.php` como `api/config.php` y completar los datos de la base y la clave de la cuenta `maestro`.
 4. La cuenta maestra se crea sola en el primer pedido a la API (basta con abrir `api/datos.php`). Con ella se entra a la app y, en *Usuarios y roles*, se nombra pastor a quien corresponda después de que se registre. Si el usuario elegido para el maestro ya existe en la base, no se crea y queda anotado en el log de errores de PHP.
-5. Subir la web, `api/` y `subidas/` (con su `.htaccess`). La carpeta `app/` no se sube.
+5. Subir la web, `api/` y `subidas/` (con su `.htaccess`). El código de la app (`app/MMM-Utha-App`) no se sube; lo único suyo que va al servidor es el APK ya compilado, que `publicar-apk.sh` deja en `app/mmm-utha.apk`.
 6. Probar: abrir `https://tudominio.org/api/datos.php` tiene que mostrar el JSON.
 7. La web ya pide el contenido a `api/datos.php` (ver `js/datos.js`). Si la API no responde, usa la copia `js/datos.json`, que no se actualiza sola.
 
@@ -26,14 +26,14 @@ La web puede ir en un hosting gratuito (solo archivos estáticos) y el backend e
 
 | Servidor | Qué lleva |
 |---|---|
-| VPS (PHP + MySQL) | `api/`, `subidas/` e `img/` |
+| VPS (PHP + MySQL) | `api/`, `subidas/`, `img/` y el APK en `app/` |
 | Hosting de la web | `index.html`, `paginas/`, `css/`, `js/` e `img/` |
 
 1. En `js/datos.js`, poner la dirección del VPS en `SERVIDOR` (`"https://api.tudominio.org"`). La web pide ahí `api/datos.php` y las fotos `subidas/…`; las de `img/` las sigue sirviendo su propio hosting.
 2. Compilar la app con `--dart-define=SITIO_URL=https://api.tudominio.org`. La app resuelve contra el VPS también las fotos de `img/`, por eso esa carpeta va en los dos.
 3. El VPS tiene que tener **https**: una web con https no puede pedir datos a una dirección http.
 4. `datos.php` ya permite que lo lea cualquier dominio. El resto de la API no lo usa la web, solo la app, que no pasa por esa restricción del navegador.
-5. Los `.htaccess` son de Apache. Con Nginx hay que traducir sus reglas: bloquear `config.php`, `conexion.php`, `secciones.php`, `crear-usuario.php`, `migrar.php`, la carpeta `api/migraciones/`, los `.sql` y `.md` de `api/`, y no ejecutar PHP dentro de `subidas/`.
+5. Los `.htaccess` son de Apache. Con Nginx hay que traducir sus reglas: bloquear `config.php`, `conexion.php`, `secciones.php`, `crear-usuario.php`, `migrar.php`, `version-app.php`, la carpeta `api/migraciones/`, los `.sql` y `.md` de `api/`, y no ejecutar PHP dentro de `subidas/`. El archivo ya traducido está en `servidor/nginx-mmm-utha.conf`.
 
 ## Respuestas
 
@@ -100,6 +100,28 @@ Público. Devuelve todo el contenido con la misma forma que tenía `js/datos.jso
 ```
 
 `cultos_extra` y `actividades` traen solo lo de hoy en adelante, según la `zona_horaria` de `config.php`. `programas` trae lo de hoy en adelante y, además, el último que ya pasó de cada culto fijo: la web no lo muestra y la app lo copia para armar el siguiente. En `programas`, un participante con `representante_id: null` es una visita y `nombre` dice a quién representa.
+
+### `GET api/version.php`
+
+Público. Qué versión de la app exige el servidor y de dónde se baja la nueva:
+
+```json
+{
+  "minima": "1.1.0",
+  "mensaje": "",
+  "enlaces": {
+    "android": "https://play.google.com/store/apps/details?id=…",
+    "ios": "https://apps.apple.com/app/id…",
+    "apk": "https://mmm.devpess.com/app/mmm-utha.apk"
+  }
+}
+```
+
+La app lo consulta al abrirse y cada vez que se vuelve a ella. Si la versión instalada es menor que `minima`, se queda en la pantalla *Actualiza la aplicación* y no se puede usar hasta instalar la nueva. Se comparan los números de a uno (`1.2.0` es anterior a `1.10.0`).
+
+Se cambia en `api/version-app.php`, que no se sirve por web. Con `minima` vacía no se obliga a nadie. Si el servidor no responde, la app sigue funcionando con lo que tiene: el bloqueo es para versiones viejas, no para cortes de internet.
+
+El paso a paso para publicar una versión está en `DESPLIEGUE.md` (*Pedir a todos que actualicen la app*).
 
 ### `POST api/guardar.php` 🔒
 
