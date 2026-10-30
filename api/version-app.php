@@ -20,7 +20,7 @@ return [
        pero sin el "+1" final: "1.2.0". Los celulares con una versión
        anterior se quedan en "Actualiza la aplicación" hasta que la
        instalen. Vacío ('') no obliga a nadie a actualizar. */
-    'minima' => '1.0.0',
+    'minima' => '1.1.0',
 
     /* Qué dice esa pantalla, por si conviene explicar el cambio
        ("Ahora las participaciones se responden desde la app").
