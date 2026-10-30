@@ -52,9 +52,14 @@ asegurarMaestro($db, $CONFIG['maestro'] ?? []);
             la única que nombra pastores
    pastor   administra todo y elige el rol de las demás cuentas
    admin    cambia el contenido del sitio
+   tesorero cuenta el dinero y registra las ofrendas de cada día
    miembro  se registra desde la app: su perfil y sus participaciones
    -------------------------------------------------------------- */
 const ROLES_ADMINISTRADORES = ['maestro', 'pastor', 'admin'];
+
+/* Las metas las escribe el pastor; lo reunido lo carga el tesorero */
+const ROLES_METAS     = ['maestro', 'pastor'];
+const ROLES_TESORERIA = ['maestro', 'pastor', 'tesorero'];
 
 function esAdministrador(?array $usuario): bool
 {
@@ -65,8 +70,8 @@ function esAdministrador(?array $usuario): bool
 function rolesAsignables(string $rol): array
 {
     return match ($rol) {
-        'maestro' => ['pastor', 'admin', 'miembro'],
-        'pastor'  => ['admin', 'miembro'],
+        'maestro' => ['pastor', 'admin', 'tesorero', 'miembro'],
+        'pastor'  => ['admin', 'tesorero', 'miembro'],
         default   => [],
     };
 }
@@ -247,6 +252,76 @@ function horaLegible(?string $hhmm): string
     [$hora, $minuto] = array_map('intval', explode(':', $hhmm));
     return ($hora % 12 ?: 12) . ':' . str_pad((string) $minuto, 2, '0', STR_PAD_LEFT)
         . ($hora < 12 ? ' a. m.' : ' p. m.');
+}
+
+/* "3000.00" → "$3,000"; "12.50" → "$12.50" */
+function dinero(float $monto): string
+{
+    return '$' . number_format($monto, fmod($monto, 1.0) == 0.0 ? 0 : 2);
+}
+
+/* --- Metas ----------------------------------------------------- */
+
+/* Primer y último día del mes "AAAA-MM" */
+function limitesDelMes(string $mes): array
+{
+    $inicio = new DateTimeImmutable("$mes-01");
+    return [$inicio->format('Y-m-d'), $inicio->modify('last day of this month')->format('Y-m-d')];
+}
+
+/* Metas con lo reunido en su período: en una mensual, lo del mes $mes
+   ("AAAA-MM", por defecto el actual); en una única, todo. $donde filtra
+   sobre m (metas). */
+function leerMetas(PDO $db, string $donde = '1', array $valores = [], ?string $mes = null): array
+{
+    [$desde, $hasta] = limitesDelMes($mes ?? date('Y-m'));
+
+    $consulta = $db->prepare(
+        "SELECT m.id, m.titulo, m.descripcion, m.tipo, m.monto, m.fecha_limite, m.activa, m.orden,
+                COALESCE(SUM(a.diezmos + a.ofrendas), 0) AS reunido
+           FROM metas m
+           LEFT JOIN aportes a ON a.meta_id = m.id
+                AND (m.tipo = 'unica' OR a.fecha BETWEEN ? AND ?)
+          WHERE $donde
+          GROUP BY m.id
+          ORDER BY m.activa DESC, m.orden, m.id"
+    );
+    $consulta->execute([$desde, $hasta, ...$valores]);
+
+    return array_map(fn(array $meta) => [
+        'id'           => (int) $meta['id'],
+        'titulo'       => $meta['titulo'],
+        'descripcion'  => $meta['descripcion'],
+        'tipo'         => $meta['tipo'],
+        'monto'        => (float) $meta['monto'],
+        'fecha_limite' => $meta['fecha_limite'],
+        'activa'       => (bool) $meta['activa'],
+        'orden'        => (int) $meta['orden'],
+        'reunido'      => round((float) $meta['reunido'], 2),
+        /* El mes que se está contando; una única no tiene */
+        'periodo'      => $meta['tipo'] === 'mensual' ? ['desde' => $desde, 'hasta' => $hasta] : null,
+    ], $consulta->fetchAll());
+}
+
+/* Un monto de dinero como "1234.50", o null si no es válido. Se acepta
+   número o texto con punto y hasta 2 decimales. */
+function leerMonto(mixed $valor): ?string
+{
+    if (is_int($valor) || is_float($valor)) {
+        $valor = (string) $valor;
+    }
+    if (!is_string($valor) || !preg_match('/^\d{1,8}(\.\d{1,2})?$/', trim($valor))) {
+        return null;
+    }
+    return number_format((float) trim($valor), 2, '.', '');
+}
+
+/* Todas las cuentas activas, menos $salvo */
+function idsDeTodos(PDO $db, int $salvo = 0): array
+{
+    $consulta = $db->prepare('SELECT id FROM usuarios WHERE activo = 1 AND id <> ?');
+    $consulta->execute([$salvo]);
+    return array_map('intval', $consulta->fetchAll(PDO::FETCH_COLUMN));
 }
 
 /* --- Cultos ---------------------------------------------------- */

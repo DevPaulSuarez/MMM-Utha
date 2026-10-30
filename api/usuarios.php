@@ -4,9 +4,9 @@
    GET  api/usuarios.php               todas las cuentas
    POST api/usuarios.php { "id": 5, "rol": "pastor" }
 
-   El maestro nombra pastores; el pastor elige quién es admin y
-   quién miembro. Nadie cambia su propio rol ni el de alguien de
-   su mismo nivel o superior.
+   El maestro nombra pastores; el pastor elige quién es admin,
+   quién tesorero y quién miembro. Nadie cambia su propio rol ni
+   el de alguien de su mismo nivel o superior.
    ============================================================ */
 
 require __DIR__ . '/conexion.php';
@@ -35,10 +35,11 @@ function formatoCuenta(array $cuenta, callable $editable): array
 }
 
 const NOMBRES_ROL = [
-    'maestro' => 'Maestro',
-    'pastor'  => 'Pastor',
-    'admin'   => 'Administrador',
-    'miembro' => 'Miembro',
+    'maestro'  => 'Maestro',
+    'pastor'   => 'Pastor',
+    'admin'    => 'Administrador',
+    'tesorero' => 'Tesorero',
+    'miembro'  => 'Miembro',
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,9 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->prepare('UPDATE usuarios SET rol = ? WHERE id = ?')->execute([$rol, $id]);
         crearAviso($db, [$id], 'rol', 'Ahora eres ' . NOMBRES_ROL[$rol],
             match ($rol) {
-                'pastor'  => 'Puedes cambiar el contenido del sitio y elegir el rol de las demás cuentas.',
-                'admin'   => 'Puedes cambiar el contenido del sitio desde la aplicación.',
-                'miembro' => 'Ves tus participaciones, tu perfil y los avisos de la iglesia.',
+                'pastor'   => 'Puedes cambiar el contenido del sitio y elegir el rol de las demás cuentas.',
+                'admin'    => 'Puedes cambiar el contenido del sitio desde la aplicación.',
+                'tesorero' => 'Registras en la aplicación los diezmos y ofrendas de cada día para las metas.',
+                'miembro'  => 'Ves tus participaciones, tu perfil y los avisos de la iglesia.',
             });
         $cuenta['rol'] = $rol;
     }
@@ -82,7 +84,7 @@ $cuentas = $db->query(
     "SELECT id, usuario, nombre, rol, creado
        FROM usuarios
       WHERE activo = 1
-      ORDER BY FIELD(rol, 'maestro', 'pastor', 'admin', 'miembro'), creado DESC, id DESC"
+      ORDER BY FIELD(rol, 'maestro', 'pastor', 'admin', 'tesorero', 'miembro'), creado DESC, id DESC"
 )->fetchAll();
 
 responder([

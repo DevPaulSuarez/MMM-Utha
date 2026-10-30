@@ -206,8 +206,9 @@ La `ruta` es relativa a la raíz del sitio. Para mostrar la imagen en la app, se
 | Rol | Quién es | Qué puede |
 |---|---|---|
 | `maestro` | La cuenta del servidor, creada desde `config.php` | Todo, y nombrar pastores |
-| `pastor` | Lo nombra el maestro | Todo, y elegir quién es `admin` o `miembro` |
+| `pastor` | Lo nombra el maestro | Todo, y elegir quién es `admin`, `tesorero` o `miembro` |
 | `admin` | Lo elige el pastor (o `crear-usuario.php`) | Cambiar el contenido del sitio |
+| `tesorero` | Lo elige el pastor | Anotar los diezmos y ofrendas de cada día para las metas |
 | `miembro` | Se registra desde la app | Editar su perfil y responder sus participaciones |
 
 Los tres primeros son administradores: pueden usar `guardar.php` y `programa.php` (con otra cuenta responden `403`) y reciben los avisos para administradores.
@@ -221,7 +222,7 @@ Solo para `maestro` y `pastor`; con otra cuenta responde `403`.
 - `GET`: `{ "usuarios": [ { "id", "usuario", "nombre", "rol", "creado", "editable" } ], "asignables": ["admin", "miembro"] }`. `editable` dice si quien pide le puede cambiar el rol a esa cuenta.
 - `POST` con `{ "id": 5, "rol": "pastor" }`: cambia el rol y le deja un aviso (`rol`) a esa persona. Responde `{ "ok": true, "usuario": { … } }`.
 
-Nadie cambia su propio rol. El maestro da `pastor`, `admin` o `miembro` a cualquier cuenta menos a sí mismo. El pastor da `admin` o `miembro`, y solo a cuentas que tienen uno de esos dos roles: no puede tocar a otro pastor ni al maestro.
+Nadie cambia su propio rol. El maestro da `pastor`, `admin`, `tesorero` o `miembro` a cualquier cuenta menos a sí mismo. El pastor da `admin`, `tesorero` o `miembro`, y solo a cuentas que tienen uno de esos roles: no puede tocar a otro pastor ni al maestro.
 
 ### `POST api/registro.php`
 
@@ -266,8 +267,98 @@ Se crean avisos cuando:
 | Alguien entra nuevo a un programa (`programa`) | Esa persona, si tiene cuenta |
 | Un participante elige qué presentará (`respuesta`) | Los admins |
 | Se crea una actividad (`actividad`) | Todas las cuentas, menos quien la creó |
+| El pastor pone una meta o vuelve a mostrarla (`meta`) | Todas las cuentas, menos él |
+| Una meta llega a su monto (`meta`) | Todas las cuentas |
 
 Los avisos de más de 60 días se borran solos.
+
+## Metas y ofrendas
+
+Lo que hace falta reunir con los diezmos y ofrendas, como el termómetro de una feria. El pastor (o el maestro) escribe las metas; el tesorero (o el pastor) anota lo que se contó cada día; todos ven cuánto se lleva.
+
+- **`mensual`**: un gasto fijo (alquiler, agua). Cuenta solo lo del mes, que empieza de cero el día 1. Vence a fin de mes.
+- **`unica`**: una compra o proyecto (una cámara). Cuenta todo lo anotado. `fecha_limite` es opcional.
+
+### `GET api/metas.php` 🔒
+
+```json
+{ "metas": [ {
+  "id": 1, "titulo": "Alquiler del templo", "descripcion": "…", "tipo": "mensual",
+  "monto": 3000.0, "fecha_limite": null, "activa": true, "orden": 1, "reunido": 2000.5,
+  "periodo": { "desde": "2026-10-01", "hasta": "2026-10-31" }
+} ] }
+```
+
+`periodo` es `null` en las únicas. Las metas con `activa: false` (ocultas) solo le llegan al pastor y al maestro.
+
+`GET api/metas.php?id=1` agrega lo anotado en el período y, en las mensuales, cuánto se reunió en cada uno de los últimos 12 meses. Con `&mes=2026-09` se mira otro mes:
+
+```json
+{
+  "meta": { … },
+  "aportes": [ { "id": 8, "meta_id": 1, "fecha": "2026-10-05", "diezmos": 1800.0, "ofrendas": 200.5, "nota": "Domingo", "registrado_por": "…" } ],
+  "meses": [ { "mes": "2026-10", "reunido": 2000.5 }, { "mes": "2026-09", "reunido": 3000.0 } ]
+}
+```
+
+`registrado_por` solo llega a la tesorería (tesorero, pastor, maestro). No se anota quién dio cada ofrenda: solo el total de cada día.
+
+### `POST api/metas.php` 🔒
+
+Solo maestro y pastor. Se mandan todos los campos cada vez:
+
+```json
+{ "accion": "crear", "datos": { "titulo": "Cámara", "descripcion": "", "tipo": "unica", "monto": "1500", "fecha_limite": "2026-12-24", "activa": true } }
+{ "accion": "editar", "id": 2, "datos": { … } }
+{ "accion": "borrar", "id": 2 }
+```
+
+Montos como texto o número, con punto y hasta 2 decimales. Borrar una meta borra todo lo anotado para ella; para que no se vea basta con `activa: false`.
+
+### `POST api/aportes.php` 🔒
+
+Tesorero, pastor o maestro:
+
+```json
+{ "accion": "crear", "datos": { "meta_id": 1, "fecha": "2026-10-05", "diezmos": "1800", "ofrendas": "200.50", "nota": "Domingo" } }
+{ "accion": "editar", "id": 8, "datos": { … } }
+{ "accion": "borrar", "id": 8 }
+```
+
+La fecha no puede ser futura y entre diezmos y ofrendas tiene que haber algo. Lo nuevo solo se anota a metas visibles. Responde con el `aporte` y la `meta` con lo reunido al día.
+
+## Versículo del día
+
+A cada cuenta le toca un versículo distinto cada día, de la Reina-Valera 1960. El servidor lo elige entre los que esa persona no vio (ni le mandaron) en el último año. Les da más chance a los temas en los que tocó "Sí, me habló", a los que van con el día (*congregarse* si hay culto, *fuerza* los lunes) y, con menos peso, a los que más le hablan a toda la iglesia. Nunca repite el tema principal del día anterior. Elige 7 días por adelantado para que el celular programe las notificaciones.
+
+Los 467 versículos iniciales los carga `api/migraciones/003-versiculos-iniciales.sql`, que se genera con `herramientas/versiculos/generar.php` a partir de `herramientas/versiculos/lista/`. Sociedades Bíblicas Unidas permite citar hasta **500** sin pedir permiso por escrito, siempre que la app muestre el aviso de derechos. Por eso la pantalla de administración no deja pasar de 500.
+
+### `GET api/versiculo.php` 🔒
+
+```json
+{ "dias": [
+  { "fecha": "2026-10-30", "me_hablo": false, "culto": "Culto general a las 7:00 p. m.",
+    "versiculo": { "id": 12, "cita": "Salmos 122:1", "texto": "Yo me alegré…", "temas": ["congregarse", "alabanza"] } },
+  …
+] }
+```
+
+El primero es el de hoy. `culto` es el primer culto del día ya escrito, o `null` si ese día no hay. `cultos` trae todos los de ese día (los de cada semana y los extra), con `nombre` y `hora` (`"19:00"`): la app avisa una hora antes de cada uno.
+
+- `?hermanos=1`: `{ "hermanos": [{ "id": 4, "nombre": "…", "foto": "subidas/…" }] }`, las demás cuentas activas.
+- `?estadisticas=1&dias=30` (7, 30, 90 o 365): solo administradores, y **solo totales**: nunca lo que marcó cada persona. Trae `totales` (`repartidos`, `vistos`, `me_hablo`, `para_hermano`, `compartidos`, `personas`, `porcentaje`), `temas` (lo mismo por tema; un versículo cuenta en cada uno de sus temas) y `mas`/`menos` (hasta 10 versículos con al menos `minimo` aperturas). `porcentaje` es "me habló" sobre los que lo abrieron, y es `null` si nadie lo abrió.
+- `?todos=1`: solo administradores. Trae `versiculos` (con `activo`), `temas` (`{ "congregarse": "Congregarse", … }`) y `limite` (500). Se crean, editan y borran con `guardar.php`, sección `versiculos` (`temas` separados por coma, el primero es el principal).
+
+### `POST api/versiculo.php` 🔒
+
+```json
+{ "accion": "visto", "fecha": "2026-10-30" }
+{ "accion": "me_hablo", "fecha": "2026-10-30" }
+{ "accion": "para_hermano", "fecha": "2026-10-30" }
+{ "accion": "compartir", "versiculo_id": 12, "para": [4, 9] }
+```
+
+La app manda `visto` cuando la persona abre el versículo; `me_hablo` también lo cuenta como visto. `me_hablo` vuelve a elegir los días que vienen con ese gusto y responde los `dias` de nuevo. `para_hermano` ("Es para mi hermano") funciona como cerrar: solo queda anotado que no le habló a él sino que le hizo pensar en otra persona, y al elegir los próximos le resta un poco a esos temas. Si además quiere mandárselo a alguien de la app, `compartir` le deja un aviso de tipo `versiculo` a cada uno, con `"cita\ntexto"` en el mensaje. Se puede mandar a 20 por vez y a 30 por día (si no, 429).
 
 ## Agregar un campo nuevo
 

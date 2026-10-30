@@ -25,7 +25,9 @@ return [
     /* Qué dice esa pantalla, por si conviene explicar el cambio
        ("Ahora las participaciones se responden desde la app").
        Vacío usa el texto de siempre. */
-    'mensaje' => '',
+    'mensaje' => 'Hay una versión nueva con el versículo del día. Instálala y '
+        . 'después borra la anterior: quedan las dos en el celular. Tus datos no '
+        . 'se pierden, solo vuelve a iniciar sesión.',
 
     /* De dónde se baja la versión nueva. La app abre el que
        corresponde al celular; si el de su tienda está vacío, usa el

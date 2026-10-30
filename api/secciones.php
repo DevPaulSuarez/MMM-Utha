@@ -111,6 +111,20 @@ return [
         ],
     ],
 
+    /* Versículos que se reparten cada día (versiculo.php). No salen en
+       datos.php: el pastor los lee con versiculo.php?todos=1. temas va
+       separado por coma, el primero es el principal. */
+    'versiculos' => [
+        'tabla'  => 'versiculos',
+        'orden'  => 'id',
+        'campos' => [
+            'cita'   => ['tipo' => 'texto', 'max' => 60, 'requerido' => true],
+            'texto'  => ['tipo' => 'texto', 'max' => 1000, 'requerido' => true],
+            'temas'  => ['tipo' => 'texto', 'max' => 200],
+            'activo' => ['tipo' => 'entero', 'defecto' => 1],
+        ],
+    ],
+
     'noticias' => [
         'tabla'  => 'noticias',
         'orden'  => 'fecha DESC, id DESC',
