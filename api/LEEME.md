@@ -269,6 +269,7 @@ Se crean avisos cuando:
 | Se crea una actividad (`actividad`) | Todas las cuentas, menos quien la creó |
 | El pastor pone una meta o vuelve a mostrarla (`meta`) | Todas las cuentas, menos él |
 | Una meta llega a su monto (`meta`) | Todas las cuentas |
+| A alguien le toca cocinar o cobrar el talento (`talento`) | Esa persona, si tiene cuenta |
 
 Los avisos de más de 60 días se borran solos.
 
@@ -326,6 +327,52 @@ Tesorero, pastor o maestro:
 ```
 
 La fecha no puede ser futura y entre diezmos y ofrendas tiene que haber algo. Lo nuevo solo se anota a metas visibles. Responde con el `aporte` y la `meta` con lo reunido al día.
+
+## Talento de los domingos
+
+Cada domingo alguien prepara comida que se vende después del culto. Un administrador (maestro, pastor o admin) elige quién cocina, qué plato, a cuánto y, si quiere, qué cuenta cobra. El día del talento quien cobra cuenta a las personas que comen (un plato cada una) y anota si pagaron en **efectivo** o por **traspaso**; la app calcula el total y el vuelto.
+
+Pueden cobrar: la cuenta elegida como cobrador de ese talento, el tesorero, el pastor, el maestro y los admins. Solo ellos ven los totales y los cobros; los demás ven el plato, el precio y quién cocina.
+
+### `GET api/talentos.php` 🔒
+
+```json
+{ "organiza": false, "talentos": [ {
+  "id": 1, "fecha": "2026-11-01", "platillo": "Ají de gallina", "descripcion": "Con arroz", "precio": 10.0,
+  "cocineros": [ { "representante_id": 4, "nombre": "…", "foto": "subidas/…" }, { "representante_id": null, "nombre": "Familia Pérez", "foto": "" } ],
+  "cobrador": { "id": 2, "nombre": "…" },
+  "puede_cobrar": true,
+  "totales": { "ventas": 2, "platos": 5, "efectivo": 30.0, "traspaso": 20.0, "total": 50.0 }
+} ] }
+```
+
+Trae los de hoy en adelante y los últimos 8 que pasaron. `cobrador` puede ser `null`; `totales` es `null` para quien no cobra.
+
+- `?id=1`: `{ "talento": { … }, "ventas": [ { "id", "platos", "metodo", "monto", "recibido", "vuelto", "cobrado_por", "creado" } ] }`, del más nuevo al más viejo. `ventas` llega vacío a quien no cobra.
+- `?cuentas=1`: solo administradores. `{ "cuentas": [ { "id", "usuario", "nombre" } ] }`, para elegir al cobrador.
+
+### `POST api/talentos.php` 🔒
+
+Organizar (administradores). Se mandan todos los campos cada vez:
+
+```json
+{ "accion": "crear", "datos": { "fecha": "2026-11-08", "platillo": "Tamales", "descripcion": "", "precio": "8",
+  "cobrador_id": 2, "cocineros": [ { "representante_id": 4 }, { "nombre": "Familia Pérez" } ] } }
+{ "accion": "editar", "id": 1, "datos": { … } }
+{ "accion": "borrar", "id": 1 }
+```
+
+Un talento por día; la app solo deja elegir domingos. Hace falta al menos una persona que cocine (hasta 20). Con cobros anotados no se puede cambiar el precio ni borrarlo.
+
+Cobrar (quien puede cobrar), desde el día del talento:
+
+```json
+{ "accion": "cobrar", "talento_id": 1, "platos": 3, "metodo": "efectivo", "recibido": "50" }
+{ "accion": "cobrar", "talento_id": 1, "platos": 2, "metodo": "traspaso" }
+{ "accion": "anular", "id": 15 }
+```
+
+El monto lo calcula el servidor (`platos × precio`), de 1 a 50 platos por cobro. `recibido` es opcional y solo en efectivo: con cuánto pagó, para el vuelto; no puede ser menos que el total. Responde con la `venta` y el `talento` con los totales al día; `anular` borra un cobro mal anotado.
 
 ## Versículo del día
 
