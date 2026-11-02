@@ -20,14 +20,15 @@ return [
        pero sin el "+1" final: "1.2.0". Los celulares con una versión
        anterior se quedan en "Actualiza la aplicación" hasta que la
        instalen. Vacío ('') no obliga a nadie a actualizar. */
-    'minima' => '1.0.0',
+    'minima' => '1.2.0',
 
     /* Qué dice esa pantalla, por si conviene explicar el cambio
        ("Ahora las participaciones se responden desde la app").
        Vacío usa el texto de siempre. */
-    'mensaje' => 'Hay una versión nueva con el versículo del día. Instálala y '
-        . 'después borra la anterior: quedan las dos en el celular. Tus datos no '
-        . 'se pierden, solo vuelve a iniciar sesión.',
+    'mensaje' => 'Hay una versión nueva con el versículo del día, las metas y el '
+        . 'talento de los domingos. Instálala y, si te quedan dos apps MMM Utah en '
+        . 'el celular, borra la anterior. Tus datos no se pierden, solo vuelve a '
+        . 'iniciar sesión.',
 
     /* De dónde se baja la versión nueva. La app abre el que
        corresponde al celular; si el de su tienda está vacío, usa el
