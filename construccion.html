@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MMM Utah | Estamos edificando algo grande</title>
+    <meta name="description" content="Movimiento Misionero Mundial en Utah. Nuestra nueva página está en construcción. «Levantémonos y edifiquemos» (Nehemías 2:18)." />
+    <meta name="theme-color" content="#0f2133" />
+    <meta property="og:title" content="MMM Utah | Estamos edificando algo grande" />
+    <meta property="og:description" content="Nuestra nueva página está en construcción. «Levantémonos y edifiquemos» (Nehemías 2:18)." />
+    <meta property="og:image" content="/img/compartir.jpg" />
+    <link rel="icon" href="/img/logo/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&amp;family=Inter:wght@400;500;600&amp;display=swap" />
+    <!-- Todo va aquí dentro: esta página se muestra en cualquier
+         dirección del sitio (ver web.htaccess), así que no depende de
+         css/style.css y las rutas empiezan con / -->
+    <style>
+      :root {
+        --ink: #0f2133;
+        --ink-2: #16304a;
+        --acento: #e2680f;
+        --oro: #f3b45b;
+        --crema: #f7f6f3;
+        --tenue: rgba(247, 246, 243, .68);
+        --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+        --fuente: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      /* Todo cabe en una pantalla: las medidas se toman del alto de la
+         ventana (dvh) para que no haga falta bajar. Si la pantalla es
+         muy chica, igual se puede bajar en vez de cortar el contenido. */
+      html, body { height: 100%; }
+      body {
+        font-family: var(--fuente);
+        color: var(--crema);
+        background:
+          radial-gradient(ellipse 70% 55% at 50% 38%, rgba(226, 104, 15, .16), transparent 70%),
+          linear-gradient(180deg, #0b1a29 0%, var(--ink) 45%, #0a1724 100%);
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+      }
+
+      /* Estrellas de fondo */
+      .cielo { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+      .cielo i {
+        position: absolute; width: 2px; height: 2px; border-radius: 50%;
+        background: #fff; opacity: .2;
+        animation: titilar 4s ease-in-out infinite;
+      }
+      @keyframes titilar { 50% { opacity: .75; } }
+
+      main {
+        position: relative; z-index: 1;
+        width: min(1120px, 100%);
+        padding: clamp(.75rem, 2.4dvh, 1.6rem) 1.25rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(.6rem, 2.6dvh, 1.8rem);
+        flex: 1;
+      }
+      .logo { height: clamp(34px, 7dvh, 64px); width: auto; }
+
+      .escena-y-texto {
+        width: 100%;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: clamp(1.25rem, 3.5vw, 3rem);
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Obra: escenario donde los obreros levantan el arco */
+      .escenario {
+        justify-self: center;
+        padding: 5px;
+        border-radius: 10px;
+        background: linear-gradient(160deg, #f6dfa6, #c79647 45%, #f0d08a 70%, #a9782f);
+        box-shadow: 0 24px 50px -22px rgba(0, 0, 0, .8), 0 0 0 1px rgba(0, 0, 0, .4);
+      }
+      .obra {
+        display: block;
+        aspect-ratio: 480 / 254;
+        width: min(56vw, calc(var(--alto-obra, 50dvh) * 480 / 254));
+        height: auto;
+        border-radius: 6px;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .5);
+      }
+      .pieza { opacity: 0; stroke: #8f6a3a; stroke-width: .7; }
+      .pieza.puesta { animation: poner .6s cubic-bezier(.3, 1.35, .5, 1) forwards; }
+      @keyframes poner {
+        0%   { opacity: 0; transform: translateY(-46px); }
+        60%  { opacity: 1; }
+        100% { opacity: 1; transform: none; }
+      }
+      .polvo { fill: #d8c3a0; opacity: .7; transform-box: fill-box; transform-origin: center;
+               animation: polvo .7s ease-out forwards; }
+      @keyframes polvo { to { opacity: 0; transform: scale(3.2) translateY(-2px); } }
+      #piezas { transition: opacity .9s ease; }
+      .reiniciando #piezas { opacity: 0; }
+
+      .andamio { transition: opacity 1.2s ease; }
+      .terminada .andamio { opacity: 0; }
+      /* Cimbra: el armazón de madera que sostiene el arco mientras se cierra */
+      .cimbra { opacity: 0; transition: opacity .6s ease; }
+      .con-cimbra .cimbra { opacity: 1; }
+      .terminada .cimbra { opacity: 0; transition-duration: 1.2s; }
+
+      /* Obreros */
+      .martillo { animation: martillar .7s cubic-bezier(.5, 0, .9, .4) infinite; }
+      @keyframes martillar {
+        0%, 100% { transform: rotate(-75deg); }
+        55%      { transform: rotate(18deg); }
+        65%      { transform: rotate(10deg); }
+      }
+            /* Texto */
+      .etiqueta {
+        display: inline-flex; align-items: center; gap: .55rem;
+        font-size: .78rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+        color: var(--oro);
+        padding: .45rem .9rem; border: 1px solid rgba(243, 180, 91, .35); border-radius: 999px;
+      }
+      .etiqueta::before {
+        content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--acento);
+        box-shadow: 0 0 0 0 rgba(226, 104, 15, .7); animation: pulso 1.8s infinite;
+      }
+      @keyframes pulso { 70% { box-shadow: 0 0 0 10px rgba(226, 104, 15, 0); } 100% { box-shadow: 0 0 0 0 rgba(226, 104, 15, 0); } }
+      h1 {
+        font-family: var(--display); font-weight: 400;
+        font-size: clamp(1.6rem, min(1rem + 2.6vw, 6dvh), 3.4rem);
+        line-height: 1.05; letter-spacing: -.02em;
+        margin: clamp(.5rem, 2dvh, 1.1rem) 0 clamp(.4rem, 1.6dvh, .9rem);
+      }
+      h1 em { font-style: italic; color: var(--oro); }
+      .intro { color: var(--tenue); font-size: clamp(.9rem, 2.2dvh, 1.05rem); line-height: 1.6; max-width: 32rem; }
+
+      .avance { margin-top: clamp(.7rem, 2.6dvh, 1.6rem); max-width: 26rem; }
+      .avance__fila { display: flex; justify-content: space-between; font-size: .82rem; color: var(--tenue); margin-bottom: .5rem; }
+      .avance__barra { height: 8px; border-radius: 999px; background: rgba(255, 255, 255, .1); overflow: hidden; }
+      .avance__barra span {
+        display: block; height: 100%; width: 0; border-radius: inherit;
+        background: repeating-linear-gradient(-45deg, var(--acento) 0 10px, #f08a3a 10px 20px);
+        background-size: 28px 28px;
+        animation: rayas 1s linear infinite;
+        transition: width .5s ease;
+      }
+      @keyframes rayas { to { background-position: 28px 0; } }
+
+      /* Versículos */
+      .versiculo {
+        position: relative;
+        text-align: center;
+        width: min(46rem, 100%);
+        padding: clamp(.6rem, 2dvh, 1.2rem) .5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, .12);
+      }
+      .versiculo blockquote {
+        font-family: var(--display); font-style: italic; font-weight: 300;
+        font-size: clamp(1rem, min(.9rem + .7vw, 2.9dvh), 1.45rem); line-height: 1.4;
+        min-height: 2.8em;
+        display: flex; align-items: center; justify-content: center;
+        transition: opacity .7s ease, transform .7s ease;
+      }
+      .versiculo cite {
+        display: block; margin-top: .45rem; font-style: normal;
+        font-size: .8rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--oro);
+        transition: opacity .7s ease;
+      }
+      .versiculo.cambiando blockquote { opacity: 0; transform: translateY(8px); }
+      .versiculo.cambiando cite { opacity: 0; }
+      .puntos { display: flex; justify-content: center; gap: .45rem; margin-top: clamp(.4rem, 1.4dvh, .9rem); }
+      .puntos button {
+        width: 7px; height: 7px; border-radius: 50%; border: 0; cursor: pointer;
+        background: rgba(255, 255, 255, .25); transition: background .3s, transform .3s;
+      }
+      .puntos button[aria-current="true"] { background: var(--acento); transform: scale(1.3); }
+
+      footer {
+        position: relative; z-index: 1; width: 100%;
+        text-align: center; padding: clamp(.6rem, 2dvh, 1.2rem) 1.25rem clamp(.7rem, 2.4dvh, 1.4rem);
+        color: var(--tenue); font-size: .84rem; line-height: 1.6;
+        display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem;
+      }
+      footer a { color: var(--crema); text-decoration-color: rgba(243, 180, 91, .6); text-underline-offset: 3px; }
+      footer a:hover { color: var(--oro); }
+      .redes { display: flex; justify-content: center; gap: 1.1rem; }
+
+      /* Celular y tablet en vertical: una columna, todo apilado */
+      @media (max-width: 820px) {
+        .escena-y-texto { grid-template-columns: 1fr; text-align: center; gap: clamp(.6rem, 2dvh, 1.2rem); }
+        .obra { width: min(calc(100vw - 2.5rem - 10px), calc(var(--alto-obra, 30dvh) * 480 / 254)); }
+        .etiqueta { display: none; }
+        h1 { font-size: clamp(1.35rem, min(5.6vw, 4dvh), 2.2rem); margin-top: 0; }
+        .intro { margin-inline: auto; font-size: clamp(.85rem, 1.9dvh, 1rem); }
+        .avance { margin-inline: auto; }
+        .versiculo blockquote { font-size: clamp(.92rem, 2.3dvh, 1.15rem); min-height: 4.2em; }
+        footer { font-size: .78rem; }
+      }
+      /* En celulares comunes el párrafo no entra junto con todo lo demás */
+      @media (max-width: 820px) and (max-height: 780px) {
+        .intro { display: none; }
+      }
+      /* Pantallas bajitas (celular acostado, portátil chica) */
+      @media (max-height: 560px) {
+        .intro, .etiqueta { display: none; }
+      }
+
+      /* Botón de música (solo aparece si existe /musica/fondo.m4a) */
+      /* Pantalla de bienvenida: el toque en "Entrar" es el permiso que
+         piden los navegadores para que suene la música */
+      .bienvenida {
+        position: fixed; inset: 0; z-index: 20;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: clamp(1rem, 3dvh, 1.8rem); padding: 1.5rem; text-align: center;
+        background:
+          radial-gradient(ellipse 60% 50% at 50% 45%, rgba(226, 104, 15, .22), transparent 70%),
+          linear-gradient(180deg, #0b1a29 0%, var(--ink) 50%, #0a1724 100%);
+        transition: opacity .9s ease, visibility 0s linear .9s;
+      }
+      .bienvenida.fuera { opacity: 0; visibility: hidden; }
+      .bienvenida img { height: clamp(48px, 11dvh, 96px); width: auto; }
+      .bienvenida h2 {
+        font: 400 clamp(1.9rem, 1.2rem + 3vw, 3.2rem)/1.1 var(--display); letter-spacing: -.02em;
+      }
+      .bienvenida h2 em { color: var(--oro); }
+      .bienvenida blockquote {
+        max-width: 30rem; color: var(--tenue);
+        font: italic 300 clamp(1rem, .9rem + .5vw, 1.25rem)/1.5 var(--display);
+      }
+      .bienvenida cite {
+        display: block; margin-top: .4rem; font: 600 .78rem var(--fuente);
+        letter-spacing: .14em; text-transform: uppercase; color: var(--oro); font-style: normal;
+      }
+      .bienvenida button {
+        font: 600 1.05rem var(--fuente); color: var(--ink); background: var(--oro);
+        border: 0; border-radius: 999px; padding: .95rem 2.4rem; cursor: pointer;
+        box-shadow: 0 0 0 0 rgba(243, 180, 91, .6); animation: llamar 2s infinite;
+        transition: transform .2s ease;
+      }
+      .bienvenida button:hover { transform: scale(1.05); }
+      .bienvenida button:focus-visible { outline: 3px solid var(--crema); outline-offset: 3px; }
+      @keyframes llamar { 70% { box-shadow: 0 0 0 18px rgba(243, 180, 91, 0); } 100% { box-shadow: 0 0 0 0 rgba(243, 180, 91, 0); } }
+      .bienvenida small { color: var(--tenue); font-size: .8rem; }
+
+      .botones {
+        position: fixed; right: 1rem; bottom: 1rem; z-index: 5;
+        display: flex; gap: .5rem;
+      }
+      .musica, .visita {
+        display: none; align-items: center; gap: .45rem;
+        font: 600 .8rem var(--fuente); color: var(--ink);
+        background: var(--oro); border: 0; border-radius: 999px;
+        padding: .55rem .95rem; cursor: pointer;
+        box-shadow: 0 8px 20px -8px rgba(0, 0, 0, .6);
+      }
+      .musica.lista, .visita { display: inline-flex; }
+      .visita { background: rgba(255, 255, 255, .12); color: var(--crema); border: 1px solid rgba(255, 255, 255, .25); }
+      .visita:hover { background: rgba(255, 255, 255, .2); }
+
+      /* Ventana del código de visita */
+      .ventana {
+        margin: auto; width: min(22rem, calc(100vw - 2rem));
+        border: 0; border-radius: 16px; padding: 1.6rem 1.5rem 1.4rem;
+        background: #13263a; color: var(--crema);
+        box-shadow: 0 30px 70px -20px rgba(0, 0, 0, .8), 0 0 0 1px rgba(243, 180, 91, .3);
+      }
+      .ventana::backdrop { background: rgba(3, 8, 14, .7); backdrop-filter: blur(3px); }
+      .ventana h2 { font: 400 1.4rem/1.2 var(--display); margin-bottom: .35rem; }
+      .ventana p { color: var(--tenue); font-size: .88rem; margin-bottom: 1rem; }
+      .ventana input {
+        width: 100%; font: 500 1rem var(--fuente); color: var(--crema);
+        background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .2);
+        border-radius: 10px; padding: .7rem .85rem;
+      }
+      .ventana input:focus { outline: 2px solid var(--oro); outline-offset: 1px; }
+      .ventana .error { color: #ff9d7a; font-size: .82rem; min-height: 1.2em; margin: .45rem 0 .2rem; }
+      .ventana .acciones { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .5rem; }
+      .ventana button {
+        font: 600 .88rem var(--fuente); border-radius: 999px; padding: .6rem 1.1rem; cursor: pointer; border: 0;
+      }
+      .ventana .cancelar { background: transparent; color: var(--tenue); }
+      .ventana .entrar { background: var(--oro); color: var(--ink); }
+      .ventana .entrar:disabled { opacity: .6; cursor: wait; }
+      .musica[aria-pressed="true"] { background: var(--crema); }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation: none !important; transition: none !important; }
+        .pieza { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bienvenida" id="bienvenida" role="dialog" aria-modal="true" aria-labelledby="bienvenidaTitulo">
+      <img src="/img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial" width="600" height="190" />
+      <h2 id="bienvenidaTitulo">¡Bienvenido a <em>MMM Utah</em>!</h2>
+      <blockquote>
+        Yo me alegré con los que me decían: A la casa de Jehová iremos.
+        <cite>Salmos 122:1</cite>
+      </blockquote>
+      <button type="button" id="entrarSitio" autofocus>Entrar</button>
+      <small>🔊 Con música de alabanza</small>
+    </div>
+
+    <div class="cielo" id="cielo" aria-hidden="true"></div>
+
+    <main>
+      <img class="logo" src="/img/logo/logo_mmm_2026.png" alt="Movimiento Misionero Mundial" width="600" height="190" />
+
+      <section class="escena-y-texto">
+        <div class="escenario">
+        <svg class="obra" id="obra" viewBox="0 26 480 254" role="img"
+             aria-label="Obreros levantando un arco de piedra con andamios">
+          <defs>
+            <linearGradient id="fondoEscena" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2a1b11" />
+              <stop offset="55%" stop-color="#0c0806" />
+              <stop offset="100%" stop-color="#030202" />
+            </linearGradient>
+            <!-- Las piedras de las enjutas no tapan el hueco del arco -->
+            <clipPath id="enjutas">
+              <path clip-rule="evenodd" d="M205 125 H275 V170 H205 Z M185 170 A55 55 0 0 1 295 170 Z" />
+            </clipPath>
+            <clipPath id="crecer"><rect id="crecerRect" x="0" y="300" width="480" height="300" /></clipPath>
+          </defs>
+
+          <rect width="480" height="300" fill="url(#fondoEscena)" />
+
+          <!-- Suelo -->
+          <rect x="0" y="260" width="480" height="40" fill="#8f8c86" />
+          <rect x="0" y="260" width="480" height="2" fill="#b8b4ac" />
+
+          <!-- Cimbra de madera bajo el arco -->
+          <g class="cimbra" stroke="#9a6532" stroke-linecap="round" fill="none">
+            <path d="M206 170 A34 34 0 0 1 274 170 Z" stroke-width="2.4" />
+            <path d="M240 170 V137 M216 170 L215.5 146 M264 170 L264.5 146 M226 170 L223 140 M254 170 L257 140" stroke-width="1.4" />
+            <path d="M212 170 V260 M240 170 V260 M268 170 V260" stroke-width="2.6" />
+            <path d="M212 215 L240 190 L268 215 M212 215 L240 240 L268 215" stroke-width="1.2" />
+          </g>
+
+          <g id="piezas"></g>
+
+          <!-- Andamios: crecen con la obra -->
+          <g class="andamio" clip-path="url(#crecer)" stroke="#9a6532" stroke-linecap="round">
+            <g stroke-width="2.6">
+              <path d="M141 262 V92 M214 262 V92 M266 262 V92 M339 262 V92" />
+            </g>
+            <g stroke-width="3">
+              <path d="M134 230 H221 M134 200 H221 M134 170 H221 M134 140 H221 M134 110 H221" />
+              <path d="M259 230 H346 M259 200 H346 M259 170 H346 M259 140 H346 M259 110 H346" />
+            </g>
+            <g stroke-width="1.3" opacity=".8">
+              <path d="M141 260 L214 230 M141 230 L214 200 M141 200 L214 170 M141 170 L214 140 M141 140 L214 110" />
+              <path d="M339 260 L266 230 M339 230 L266 200 M339 200 L266 170 M339 170 L266 140 M339 140 L266 110" />
+            </g>
+          </g>
+
+          <g id="obreros"></g>
+
+        </svg>
+        </div>
+
+        <div>
+          <span class="etiqueta">En construcción</span>
+          <h1>Estamos edificando <em>algo grande</em> para la gloria de Dios</h1>
+          <p class="intro">
+            Como Nehemías con el muro de Jerusalén, estamos poniendo piedra
+            sobre piedra para la nueva casa del Movimiento Misionero Mundial
+            en Utah. Muy pronto: horarios, actividades y todo lo que Dios está
+            haciendo en nuestra iglesia.
+          </p>
+          <div class="avance" aria-hidden="true">
+            <div class="avance__fila"><span id="avanceTexto">Poniendo el fundamento…</span><span id="avanceNum">0%</span></div>
+            <div class="avance__barra"><span id="avanceBarra"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="versiculo" id="versiculo" aria-live="polite">
+        <blockquote id="versoTexto">Levantémonos y edifiquemos. Así esforzaron sus manos para bien.</blockquote>
+        <cite id="versoCita">Nehemías 2:18</cite>
+        <div class="puntos" id="puntos"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Te esperamos en la casa de Dios:
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=2262%20W%205400%20S%2C%20Salt%20Lake%20City%2C%20UT%2084129" target="_blank" rel="noopener">2262 W 5400 S, Taylorsville, UT</a></span>
+      <span class="redes">
+        <a href="https://www.facebook.com/mmmoficial" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.youtube.com/@mmmoficial" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://www.instagram.com/mmmoficial" target="_blank" rel="noopener">Instagram</a>
+      </span>
+    </footer>
+
+    <!-- Los navegadores no dejan sonar música sola al entrar: el visitante
+         la enciende con este botón. -->
+    <div class="botones">
+      <button class="musica" id="musica" type="button" aria-pressed="false">♪ Música</button>
+      <button class="visita" id="visita" type="button">🔑 Visita</button>
+    </div>
+
+    <dialog class="ventana" id="ventana" aria-labelledby="ventanaTitulo">
+      <form id="formVisita" method="dialog">
+        <h2 id="ventanaTitulo">Visita privada</h2>
+        <p>Escribe el código para ver la nueva página.</p>
+        <input id="codigo" name="codigo" type="password" autocomplete="off" required aria-describedby="codigoError" placeholder="Código" />
+        <div class="error" id="codigoError" role="alert"></div>
+        <div class="acciones">
+          <button class="cancelar" type="button" id="cancelarVisita">Cancelar</button>
+          <button class="entrar" type="submit" id="entrarVisita">Entrar</button>
+        </div>
+      </form>
+    </dialog>
+    <audio id="cancion" src="/musica/fondo.m4a" loop preload="auto"></audio>
+
+    <script>
+      (function () {
+        "use strict";
+        var NS = "http://www.w3.org/2000/svg";
+        var quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* Estrellas */
+        var cielo = document.getElementById("cielo");
+        for (var s = 0; s < 60; s++) {
+          var e = document.createElement("i");
+          e.style.left = Math.random() * 100 + "%";
+          e.style.top = Math.random() * 70 + "%";
+          e.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
+          cielo.appendChild(e);
+        }
+
+        /* Piezas del arco, en el orden en que se ponen */
+        var obra = document.getElementById("obra");
+        var capa = document.getElementById("piezas");
+        var PIEDRA = ["#d9b77e", "#e3c48d", "#cfa86c", "#dcbb83"];
+        var piezas = [];
+
+        function color() { return PIEDRA[Math.floor(Math.random() * PIEDRA.length)]; }
+        function rect(x, y, w, h, extra) {
+          var r = document.createElementNS(NS, "rect");
+          r.setAttribute("x", x + .4); r.setAttribute("y", y + .4);
+          r.setAttribute("width", w - .8); r.setAttribute("height", h - .8);
+          r.setAttribute("rx", 1);
+          r.setAttribute("fill", extra || color());
+          return r;
+        }
+        function agregar(el, y, h, padre) {
+          el.classList.add("pieza");
+          (padre || capa).appendChild(el);
+          piezas.push({ el: el, y: y, base: y + h });
+        }
+
+        // Columnas: 9 hileras, de 260 a 125, trabadas como muro
+        var FILA = 15, columnas = [[150, 205], [275, 330]];
+        for (var f = 0; f < 9; f++) {
+          var y = 260 - (f + 1) * FILA;
+          var anchos = f % 2 ? [14, 27, 14] : [27.5, 27.5];
+          columnas.forEach(function (c) {
+            var x = c[0];
+            anchos.forEach(function (w) { agregar(rect(x, y, w, FILA), y, FILA); x += w; });
+          });
+        }
+
+        // Dovelas del arco: entran desde los dos lados y la clave al final
+        var CX = 240, CY = 170, R1 = 35, R2 = 55, N = 9, dovelas = [];
+        for (var d = 0; d < N; d++) {
+          var a0 = Math.PI - d * Math.PI / N, a1 = Math.PI - (d + 1) * Math.PI / N;
+          var p = function (r, a) { return (CX + r * Math.cos(a)).toFixed(1) + " " + (CY - r * Math.sin(a)).toFixed(1); };
+          var el = document.createElementNS(NS, "path");
+          el.setAttribute("d", "M" + p(R1, a0) + " L" + p(R2, a0) + " A" + R2 + " " + R2 + " 0 0 1 " + p(R2, a1) +
+                               " L" + p(R1, a1) + " A" + R1 + " " + R1 + " 0 0 0 " + p(R1, a0) + " Z");
+          el.setAttribute("fill", d === 4 ? "#ecd29e" : color());
+          dovelas.push([el, CY - R2 * Math.max(Math.sin(a0), Math.sin(a1))]);
+        }
+        var inicioArco = piezas.length;
+        [0, 8, 1, 7, 2, 6, 3, 5, 4].forEach(function (i) { agregar(dovelas[i][0], dovelas[i][1], 20); });
+
+        // Enjutas sobre el arco
+        var enj = document.createElementNS(NS, "g");
+        enj.setAttribute("clip-path", "url(#enjutas)");
+        capa.appendChild(enj);
+        [155, 140, 125].forEach(function (y) {
+          for (var x = 205; x < 275; x += 14) agregar(rect(x, y, 14, FILA), y, FILA, enj);
+        });
+
+        // Dintel y cornisa
+        for (var x = 140; x < 340; x += 25) agregar(rect(x, 105, 25, 20), 105, 20);
+        for (var x2 = 132; x2 < 348; x2 += 54) agregar(rect(x2, 97, 54, 8, "#c9a065"), 97, 8);
+
+        var total = piezas.length;
+
+        /* Obreros */
+        var capaObreros = document.getElementById("obreros");
+        var TUNICAS = ["#a8321f", "#b9442a", "#8f2a1a", "#c4552f", "#9c3a22"];
+        var PIEL = ["#c99066", "#a8714a", "#e0b48c", "#8d5b3a"];
+
+        function cuerpo(tunica, piel) {
+          return '<path d="M-5 -18 Q0 -20.5 5 -18 L6.5 -8 L-6.5 -8 Z" fill="' + tunica + '"/>' +
+                 '<rect x="-6" y="-12.5" width="12" height="1.6" fill="#5b3c22"/>' +
+                 '<circle cy="-21.8" r="3.4" fill="' + piel + '"/>' +
+                 '<path d="M-3.8 -22 Q0 -27.5 3.8 -22 Q0 -23.8 -3.8 -22 Z" fill="#2b1d12"/>';
+        }
+        function piernas() {
+          return '<path d="M-2 -9 L-2.6 0 M2 -9 L2.6 0" stroke="#3b2a1d" stroke-width="2.2" stroke-linecap="round"/>';
+        }
+        function martillero(x, mira, piedra, rodilla) {
+          var piel = PIEL[Math.floor(Math.random() * PIEL.length)];
+          var tun = TUNICAS[Math.floor(Math.random() * TUNICAS.length)];
+          var retraso = (Math.random() * .7).toFixed(2);
+          var baja = rodilla ? 5 : 0;
+          var patas = rodilla
+            ? '<path d="M-2 -4.5 L-6.5 -.6 M2 -4.5 L1.5 0 L6 0" stroke="#3b2a1d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>'
+            : piernas();
+          return '<g transform="translate(' + x + ' 260) scale(' + (mira * .82) + ' .82)">' +
+                 (piedra ? '<rect x="10" y="-' + (11 - baja) + '" width="11" height="' + (11 - baja) + '" rx="1" fill="#d9b77e" stroke="#8f6a3a" stroke-width=".7"/>' : "") +
+                 patas + '<g transform="translate(0 ' + baja + ')">' + cuerpo(tun, piel) +
+                 '<g transform="translate(3 -16)"><g class="martillo" style="animation-delay:-' + retraso + 's">' +
+                 '<path d="M0 0 L6 3" stroke="' + piel + '" stroke-width="2.2" stroke-linecap="round"/>' +
+                 '<path d="M5.5 3 L11 -3" stroke="#6b4a2b" stroke-width="1.5" stroke-linecap="round"/>' +
+                 '<rect x="8.6" y="-6.8" width="6" height="3.6" rx=".7" fill="#9aa3ab" transform="rotate(40 11.6 -5)"/>' +
+                 "</g></g></g></g>";
+        }
+        // [x, hacia dónde mira, con piedra, de rodillas]
+        [[118, 1, 1, 0], [134, 1, 0, 1], [158, -1, 1, 1], [176, 1, 0, 0], [194, -1, 1, 0],
+         [222, 1, 0, 1], [256, -1, 0, 1], [288, 1, 1, 0], [304, -1, 0, 1], [322, 1, 1, 1],
+         [346, -1, 0, 0], [362, -1, 1, 1]].forEach(function (o) {
+          capaObreros.insertAdjacentHTML("beforeend", martillero(o[0], o[1], o[2], o[3]));
+        });
+
+        /* Avance */
+        var barra = document.getElementById("avanceBarra");
+        var num = document.getElementById("avanceNum");
+        var txt = document.getElementById("avanceTexto");
+        var crecer = document.getElementById("crecerRect");
+        var etapas = [
+          [0, "Poniendo el fundamento…"],
+          [12, "Levantando las columnas…"],
+          [62, "Cerrando el arco…"],
+          [84, "Colocando el dintel…"],
+          [97, "Colocando la cornisa…"],
+          [100, "¡Obra terminada! A Dios sea la gloria"]
+        ];
+        var PASO = 260;          // ms entre piedra y piedra
+        var puestas = 0, tope = 260, reloj2;
+
+        function pintar(p) {
+          barra.style.width = p + "%";
+          num.textContent = p + "%";
+          for (var i = etapas.length - 1; i >= 0; i--) {
+            if (p >= etapas[i][0]) { txt.textContent = etapas[i][1]; break; }
+          }
+        }
+        function polvo(pz) {
+          var b = pz.el.getBBox();
+          var c = document.createElementNS(NS, "ellipse");
+          c.setAttribute("cx", b.x + b.width / 2); c.setAttribute("cy", pz.base);
+          c.setAttribute("rx", 3); c.setAttribute("ry", 1.4);
+          c.setAttribute("class", "polvo");
+          c.style.animationDelay = ".42s";
+          capa.appendChild(c);
+          setTimeout(function () { c.remove(); }, 1300);
+        }
+        function poner() {
+          var pz = piezas[puestas++];
+          pz.el.classList.add("puesta");
+          polvo(pz);
+          tope = Math.min(tope, pz.y);
+          if (puestas > inicioArco) obra.classList.add("con-cimbra");
+          crecer.setAttribute("y", Math.max(88, tope - 14));
+          pintar(Math.round(puestas / total * 100));
+          if (puestas < total) reloj2 = setTimeout(poner, PASO);
+          else setTimeout(terminar, 700);
+        }
+        function terminar() {
+          pintar(100);
+          obra.classList.add("terminada");
+          setTimeout(reiniciar, 8000);
+        }
+        function reiniciar() {
+          obra.classList.add("reiniciando");
+          setTimeout(function () {
+            piezas.forEach(function (pz) { pz.el.classList.remove("puesta"); });
+            obra.classList.remove("terminada", "reiniciando", "con-cimbra");
+            puestas = 0; tope = 260;
+            crecer.setAttribute("y", 300);
+            pintar(0);
+            reloj2 = setTimeout(poner, 900);
+          }, 1000);
+        }
+        if (quieto) {
+          piezas.forEach(function (pz) { pz.el.style.opacity = 1; });
+          obra.classList.add("terminada");
+          pintar(100);
+        }
+        /* Música de fondo */
+        var boton = document.getElementById("musica");
+        var cancion = document.getElementById("cancion");
+        cancion.volume = .5;
+        cancion.addEventListener("loadedmetadata", function () { boton.classList.add("lista"); });
+        function sonando(si) {
+          boton.setAttribute("aria-pressed", si ? "true" : "false");
+          boton.textContent = si ? "❚❚ Pausar música" : "♪ Música";
+        }
+        function tocar() { return cancion.play().then(function () { sonando(true); }); }
+        boton.addEventListener("click", function (e) {
+          e.stopPropagation();
+          if (cancion.paused) tocar().catch(function () {});
+          else { cancion.pause(); sonando(false); }
+        });
+        /* Bienvenida: al tocar "Entrar" suena la alabanza y arranca la obra */
+        var bienvenida = document.getElementById("bienvenida");
+        var botonEntrar = document.getElementById("entrarSitio");
+        botonEntrar.focus();
+        botonEntrar.addEventListener("click", function () {
+          tocar().catch(function () {});
+          bienvenida.classList.add("fuera");
+          if (!quieto) setTimeout(poner, 700);
+          setTimeout(ajustar, 50);
+        });
+
+        /* Visita privada: el código lo revisa entrar.php en el servidor */
+        var ventana = document.getElementById("ventana");
+        var form = document.getElementById("formVisita");
+        var campo = document.getElementById("codigo");
+        var error = document.getElementById("codigoError");
+        var entrar = document.getElementById("entrarVisita");
+        document.getElementById("visita").addEventListener("click", function (e) {
+          e.stopPropagation();
+          error.textContent = ""; campo.value = "";
+          ventana.showModal();
+          campo.focus();
+        });
+        document.getElementById("cancelarVisita").addEventListener("click", function () { ventana.close(); });
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          entrar.disabled = true; error.textContent = "";
+          var datos = new FormData(); datos.append("codigo", campo.value);
+          fetch("/entrar.php", { method: "POST", body: datos, credentials: "same-origin" })
+            .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+            .then(function (res) {
+              if (res.ok) { window.location.href = "/"; return; }
+              error.textContent = "Código incorrecto. Intenta de nuevo.";
+              campo.select();
+            })
+            .catch(function () { error.textContent = "No se pudo comprobar. Revisa tu conexión."; })
+            .then(function () { entrar.disabled = false; });
+        });
+
+        /* Versículos (Reina-Valera 1960) */
+        var versos = [
+          ["Levantémonos y edifiquemos. Así esforzaron sus manos para bien.", "Nehemías 2:18"],
+          ["Si Jehová no edificare la casa, en vano trabajan los que la edifican.", "Salmos 127:1"],
+          ["He aquí que yo hago cosa nueva; pronto saldrá a luz; ¿no la conoceréis?", "Isaías 43:19"],
+          ["Estando persuadido de esto, que el que comenzó en vosotros la buena obra, la perfeccionará hasta el día de Jesucristo.", "Filipenses 1:6"],
+          ["Porque nadie puede poner otro fundamento que el que está puesto, el cual es Jesucristo.", "1 Corintios 3:11"],
+          ["El Dios de los cielos, él nos prosperará, y nosotros sus siervos nos levantaremos y edificaremos.", "Nehemías 2:20"],
+          ["Mi casa será llamada casa de oración para todos los pueblos.", "Isaías 56:7"],
+          ["La gloria postrera de esta casa será mayor que la primera, ha dicho Jehová de los ejércitos.", "Hageo 2:9"],
+          ["Aunque la visión tardará aún por un tiempo, mas se apresura hacia el fin, y no mentirá; aunque tardare, espéralo, porque sin duda vendrá, no tardará.", "Habacuc 2:3"]
+        ];
+        var caja = document.getElementById("versiculo");
+        var vTexto = document.getElementById("versoTexto");
+        var vCita = document.getElementById("versoCita");
+        var puntos = document.getElementById("puntos");
+        var actual = 0, reloj;
+
+        versos.forEach(function (v, i) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("aria-label", v[1]);
+          b.addEventListener("click", function () { mostrar(i); });
+          puntos.appendChild(b);
+        });
+        function marcar() {
+          Array.prototype.forEach.call(puntos.children, function (b, i) {
+            b.setAttribute("aria-current", i === actual ? "true" : "false");
+          });
+        }
+        function mostrar(i) {
+          clearTimeout(reloj);
+          caja.classList.add("cambiando");
+          setTimeout(function () {
+            actual = i;
+            vTexto.textContent = versos[i][0];
+            vCita.textContent = versos[i][1];
+            marcar();
+            caja.classList.remove("cambiando");
+            reloj = setTimeout(function () { mostrar((actual + 1) % versos.length); }, 8000);
+          }, quieto ? 0 : 700);
+        }
+        marcar();
+        reloj = setTimeout(function () { mostrar(1); }, 8000);
+
+        /* Que todo entre en la pantalla sin bajar: se prueba con el
+           versículo más largo y se achica la escena hasta que quepa */
+        var raiz = document.documentElement;
+        var intro = document.querySelector(".intro");
+        var masLargo = versos.reduce(function (a, v) { return v[0].length > a[0].length ? v : a; });
+        function cabe() { return raiz.scrollHeight <= window.innerHeight + 1; }
+        function achicar(desde) {
+          var alto = window.innerHeight, h = alto * desde;
+          raiz.style.setProperty("--alto-obra", h + "px");
+          while (!cabe() && h > alto * .16) {
+            h -= alto * .015;
+            raiz.style.setProperty("--alto-obra", h + "px");
+          }
+        }
+        function ajustar() {
+          var texto = vTexto.textContent, cita = vCita.textContent;
+          vTexto.style.minHeight = "";
+          vTexto.textContent = masLargo[0]; vCita.textContent = masLargo[1];
+          intro.style.display = "";
+          var desde = window.innerWidth <= 820 ? .34 : .52;
+          achicar(desde);
+          if (!cabe() && getComputedStyle(intro).display !== "none") {
+            intro.style.display = "none";   // último recurso: sin el párrafo
+            achicar(desde);
+          }
+          vTexto.style.minHeight = vTexto.offsetHeight + "px";
+          vTexto.textContent = texto; vCita.textContent = cita;
+        }
+        var esperaAjuste;
+        window.addEventListener("resize", function () {
+          clearTimeout(esperaAjuste);
+          esperaAjuste = setTimeout(ajustar, 150);
+        });
+        ajustar();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustar);
+        window.addEventListener("load", ajustar);
+      })();
+    </script>
+  </body>
+</html>

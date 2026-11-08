@@ -3,7 +3,7 @@
 # MMM · Armar la web lista para publicar
 #   ./preparar-web.sh
 #
-# Deja en _publico/ solo lo que va al hosting (index.html, paginas/,
+# Deja en _publico/ solo lo que va al hosting (index.html, construccion.html, paginas/,
 # css/, js/, img/ y el .htaccess) y lo empaqueta en web-mmm.zip para
 # subirlo con el File Manager. publicar-web.sh lo usa para el FTP.
 #
@@ -20,8 +20,10 @@ mkdir "$SALIDA"
 
 # originales/: las fuentes de las fotos de portada, la web usa los .webp
 rsync -aR --exclude .DS_Store --exclude .gitkeep --exclude img/fondos/originales \
-  index.html paginas css js img "$SALIDA/"
+  index.html construccion.html entrar.php paginas css js img "$SALIDA/"
 cp web.htaccess "$SALIDA/.htaccess"
+# Música de fondo de la página de construcción (opcional)
+[ -d musica ] && rsync -a --exclude .DS_Store musica "$SALIDA/"
 
 huella() {
   { md5 -q "$1" 2>/dev/null || md5sum "$1" | cut -d' ' -f1; } | cut -c1-8

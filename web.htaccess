@@ -1,6 +1,33 @@
 # MMM · Reglas de caché para la web publicada (InfinityFree)
 # preparar-web.sh lo copia como .htaccess en la raíz del sitio.
 
+# ------------------------------------------------------------
+# Sitio en construcción con entrada privada
+#   Cualquiera que entre ve construccion.html.
+#   Para ver la web real:  /?vista=pastor-99892c5a
+#     deja una cookie por 30 días en ese navegador.
+#   O con el botón "Visita" de la página: entrar.php pide el código
+#     y deja la misma cookie.
+#   Para volver a ver la de construcción:  /?vista=salir
+#   Para abrir la web a todos: borrar este bloque.
+# ------------------------------------------------------------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteCond %{QUERY_STRING} (^|&)vista=pastor-99892c5a(&|$)
+  RewriteRule ^ %{REQUEST_URI}? [CO=mmm_vista:pastor-99892c5a:%{SERVER_NAME}:43200:/,R=302,L]
+
+  RewriteCond %{QUERY_STRING} (^|&)vista=salir(&|$)
+  RewriteRule ^ %{REQUEST_URI}? [CO=mmm_vista:no:%{SERVER_NAME}:1:/,R=302,L]
+
+  # Sin la cookie, toda página (/, *.html, carpetas) muestra la de
+  # construcción. CSS, JS e imágenes quedan libres: la usa el logo.
+  RewriteCond %{HTTP_COOKIE} !(^|;\s*)mmm_vista=pastor-99892c5a(;|$)
+  RewriteCond %{REQUEST_URI} !^/construccion\.html$
+  RewriteCond %{REQUEST_URI} (/|\.html?)$
+  RewriteRule ^ /construccion.html [L]
+</IfModule>
+
 <IfModule mod_headers.c>
   # Las páginas y la copia de datos se revisan en cada visita: así un
   # cambio publicado se ve enseguida, sin ventana de incógnito
