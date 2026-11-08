@@ -4,7 +4,8 @@
 # ------------------------------------------------------------
 # Sitio en construcción con entrada privada
 #   Cualquiera que entre ve construccion.html.
-#   Para ver la web real:  /?vista=pastor-99892c5a
+#   Para ver la web real:  /?vista=<código>   (el de .vista.env;
+#     preparar-web.sh lo pone en lugar de __CODIGO_VISTA__)
 #     deja una cookie por 30 días en ese navegador.
 #   O con el botón "Visita" de la página: entrar.php pide el código
 #     y deja la misma cookie.
@@ -14,15 +15,15 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  RewriteCond %{QUERY_STRING} (^|&)vista=pastor-99892c5a(&|$)
-  RewriteRule ^ %{REQUEST_URI}? [CO=mmm_vista:pastor-99892c5a:%{SERVER_NAME}:43200:/,R=302,L]
+  RewriteCond %{QUERY_STRING} (^|&)vista=__CODIGO_VISTA__(&|$)
+  RewriteRule ^ %{REQUEST_URI}? [CO=mmm_vista:__CODIGO_VISTA__:%{SERVER_NAME}:43200:/,R=302,L]
 
   RewriteCond %{QUERY_STRING} (^|&)vista=salir(&|$)
   RewriteRule ^ %{REQUEST_URI}? [CO=mmm_vista:no:%{SERVER_NAME}:1:/,R=302,L]
 
   # Sin la cookie, toda página (/, *.html, carpetas) muestra la de
   # construcción. CSS, JS e imágenes quedan libres: la usa el logo.
-  RewriteCond %{HTTP_COOKIE} !(^|;\s*)mmm_vista=pastor-99892c5a(;|$)
+  RewriteCond %{HTTP_COOKIE} !(^|;\s*)mmm_vista=__CODIGO_VISTA__(;|$)
   RewriteCond %{REQUEST_URI} !^/construccion\.html$
   RewriteCond %{REQUEST_URI} (/|\.html?)$
   RewriteRule ^ /construccion.html [L]

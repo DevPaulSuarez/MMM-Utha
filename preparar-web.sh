@@ -39,5 +39,12 @@ for recurso in "$SALIDA"/css/*.css "$SALIDA"/js/*.js; do
 done
 find "$SALIDA" -name '*.bak' -delete
 
+# Código de la vista privada: vive en .vista.env, fuera del repo
+[ -f .vista.env ] || { echo "Falta .vista.env (CODIGO_VISTA=pastor-...)" >&2; exit 1; }
+CODIGO_VISTA=$(sed -n 's/^CODIGO_VISTA=//p' .vista.env)
+[[ "$CODIGO_VISTA" =~ ^[A-Za-z0-9-]+$ ]] || { echo "CODIGO_VISTA inválido en .vista.env" >&2; exit 1; }
+sed -i.bak "s/__CODIGO_VISTA__/$CODIGO_VISTA/g" "$SALIDA/.htaccess" "$SALIDA/entrar.php"
+rm -f "$SALIDA/.htaccess.bak" "$SALIDA/entrar.php.bak"
+
 ( cd "$SALIDA" && zip -qr ../web-mmm.zip . )
 echo "Listo: $SALIDA/ y web-mmm.zip ($(find "$SALIDA" -type f | wc -l | tr -d ' ') archivos)"

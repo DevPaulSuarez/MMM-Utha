@@ -12,7 +12,7 @@
 
 const HUELLA_CODIGO = '$2y$12$aM71xyCjMk6fQSBGU4sFF.Hl.xNUix4M5Mrxz/rsjhTO0wbrlHX8O';
 const COOKIE_NOMBRE = 'mmm_vista';
-const COOKIE_VALOR  = 'pastor-99892c5a';   // el mismo de web.htaccess
+const COOKIE_VALOR  = '__CODIGO_VISTA__';   // lo pone preparar-web.sh (.vista.env)
 const DIAS          = 30;
 
 header('Content-Type: application/json; charset=utf-8');

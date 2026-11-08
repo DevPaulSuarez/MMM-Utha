@@ -20,3 +20,6 @@ subidas/*
 # Web armada por preparar-web.sh
 _publico/
 web-mmm.zip
+
+# Código de la vista privada para preparar-web.sh
+.vista.env
