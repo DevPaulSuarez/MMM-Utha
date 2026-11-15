@@ -315,6 +315,99 @@ function formatearFecha(iso) {
 }
 
 /* --- Representantes ------------------------------------------ */
+/* Grupos de representantes: el rol fijo que el pastor elige en la
+   app (api/secciones.php · representantes · grupo). Cada uno dice en
+   qué sección va y con qué color se distingue. Los colores son los de
+   la iglesia; donde el texto blanco no llegaba a 4.5:1 (el naranja de
+   los diáconos) la etiqueta usa un tono un punto más oscuro y el
+   naranja original queda en la franja. */
+const AZUL = { color: "#1565C0", texto: "#fff" };
+const NARANJA = { color: "#E65100", etiqueta: "#C24100", texto: "#fff" };
+const AMARILLO = { color: "#F9A825", texto: "#000" };
+const DORADO = { color: "#C8A415", texto: "#000" };
+
+const GRUPOS = {
+  pastor:            { nombre: "Pastor", bloque: "pastoral", ...AZUL },
+  pastora:           { nombre: "Pastora", bloque: "pastoral", ...AZUL },
+  copastor:          { nombre: "Co-pastor", bloque: "pastoral", ...AZUL },
+  copastora:         { nombre: "Co-pastora", bloque: "pastoral", ...AZUL },
+  lider_caballeros:  { nombre: "Líder de Caballeros", bloque: "sociedades", ...AMARILLO },
+  lider_damas:       { nombre: "Líder de Damas", bloque: "sociedades", ...AMARILLO },
+  lider_jovenes:     { nombre: "Líder de Jóvenes", bloque: "sociedades", ...AMARILLO },
+  lider_ninos:       { nombre: "Líder de Niños", bloque: "sociedades", ...AMARILLO },
+  lider_evangelismo: { nombre: "Líder de Evangelismo", bloque: "ministerios", ...DORADO },
+  lider_alabanza:    { nombre: "Líder de Alabanza", bloque: "ministerios", ...DORADO },
+  lider_escuela:     { nombre: "Líder de Escuela Bíblica", bloque: "ministerios", ...DORADO },
+  lider_actividades: { nombre: "Líder de Actividades", bloque: "ministerios", ...DORADO },
+  lider_multimedia:  { nombre: "Líder de Multimedia", bloque: "ministerios", ...DORADO },
+  /* Maestro (cuando no es el mismo pastor) */
+  maestro:           { nombre: "Maestro", bloque: "ministerios", ...DORADO },
+  maestra:           { nombre: "Maestra", bloque: "ministerios", ...DORADO },
+  diacono:           { nombre: "Diácono", bloque: "pastoral", ...NARANJA },
+  diaconisa:         { nombre: "Diaconisa", bloque: "pastoral", ...NARANJA },
+  /* Apoyo administrativo del pastor: van en el Pastoral, en naranja */
+  tesorero:          { nombre: "Tesorero", bloque: "pastoral", ...NARANJA },
+  tesorera:          { nombre: "Tesorera", bloque: "pastoral", ...NARANJA },
+  secretario:        { nombre: "Secretario", bloque: "pastoral", ...NARANJA },
+  secretaria:        { nombre: "Secretaria", bloque: "pastoral", ...NARANJA },
+  miembro:           { nombre: "Miembro", bloque: "base", color: "#BDBDBD", texto: "#000" },
+  en_proceso:        { nombre: "En proceso", bloque: "base", color: "#E0E0E0", texto: "#000" }
+};
+
+/* Bloques de la página, en este orden. Cada uno junta varios grupos;
+   el Pastoral tiene dos partes: pastores y co-pastores destacados
+   (foto grande al lado) y debajo los diáconos. */
+const BLOQUES_EQUIPO = [
+  { id: "pastoral", titulo: "Pastoral",
+    sub: "Dirigen la congregación, cuidan de la iglesia y apoyan al pastor en lo práctico y lo administrativo.",
+    partes: [
+      { grupos: ["pastor", "pastora", "copastor", "copastora"], destacada: true },
+      /* Los de apoyo llevan su propia línea, en naranja */
+      { grupos: ["diacono", "diaconisa", "tesorero", "tesorera", "secretario", "secretaria"],
+        titulo: "Diáconos y apoyo administrativo", color: NARANJA.color }
+    ] },
+  { id: "sociedades", titulo: "Sociedades",
+    sub: "Caballeros, damas, jóvenes y niños: cada sociedad con quien la coordina." },
+  { id: "ministerios", titulo: "Ministerios",
+    sub: "Evangelismo, alabanza, escuela bíblica, actividades, multimedia y enseñanza." },
+  { id: "base", titulo: "Base",
+    sub: "Miembros de la iglesia y quienes se están formando con nosotros." }
+];
+
+function grupoDe(r) {
+  return GRUPOS[r.grupo] || GRUPOS.miembro;
+}
+
+function tarjetaRepresentante(r, destacada) {
+  const g = grupoDe(r);
+  const foto = rutaImagen(r.foto);
+  /* El cargo libre se muestra solo si dice algo más que el grupo */
+  const cargo = String(r.cargo || "").trim();
+  const mostrarCargo = cargo && cargo.toLowerCase() !== g.nombre.toLowerCase();
+
+  /* La foto en un círculo al costado; al lado el nombre y debajo su
+     rol. Debajo de esos dos, el tipo (el cargo libre) y la reseña,
+     que escriben solo el pastor y los administradores. */
+  return `
+    <article class="representante${destacada ? " representante--destacada" : ""}"
+             style="--rol: ${g.color}; --rol-etiqueta: ${g.etiqueta || g.color}; --rol-texto: ${g.texto}">
+      <div class="representante__cabeza">
+        <div class="representante__foto" data-iniciales="${escapar(iniciales(r.nombre || "?"))}">
+          ${foto ? `<img src="${escapar(foto)}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}
+        </div>
+        <div class="representante__quien">
+          <h3>${escapar(r.nombre)}</h3>
+          <span class="representante__rol">${escapar(g.nombre)}</span>
+        </div>
+      </div>
+      ${mostrarCargo ? `<p class="representante__cargo">${escapar(cargo)}</p>` : ""}
+      ${r.descripcion ? `<p class="representante__resena">${escapar(r.descripcion)}</p>` : ""}
+    </article>`;
+}
+
+/* Representantes por bloques (pastoral, sociedades, ministerios y
+   base); los vacíos no se muestran. Dentro de cada uno, en el orden
+   de GRUPOS y luego el que puso el pastor. */
 function pintarRepresentantes() {
   const cont = document.getElementById("listaRepresentantes");
   if (!cont || typeof REPRESENTANTES === "undefined") return;
@@ -324,15 +417,40 @@ function pintarRepresentantes() {
     return;
   }
 
-  cont.innerHTML = REPRESENTANTES.map(r => `
-    <article class="tarjeta">
-      <img src="${escapar(rutaImagen(r.foto))}" alt="${escapar(r.nombre)}" loading="lazy"
-           onerror="this.remove(); this.closest('.tarjeta').classList.add('tarjeta--sin-foto')">
-      <p class="tarjeta__cargo">${escapar(r.cargo)}</p>
-      <h3>${escapar(r.nombre)}</h3>
-      <p>${escapar(r.descripcion)}</p>
-    </article>
-  `).join("");
+  const ordenGrupo = Object.keys(GRUPOS);
+  const claveGrupo = (r) => (GRUPOS[r.grupo] ? r.grupo : "miembro");
+  const ordenar = (lista) => lista.sort((a, b) =>
+    ordenGrupo.indexOf(claveGrupo(a)) - ordenGrupo.indexOf(claveGrupo(b))
+    || Number(a.orden) - Number(b.orden));
+
+  cont.innerHTML = BLOQUES_EQUIPO.map((bloque) => {
+    const delBloque = REPRESENTANTES.filter((r) => grupoDe(r).bloque === bloque.id);
+    if (!delBloque.length) return "";
+
+    /* Sin partes, el bloque es una sola lista */
+    const partes = (bloque.partes || [{ grupos: null }])
+      .map((parte) => ({
+        ...parte,
+        gente: ordenar(delBloque.filter((r) => !parte.grupos || parte.grupos.includes(claveGrupo(r))))
+      }))
+      .filter((parte) => parte.gente.length);
+
+    return `
+      <section class="equipo__grupo equipo__grupo--${bloque.id}" aria-labelledby="equipo-${bloque.id}">
+        <header class="equipo__cabeza">
+          <h3 class="equipo__titulo" id="equipo-${bloque.id}">${escapar(bloque.titulo)}</h3>
+          <p class="equipo__sub">${escapar(bloque.sub)}</p>
+        </header>
+        ${partes.map((parte) => `
+          ${parte.titulo ? `
+            <div class="equipo__subcabeza" style="--bloque: ${parte.color}">
+              <h4 class="equipo__subtitulo">${escapar(parte.titulo)}</h4>
+            </div>` : ""}
+          <div class="equipo__lista${parte.destacada ? " equipo__lista--destacada" : ""}">
+            ${parte.gente.map((r) => tarjetaRepresentante(r, parte.destacada)).join("")}
+          </div>`).join("")}
+      </section>`;
+  }).join("");
 }
 
 /* --- Cultos ---------------------------------------------------

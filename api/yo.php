@@ -5,8 +5,10 @@
    POST api/yo.php   { "nombre": "...", "descripcion": "...", "foto": "subidas/…" }
 
    El perfil es la ficha de representante de la persona. El cargo,
-   el orden y si aparece en la web los decide el pastor: no se
-   cambian desde aquí.
+   el grupo, el orden y si aparece en la web los decide el pastor: no
+   se cambian desde aquí. La reseña (descripcion) también la escriben
+   solo el pastor y los administradores: si la manda un miembro (la
+   app vieja lo hace) se ignora, sin error.
    ============================================================ */
 
 require __DIR__ . '/conexion.php';
@@ -49,14 +51,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         responder(['error' => 'Datos inválidos', 'campos' => $errores], 422);
     }
 
+    $escribeResena = esAdministrador($usuario);
+
     if (leerPerfil($db, (int) $usuario['id'])) {
-        $db->prepare('UPDATE representantes SET nombre = ?, descripcion = ?, foto = ? WHERE usuario_id = ?')
-           ->execute([$nombre, $descripcion, $foto, $usuario['id']]);
+        if ($escribeResena) {
+            $db->prepare('UPDATE representantes SET nombre = ?, descripcion = ?, foto = ? WHERE usuario_id = ?')
+               ->execute([$nombre, $descripcion, $foto, $usuario['id']]);
+        } else {
+            $db->prepare('UPDATE representantes SET nombre = ?, foto = ? WHERE usuario_id = ?')
+               ->execute([$nombre, $foto, $usuario['id']]);
+        }
     } else {
         /* Una cuenta sin ficha (p. ej. si el pastor la borró): se crea oculta */
         $orden = (int) $db->query('SELECT COALESCE(MAX(orden), 0) + 1 FROM representantes')->fetchColumn();
         $db->prepare('INSERT INTO representantes (nombre, descripcion, foto, orden, visible, usuario_id) VALUES (?, ?, ?, ?, 0, ?)')
-           ->execute([$nombre, $descripcion, $foto, $orden, $usuario['id']]);
+           ->execute([$nombre, $escribeResena ? $descripcion : '', $foto, $orden, $usuario['id']]);
     }
 
     $db->prepare('UPDATE usuarios SET nombre = ? WHERE id = ?')->execute([$nombre, $usuario['id']]);

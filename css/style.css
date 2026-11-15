@@ -827,6 +827,168 @@ h1, h2, h3, h4 {
 }
 .tarjeta--sin-foto h3 { padding-top: 1.2rem; }
 
+/* Representantes por grupo -------------------------------------
+   Cuatro bloques: Pastoral (pastores y co-pastores destacados, y los
+   diáconos), Sociedades, Ministerios y Base. Cada tarjeta lleva el color de su rol (main.js ·
+   GRUPOS) en el borde, en la línea entre la foto y el detalle, en el
+   aro de la foto y en la etiqueta. Pastores y co-pastores van destacados, más grandes. */
+.equipo { display: flex; flex-direction: column; gap: clamp(3rem, 6vw, 4.5rem); }
+
+.equipo__cabeza {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .35rem 1.25rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: .9rem;
+}
+
+/* La línea que divide cada bloque lleva sus colores (los de la tabla
+   de bloques). Pastoral y Base tienen dos: se reparten la línea */
+.equipo__cabeza::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bloque, var(--linea));
+}
+/* Pastoral: la línea del bloque en azul (pastores); los diáconos y el
+   apoyo administrativo tienen la suya en naranja (equipo__subcabeza) */
+.equipo__grupo--pastoral    { --bloque: #1565C0; }
+.equipo__grupo--sociedades  { --bloque: #F9A825; }
+.equipo__grupo--ministerios { --bloque: #C8A415; }
+.equipo__grupo--base        { --bloque: linear-gradient(90deg, #BDBDBD 0 60%, #E0E0E0 60% 100%); }
+.equipo__titulo { font-size: var(--t-2xl); }
+.equipo__sub { color: var(--tenue); font-size: var(--t-sm); }
+
+.equipo__lista {
+  display: grid;
+  /* Lo bastante anchas para el círculo y el nombre lado a lado */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--s-3);
+}
+.equipo__lista--destacada { grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); }
+/* En el bloque Pastoral, los diáconos van debajo de los pastores,
+   con su propia línea de color */
+.equipo__lista + .equipo__lista { margin-top: var(--s-3); }
+.equipo__subcabeza {
+  position: relative;
+  margin: clamp(2rem, 4vw, 2.75rem) 0 1.25rem;
+  padding-bottom: .7rem;
+}
+.equipo__subcabeza::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bloque);
+}
+.equipo__subtitulo { font-size: var(--t-lg); }
+
+.representante {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  overflow: hidden;
+  padding: 1.6rem 1.5rem 1.5rem;
+  background: var(--papel);
+  /* El borde también en el color del rol */
+  border: 2px solid var(--rol);
+  border-radius: var(--radio);
+  transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+.representante:hover { transform: translateY(-4px); box-shadow: var(--sombra); }
+
+/* Arriba: la foto en un círculo y, a su lado, el nombre y el rol.
+   La línea que la separa del detalle va en el color del rol; con
+   un alto mínimo igual en todas, las líneas quedan parejas en la fila */
+.representante__cabeza {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: calc(4.75rem + 1.1rem);
+  padding-bottom: 1.1rem;
+  border-bottom: 3px solid var(--rol);
+}
+
+/* El círculo lleva un aro del color del rol. Sin foto quedan las
+   iniciales sobre un tinte de ese color */
+.representante__foto {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 4.75rem;
+  height: 4.75rem;
+  border-radius: 50%;
+  background: var(--papel-2);
+  background: color-mix(in srgb, var(--rol) 22%, var(--papel-2));
+  box-shadow: 0 0 0 3px var(--papel), 0 0 0 5px var(--rol);
+}
+.representante__foto::before {
+  content: attr(data-iniciales);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--ink);
+  opacity: .6;
+}
+.representante__foto img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.representante__quien {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .4rem;
+  min-width: 0;
+}
+.representante h3 { font-size: var(--t-xl); line-height: 1.15; overflow-wrap: anywhere; }
+
+/* El rol, con su color y el texto que contrasta */
+.representante__rol {
+  padding: .28rem .7rem;
+  border-radius: 999px;
+  background: var(--rol-etiqueta);
+  color: var(--rol-texto);
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* Debajo: el tipo (cargo libre) y la reseña */
+.representante__cargo {
+  color: var(--ink-suave);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+.representante__resena { color: var(--tinta); font-size: var(--t-sm); line-height: 1.65; }
+
+/* Pastores y co-pastores: el mismo orden, todo más grande */
+.representante--destacada { padding: 2rem 2rem 1.85rem; }
+.representante--destacada .representante__foto { width: 6.5rem; height: 6.5rem; }
+.representante--destacada .representante__cabeza { min-height: calc(6.5rem + 1.1rem); }
+.representante--destacada .representante__foto::before { font-size: 2.1rem; }
+.representante--destacada h3 { font-size: var(--t-2xl); }
+.representante--destacada .representante__resena { font-size: var(--t-md); }
+
+@media (max-width: 640px) {
+  .representante--destacada { padding: 1.6rem 1.5rem 1.5rem; }
+  .representante--destacada .representante__foto { width: 5.25rem; height: 5.25rem; }
+  .representante--destacada .representante__cabeza { min-height: calc(5.25rem + 1.1rem); }
+}
+
 /* Datos cortos en fila (Cuándo, Lugar, Platillo…), usados en las
    actividades */
 .tarjeta__datos {
@@ -2223,9 +2385,10 @@ a.barra-info__item:hover { background: #16293c; }
 
 
   /* Portada: igual que en pantalla grande, la foto a pantalla completa
-     y el mensaje encima. La foto es vertical, así que en el celular
-     entra casi entera: se ancla arriba para que el letrero se vea, y
-     el mensaje va abajo, sobre un velo que oscurece desde el pie.
+     y el mensaje encima. La foto es horizontal (el altar completo):
+     en el celular se ve la franja del medio, corrida apenas a la
+     izquierda para que entren el letrero "Santidad a Jehová" y el
+     púlpito; el mensaje va abajo, sobre un velo que oscurece desde el pie.
      El marco no se encoge (main.js no lo mueve en el celular) y la
      portada crece si el texto no entra en pantallas bajas. */
   .portada {
@@ -2242,7 +2405,7 @@ a.barra-info__item:hover { background: #16293c; }
     border-radius: 0;
   }
 
-  .portada__fondo { object-position: center 18%; }
+  .portada__fondo { object-position: 44% center; }
 
   .portada__velo {
     background: linear-gradient(to top,

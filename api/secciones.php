@@ -52,6 +52,19 @@ return [
         'campos' => [
             'nombre'      => ['tipo' => 'texto', 'max' => 150, 'requerido' => true],
             'cargo'       => ['tipo' => 'texto', 'max' => 150],
+            /* El rol fijo: decide la sección y el color en la web
+               (js/main.js · GRUPOS). "cargo" queda como texto libre.
+               Los perfiles nuevos nacen como "miembro". */
+            'grupo'       => ['tipo' => 'opcion', 'defecto' => 'miembro', 'opciones' => [
+                'pastor', 'pastora', 'copastor', 'copastora',
+                'diacono', 'diaconisa',
+                'tesorero', 'tesorera', 'secretario', 'secretaria',
+                'lider_caballeros', 'lider_damas', 'lider_jovenes', 'lider_ninos',
+                'lider_evangelismo', 'lider_alabanza', 'lider_escuela',
+                'lider_actividades', 'lider_multimedia',
+                'maestro', 'maestra',
+                'miembro', 'en_proceso',
+            ]],
             'descripcion' => ['tipo' => 'texto', 'max' => 2000],
             'foto'        => ['tipo' => 'texto', 'max' => 500],
             'orden'       => ['tipo' => 'entero'],

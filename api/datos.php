@@ -40,14 +40,14 @@ header('Vary: Authorization');
 
 if (esAdministrador($usuario)) {
     $representantes = $db->query(
-        'SELECT r.id, r.nombre, r.cargo, r.descripcion, r.foto, r.orden, r.visible, u.usuario
+        'SELECT r.id, r.nombre, r.cargo, r.grupo, r.descripcion, r.foto, r.orden, r.visible, u.usuario
            FROM representantes r
            LEFT JOIN usuarios u ON u.id = r.usuario_id
           ORDER BY r.orden, r.id'
     )->fetchAll();
 } else {
     $representantes = $db->query(
-        'SELECT id, nombre, cargo, descripcion, foto, orden
+        'SELECT id, nombre, cargo, grupo, descripcion, foto, orden
            FROM representantes
           WHERE visible = 1
           ORDER BY orden, id'
