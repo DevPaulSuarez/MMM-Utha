@@ -24,6 +24,9 @@ DATOS_LISTOS.then(() => {
   pintarActividades();
   pintarNoticias();
   proximoCulto();
+  pintarProximaReunion();
+  contarReuniones();
+  mantenerHorariosAlDia();
   enlazarMapa();
 
   /* lemas.js se carga después que este archivo, pero para cuando
@@ -98,7 +101,7 @@ function ajustarHeader() {
      barra, su contenido va en blanco */
   const oscuros = [
     ...document.querySelectorAll(
-      ".portada, .hero, .encabezado-pagina, .barra-info, .oracion, .footer"
+      ".portada, .hero, .vitrina, .encabezado-pagina, .barra-info, .oracion, .footer"
     )
   ];
 
@@ -375,6 +378,56 @@ function fechaISO(fecha) {
   return `${fecha.getFullYear()}-${mes}-${dia}`;
 }
 
+/* --- La hora de la iglesia ------------------------------------
+   "Hoy", "mañana" y "ahora" son los de Utah, esté donde esté quien
+   mira: alguien en Perú a las 2 a. m. del domingo tiene que ver el
+   sábado de Utah, como la API (config.php · zona_horaria).
+   Devuelve un Date cuyos día y hora "locales" son los de Utah: así
+   el resto del código (getDay, getHours, sumarDias…) no cambia. */
+const ZONA_IGLESIA = "America/Denver";
+
+function ahoraEnLaIglesia() {
+  try {
+    const partes = Object.fromEntries(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: ZONA_IGLESIA,
+        year: "numeric", month: "numeric", day: "numeric",
+        hour: "numeric", minute: "numeric", second: "numeric",
+        hourCycle: "h23"
+      }).formatToParts(new Date()).map((p) => [p.type, Number(p.value)])
+    );
+    return new Date(partes.year, partes.month - 1, partes.day, partes.hour, partes.minute, partes.second);
+  } catch {
+    /* Navegador sin zonas horarias: se usa el reloj del equipo */
+    return new Date();
+  }
+}
+
+/* La página puede quedar abierta horas (o de un día para otro): cada
+   minuto se revisa la hora y, si hace falta, se vuelve a pintar.
+   La agenda solo se rearma al cambiar de día, para no mover lo que
+   alguien esté tocando; la próxima reunión, cada minuto. */
+function mantenerHorariosAlDia() {
+  let dia = fechaISO(ahoraEnLaIglesia());
+
+  const revisar = () => {
+    const hoy = fechaISO(ahoraEnLaIglesia());
+    if (hoy !== dia) {
+      dia = hoy;
+      pintarAgenda();
+      pintarActividades();
+    }
+    proximoCulto();
+    pintarProximaReunion();
+  };
+
+  setInterval(revisar, 60 * 1000);
+  /* Al volver a la pestaña (o al despertar el celular) al instante */
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") revisar();
+  });
+}
+
 function sumarDias(fecha, dias) {
   return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate() + dias);
 }
@@ -397,6 +450,14 @@ function formatearHorario(inicio, fin) {
   if (!fin) return `${ti} ${si}`;
   const [tf, sf] = partesHora(fin);
   return si === sf ? `${ti} - ${tf} ${sf}` : `${ti} ${si} - ${tf} ${sf}`;
+}
+
+/* Para la agenda: "10:00 a. m." y "a 1:00 p. m." en piezas que no
+   se cortan por dentro (style.css · .agenda__hora) */
+function horaEnPiezas(inicio, fin) {
+  const desde = partesHora(inicio).join(" ");
+  if (!fin) return `<span class="agenda__desde">${desde}</span>`;
+  return `<span class="agenda__desde">${desde}</span><span class="agenda__hasta">a ${partesHora(fin).join(" ")}</span>`;
 }
 
 /* Cultos de una fecha ordenados por hora, cada uno con su programa
@@ -451,7 +512,7 @@ function pintarAgenda() {
     return;
   }
 
-  const hoy = new Date();
+  const hoy = ahoraEnLaIglesia();
 
   cont.innerHTML = Array.from({ length: 7 }, (_, i) => {
     const fecha = sumarDias(hoy, i);
@@ -466,7 +527,7 @@ function pintarAgenda() {
     const eventos = cultos.length
       ? cultos.map((c) => {
           const detalle = `
-            <span class="agenda__hora">${formatearHorario(c.hora_inicio, c.hora_fin)}</span>
+            <span class="agenda__hora">${horaEnPiezas(c.hora_inicio, c.hora_fin)}</span>
             <span class="agenda__evento">${escapar(c.nombre)}</span>
             ${c.extra ? `<span class="agenda__marca">Especial</span>` : ""}
             ${c.programa ? `<span class="agenda__programa">Ver programa</span>` : ""}
@@ -494,7 +555,7 @@ function proximoCulto() {
   const destino = document.getElementById("proximoCulto");
   if (!destino) return;
 
-  const ahora = new Date();
+  const ahora = ahoraEnLaIglesia();
   const minutos = ahora.getHours() * 60 + ahora.getMinutes();
 
   for (let i = 0; i < 14; i++) {
@@ -511,6 +572,59 @@ function proximoCulto() {
     if (detalle) detalle.textContent = culto.nombre;
     return;
   }
+}
+
+/* --- Próxima reunión, en la portada ---------------------------
+   El primer día, desde hoy, con alguna reunión que no terminó, y
+   todas las de ese día que faltan: un domingo salen la escuela
+   dominical y el culto de la tarde juntos. La que está pasando
+   ahora lleva la marca "Ahora".
+   -------------------------------------------------------------- */
+function pintarProximaReunion() {
+  const destino = document.getElementById("heroProxima");
+  if (!destino) return;
+
+  const ahora = ahoraEnLaIglesia();
+  const minutos = ahora.getHours() * 60 + ahora.getMinutes();
+  const fin = (c) => (c.hora_fin ? aMinutos(c.hora_fin) : aMinutos(c.hora_inicio) + 120);
+
+  for (let i = 0; i < 14; i++) {
+    const fecha = sumarDias(ahora, i);
+    const cultos = cultosDelDia(fecha).filter((c) => i > 0 || fin(c) > minutos);
+    if (!cultos.length) continue;
+
+    const cuando = i === 0 ? "Hoy" : i === 1 ? "Mañana" : DIAS[fecha.getDay()];
+    const fechaCorta = fecha.toLocaleDateString("es-ES", { day: "numeric", month: "long" });
+
+    const filas = cultos.map((c) => {
+      const enCurso = i === 0 && aMinutos(c.hora_inicio) <= minutos;
+      const [hora, sufijo] = partesHora(c.hora_inicio);
+      return `
+        <li>
+          <span class="hero__proxima-hora">${hora} ${sufijo}</span>
+          <span class="hero__proxima-nombre">${escapar(c.nombre)}${enCurso ? `<span class="hero__proxima-ahora">Ahora</span>` : ""}</span>
+        </li>`;
+    }).join("");
+
+    destino.innerHTML = `
+      <p class="hero__proxima-rotulo">Próxima reunión</p>
+      <p class="hero__proxima-cuando">${cuando} · ${fechaCorta}</p>
+      <ul>${filas}</ul>
+      <a class="hero__proxima-ver" href="#agenda">Ver toda la semana</a>
+    `;
+    destino.hidden = false;
+    return;
+  }
+}
+
+/* --- Reuniones de la semana -----------------------------------
+   La cifra de "Quiénes somos" sale de los cultos fijos: si el pastor
+   agrega la vigilia o quita uno, el número se ajusta solo. Sin datos
+   se queda el que está escrito en el HTML.
+   -------------------------------------------------------------- */
+function contarReuniones() {
+  const destino = document.getElementById("cifraReuniones");
+  if (destino && CULTOS.length) destino.textContent = String(CULTOS.length);
 }
 
 /* --- Programa de un culto -------------------------------------
@@ -639,7 +753,7 @@ function pintarActividades() {
 
   /* La API ya manda solo las próximas; se filtra igual por si la
      página se abre días después o se usa la copia datos.json */
-  const hoy = fechaISO(new Date());
+  const hoy = fechaISO(ahoraEnLaIglesia());
   const lista = ACTIVIDADES
     .filter((a) => a.fecha >= hoy)
     .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora_inicio || "").localeCompare(b.hora_inicio || ""));

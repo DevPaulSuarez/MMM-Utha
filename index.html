@@ -54,6 +54,7 @@
           <a href="paginas/nosotros.html" class="nav__link">Nosotros</a>
           <a href="paginas/representantes.html" class="nav__link">Representantes</a>
           <a href="paginas/horarios.html" class="nav__link">Horarios</a>
+          <a href="paginas/lemas.html" class="nav__link">Lemas</a>
           <a href="paginas/noticias.html" class="nav__link">Actividades</a>
         </nav>
 
@@ -66,59 +67,69 @@
     </header>
 
     <main id="contenido">
-      <!-- ===== Portada ===== -->
-      <section class="portada" aria-label="Bienvenida">
-        <!-- El marco es lo que se encoge al bajar (main.js) -->
-        <div class="portada__marco">
-        <img
-          class="portada__fondo"
-          src="img/fondos/imginicio.webp"
-          alt=""
-          fetchpriority="high"
-        />
-        <div class="portada__velo" aria-hidden="true"></div>
+      <!-- Portada y slider van juntos: en pantallas grandes la portada
+           se queda quieta y el slider sube encima, como una tarjeta
+           que tapa a la otra (style.css · "Apilado") -->
+      <div class="apilado">
+        <!-- ===== Portada ===== -->
+        <section class="portada" aria-label="Bienvenida">
+          <!-- El marco es lo que se encoge al bajar (main.js) -->
+          <div class="portada__marco">
+          <img
+            class="portada__fondo"
+            src="img/fondos/imginicio.webp"
+            alt=""
+            fetchpriority="high"
+          />
+          <div class="portada__velo" aria-hidden="true"></div>
 
-        <div class="portada__contenido">
-          <div class="contenedor">
-            <div class="hero__texto">
-              <p class="hero__marca"><i aria-hidden="true"></i> Taylorsville · Utah</p>
-              <h1 class="hero__titulo">
-                Somos un lugar de <em>fe</em>
-                <b>y esperanza.</b>
-              </h1>
-              <p class="hero__bajada">
-                Una comunidad del Movimiento Misionero Mundial donde las
-                familias crecen, se restauran y encuentran un hogar. Ven tal
-                como eres: aquí hay un lugar para ti.
-              </p>
-              <div class="hero__acciones">
-                <a class="btn btn--primario" href="#visitanos">Planea tu visita</a>
-                <a class="btn btn--claro" href="#agenda">Ver horarios</a>
+          <div class="portada__contenido">
+            <div class="contenedor portada__fila">
+              <div class="hero__texto">
+                <p class="hero__marca"><i aria-hidden="true"></i> Taylorsville · Utah</p>
+                <h1 class="hero__titulo">
+                  Somos un lugar de <em>fe</em>
+                  <b>y esperanza.</b>
+                </h1>
+                <p class="hero__bajada">
+                  Una comunidad del Movimiento Misionero Mundial donde las
+                  familias crecen, se restauran y encuentran un hogar. Ven tal
+                  como eres: aquí hay un lugar para ti.
+                </p>
+                <div class="hero__acciones">
+                  <a class="btn btn--primario" href="#visitanos">Planea tu visita</a>
+                  <a class="btn btn--claro" href="#agenda">Ver horarios</a>
+                  <a class="btn btn--claro hero__oracion" href="#oracion">Pedir oración</a>
+                </div>
               </div>
+
+              <!-- main.js la llena con las reuniones del próximo día que
+                   tenga alguna; sin datos se queda oculta -->
+              <aside class="hero__proxima" id="heroProxima" aria-label="Próxima reunión" hidden></aside>
             </div>
           </div>
-        </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <!-- ===== Hero · las imágenes salen de BANNERS en js/datos.js ===== -->
-      <section
-        class="hero"
-        id="banner"
-        aria-label="Bienvenida"
-        aria-roledescription="carrusel"
-      >
-        <div class="slider__pista" id="bannerPista"></div>
-        <div class="hero__velo" aria-hidden="true"></div>
+        <!-- ===== Hero · las imágenes salen de BANNERS en js/datos.js ===== -->
+        <section
+          class="hero"
+          id="banner"
+          aria-label="Bienvenida"
+          aria-roledescription="carrusel"
+        >
+          <div class="slider__pista" id="bannerPista"></div>
+          <div class="hero__velo" aria-hidden="true"></div>
 
-        <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
-                type="button" aria-label="Banner anterior">❮</button>
-        <button class="hero__flecha hero__flecha--next" id="bannerNext"
-                type="button" aria-label="Banner siguiente">❯</button>
+          <button class="hero__flecha hero__flecha--prev" id="bannerPrev"
+                  type="button" aria-label="Banner anterior">❮</button>
+          <button class="hero__flecha hero__flecha--next" id="bannerNext"
+                  type="button" aria-label="Banner siguiente">❯</button>
 
-        <div class="slider__puntos" id="bannerPuntos" role="tablist"
-             aria-label="Seleccionar banner"></div>
-      </section>
+          <div class="slider__puntos" id="bannerPuntos" role="tablist"
+               aria-label="Seleccionar banner"></div>
+        </section>
+      </div>
 
       <!-- ===== Contacto rápido ===== -->
       <section class="barra-info" id="visitanos" aria-label="Cómo encontrarnos">
@@ -136,7 +147,7 @@
               </span>
             </a>
 
-            <a class="barra-info__item" href="tel:3856229878">
+            <a class="barra-info__item barra-info__item--llamar" href="tel:3856229878">
               <span class="barra-info__icono" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .58 3.6 1 1 0 0 1-.25 1Z"/></svg>
               </span>
@@ -147,7 +158,7 @@
               </span>
             </a>
 
-            <a class="barra-info__item" href="#agenda">
+            <a class="barra-info__item barra-info__item--proximo" href="#agenda">
               <span class="barra-info__icono" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 2v2h10V2h2v2h1a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1V2Zm13 8H4v10h16Z"/></svg>
               </span>
@@ -157,6 +168,29 @@
                 <span class="barra-info__extra">Todas las semanas en el templo</span>
               </span>
             </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Agenda semanal ===== -->
+      <section class="seccion seccion--papel" id="agenda">
+        <div class="contenedor">
+          <header class="sec-head sec-head--centro reveal">
+            <p class="eyebrow">Agenda ministerial</p>
+            <h2 class="sec-title">Te esperamos <em>cada semana</em></h2>
+            <p class="sec-sub">
+              Los próximos siete días en el templo. Si un culto ya tiene
+              programa, tócalo para ver quiénes participan.
+            </p>
+          </header>
+
+          <!-- main.js arma los próximos siete días desde CULTOS y
+               CULTOS_EXTRA en js/datos.js -->
+          <div class="agenda__semana reveal" id="agendaSemanal"></div>
+
+          <div class="agenda__pie reveal">
+            <p>Todas las reuniones se realizan en el templo de Taylorsville.</p>
+            <a class="enlace-flecha" href="paginas/horarios.html">Ver horarios completos</a>
           </div>
         </div>
       </section>
@@ -193,7 +227,7 @@
               <p class="cifra__txt">Años sirviendo a las familias</p>
             </div>
             <div class="cifra">
-              <p class="cifra__num">4</p>
+              <p class="cifra__num" id="cifraReuniones">4</p>
               <p class="cifra__txt">Reuniones cada semana en el templo</p>
             </div>
             <div class="cifra">
@@ -204,81 +238,11 @@
         </div>
       </section>
 
-      <!-- ===== Agenda semanal ===== -->
-      <section class="seccion seccion--papel" id="agenda">
+      <!-- ===== Lema del año · lemas.js lo arma desde LEMAS =====
+           Solo el de este año; los demás están en paginas/lemas.html -->
+      <section class="seccion seccion--papel" id="lemas">
         <div class="contenedor">
-          <header class="sec-head sec-head--centro reveal">
-            <p class="eyebrow">Agenda ministerial</p>
-            <h2 class="sec-title">Te esperamos <em>cada semana</em></h2>
-            <p class="sec-sub">
-              Los próximos siete días en el templo. Si un culto ya tiene
-              programa, tócalo para ver quiénes participan.
-            </p>
-          </header>
-
-          <!-- main.js arma los próximos siete días desde CULTOS y
-               CULTOS_EXTRA en js/datos.js -->
-          <div class="agenda__semana reveal" id="agendaSemanal"></div>
-
-          <div class="agenda__pie reveal">
-            <p>Todas las reuniones se realizan en el templo de Taylorsville.</p>
-            <a class="enlace-flecha" href="paginas/horarios.html">Ver horarios completos</a>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== Lema del año · datos en LEMAS (js/datos.js) ===== -->
-      <section class="seccion" id="lemas">
-        <div class="contenedor">
-          <header class="sec-head reveal">
-            <p class="eyebrow">Lemas</p>
-            <h2 class="sec-title">Conoce nuestro <em>lema 2026</em></h2>
-            <p class="sec-sub">
-              Cada año la obra recibe una consigna que marca su caminar.
-              Recorre los lemas y descubre el mensaje detrás de cada uno.
-            </p>
-          </header>
-
-          <div class="gl-viewport reveal" id="gl-main">
-            <div class="gl-col-img">
-              <div class="gl-full-bg" id="gl-bg-target"></div>
-            </div>
-
-            <div class="gl-col-content">
-              <div class="gl-white-card">
-                <div id="gl-ajax-container"></div>
-              </div>
-            </div>
-
-            <div class="gl-dock-nav">
-              <button class="gl-btn-arrow" id="gl-prev" type="button" aria-label="Años anteriores">❮</button>
-              <div class="gl-scroll-box" id="gl-scroller"></div>
-              <button class="gl-btn-arrow" id="gl-next" type="button" aria-label="Años siguientes">❯</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===== Noticias del sitio internacional ===== -->
-      <section class="seccion seccion--papel" id="noticias">
-        <div class="contenedor">
-          <header class="sec-head reveal">
-            <p class="eyebrow">Noticias</p>
-            <h2 class="sec-title">Lo que Dios hace <em>en el mundo</em></h2>
-            <p class="sec-sub">
-              Últimas publicaciones del Movimiento Misionero Mundial
-              internacional.
-            </p>
-          </header>
-
-          <div id="lista-noticias-externas" class="grid-noticias reveal">
-            <p class="vacio">Cargando noticias…</p>
-          </div>
-
-          <div class="noticias__pie reveal">
-            <a class="btn btn--linea" href="https://mmmoficial.org/noticias/"
-               target="_blank" rel="noopener">Ver todas las noticias</a>
-          </div>
+          <div class="lema-anio reveal" id="lemaDelAnio"></div>
         </div>
       </section>
 
@@ -356,7 +320,7 @@
       </section>
 
       <!-- ===== Dónde estamos ===== -->
-      <section class="seccion mapa" id="mapa">
+      <section class="seccion seccion--papel mapa" id="mapa">
         <div class="contenedor">
           <header class="sec-head sec-head--centro reveal">
             <p class="eyebrow">Dónde estamos</p>
@@ -453,6 +417,7 @@
               <li><a href="paginas/nosotros.html">Nosotros</a></li>
               <li><a href="paginas/representantes.html">Representantes</a></li>
               <li><a href="paginas/horarios.html">Horarios</a></li>
+              <li><a href="paginas/lemas.html">Lemas</a></li>
               <li><a href="paginas/noticias.html">Actividades</a></li>
             </ul>
           </nav>
@@ -495,9 +460,9 @@
       <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
     </a>
 
+
     <script src="js/datos.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/noticias-externas.js"></script>
     <script src="js/lemas.js"></script>
   </body>
 </html>

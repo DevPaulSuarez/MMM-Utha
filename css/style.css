@@ -543,6 +543,132 @@ h1, h2, h3, h4 {
   margin-top: 2.2rem;
 }
 
+/* Apilado: portada y slider como dos tarjetas -----------------
+   En pantallas grandes la portada se queda pegada arriba mientras
+   se achica (main.js · encogerPortada) y el slider sube por encima
+   con las esquinas de arriba redondeadas, hasta taparla. El pegado
+   dura solo lo que dura .apilado: después las dos siguen de largo
+   juntas y el resto de la página baja normal.
+   En celular (main.js no anima por debajo de 820px) y con el
+   movimiento reducido queda como antes: una debajo de la otra. */
+@media (min-width: 821px) and (prefers-reduced-motion: no-preference) {
+  .apilado .portada {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+  }
+
+  /* La portada se oscurece a medida que la tapan: así la tarjeta
+     de arriba se despega sin necesidad de una sombra pesada */
+  .apilado .portada__marco::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: #050d16;
+    opacity: calc(.55 * var(--avance, 0));
+    pointer-events: none;
+  }
+
+  .apilado .hero {
+    z-index: 1;
+    border-radius: 2.5rem 2.5rem 0 0;
+    box-shadow: 0 -24px 60px -20px rgba(0, 0, 0, .55);
+  }
+}
+
+/* Portada: el texto a la izquierda y, en pantallas grandes, la
+   tarjeta de la próxima reunión sobre el lado claro de la foto */
+.portada__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+}
+
+/* Tarjeta de cristal oscuro, el mismo vidrio del header sobre la foto */
+.hero__proxima {
+  flex: 0 0 22.5rem;
+  padding: 1.5rem 1.6rem 1.3rem;
+  border-radius: 28px;
+  color: #fff;
+  background-color: rgba(11, 24, 37, .88);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 60%);
+  border: 1px solid rgba(255, 255, 255, .16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 30px 60px -25px rgba(0, 0, 0, .6);
+  animation: portadaEntra .9s var(--ease) .64s backwards;
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero__proxima {
+    background-color: rgba(11, 24, 37, .42);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+            backdrop-filter: blur(24px) saturate(190%);
+  }
+}
+.hero__proxima[hidden] { display: none; }
+
+.hero__proxima-rotulo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #f0a35c;
+}
+.hero__proxima-cuando {
+  margin-top: .35rem;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.hero__proxima ul {
+  display: grid;
+  gap: .2rem;
+  margin: 1rem 0 1.1rem;
+  list-style: none;
+}
+.hero__proxima li {
+  display: grid;
+  grid-template-columns: 5.9rem 1fr;
+  align-items: baseline;
+  gap: .75rem;
+  padding: .6rem 0;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+}
+.hero__proxima-hora { font-size: var(--t-sm); font-weight: 600; color: rgba(255, 255, 255, .78); }
+.hero__proxima-nombre { font-weight: 600; line-height: 1.3; }
+
+/* Una que está pasando ahora mismo */
+.hero__proxima-ahora {
+  display: inline-block;
+  margin-left: .4rem;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  background: var(--acento-osc);
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  vertical-align: .1em;
+}
+.hero__proxima-ver {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+.hero__proxima-ver::after { content: " →"; }
+.hero__proxima-ver:hover { color: #f0a35c; }
+
+/* En tablet y celular no entra al lado del texto: la próxima reunión
+   ya sale en la barra de abajo de la portada */
+@media (max-width: 1040px) {
+  .hero__proxima { display: none !important; }
+}
+
 /* Controles del slider */
 .slider__puntos {
   position: absolute;
@@ -912,12 +1038,32 @@ a.barra-info__item:hover { background: #16293c; }
 .agenda__dia ul { display: grid; gap: .9rem; }
 .agenda__dia li { display: flex; flex-direction: column; gap: .1rem; }
 
+/* La hora va en dos piezas que no se parten por dentro: "10:00 a. m."
+   y "a 1:00 p. m.". Si no entran en una línea, la segunda baja
+   entera, en vez de cortar "p." de "m." */
 .agenda__hora {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: .3rem;
   color: var(--acento-texto);
   font-size: var(--t-xs);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.agenda__evento { color: var(--ink); font-size: var(--t-sm); line-height: 1.3; }
+.agenda__desde,
+.agenda__hasta { white-space: nowrap; }
+.agenda__hasta { font-weight: 500; color: var(--tenue); }
+.agenda__dia--hoy .agenda__hasta { color: rgba(255, 255, 255, .6); }
+
+/* Nombres largos ("Escuela dominical") se reparten parejo en dos
+   líneas y nunca se salen de la tarjeta */
+.agenda__evento {
+  color: var(--ink);
+  font-size: var(--t-sm);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
 
 .agenda__dia--libre { background: var(--papel-2); border-style: dashed; }
 .agenda__dia--libre .agenda__nombre { color: var(--tenue); }
@@ -1178,184 +1324,546 @@ a.barra-info__item:hover { background: #16293c; }
 .noticias__pie { margin-top: var(--s-4); text-align: center; }
 
 /* 7.5 Lemas ----------------------------------------------------- */
-.gl-viewport {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: 540px;
-  border-radius: var(--radio-lg);
+
+/* Inicio: solo el lema de este año. La imagen oficial a un lado y al
+   otro el título, la cita con su referencia y "Ver todos los lemas",
+   que lleva a paginas/lemas.html */
+.lema-anio {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+.lema-anio__foto {
   overflow: hidden;
-  background: var(--papel);
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radio-lg);
+  background: var(--ink);
   box-shadow: var(--sombra-lg);
 }
+.lema-anio__foto img { width: 100%; height: 100%; object-fit: cover; }
 
-.gl-col-img { flex: 0 0 46%; background-color: var(--ink); }
+.lema-anio__texto { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
 
-.gl-full-bg {
-  width: 100%;
-  height: 100%;
+.lema-anio__titulo {
+  font-family: var(--display);
+  font-size: var(--t-3xl);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.lema-anio__verso {
+  padding-left: 1rem;
+  border-left: 2px solid var(--acento);
+  font-family: var(--display);
+  font-size: var(--t-lg);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink-suave);
+}
+
+.lema-anio__verso p { margin: 0; }
+/* La referencia bíblica, en <cite> */
+.lema-anio__verso footer { margin-top: .5rem; }
+.lema-anio__verso cite {
+  font-family: var(--fuente);
+  font-size: var(--t-sm);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--acento-texto);
+}
+
+
+.lema-anio__texto .btn { margin-top: .5rem; }
+
+/* Página de lemas: la vitrina -----------------------------------
+   Composición de la referencia: pantalla completa bajo el header de
+   cristal; el título a la izquierda (a ~10% del borde) con el lema
+   anterior y el siguiente en tenue arriba y abajo; desde la mitad,
+   la tira de tarjetas verticales que se corta contra el borde
+   derecho; abajo las flechas y el contador; a la izquierda un riel
+   con el número. El ancho de la tarjeta del frente vive en una
+   variable para que lemas.js lo lea (ver .vitrina__medida). */
+.vitrina {
+  --tarjeta-grande: clamp(13rem, 19vw, 18.5rem);
+  /* Lo que ocupa la pila: el frente más lo que asoman las de atrás
+     (lemas.js · ESCALAS y ASOMA): 1 + 3 × .22 */
+  --pila-ancho: 1.66;
+
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  /* Al menos toda la pantalla; si el texto completo del lema no
+     entra, la vitrina crece en vez de cortarlo */
+  min-height: 100vh;
+  min-height: 100svh;
+  margin-top: calc(-1 * var(--alto-header, 76px));
+  color: #fff;
+  background: var(--ink);
+}
+
+/* Fondo: dos capas para cruzar las fotos, con margen para el
+   parallax. Un desenfoque suave: el color y la luz del lema sin que
+   las letras de su arte compitan con el título */
+.vitrina__fondo { position: absolute; inset: -60px; will-change: transform; }
+.vitrina__capa {
+  position: absolute;
+  inset: 0;
   background-size: cover;
   background-position: center;
-  transition: opacity .5s var(--ease), transform 1.2s var(--ease);
+  filter: blur(16px) saturate(1.2);
+  opacity: 0;
+  transform: scale(1.04);
 }
 
-.gl-col-content {
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1.5rem, 3vw, 3rem) 6rem;
-  background: var(--papel-2);
+.vitrina__velo {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(8, 20, 32, .58) 0%, rgba(8, 20, 32, .3) 46%, rgba(8, 20, 32, .1) 100%),
+    linear-gradient(0deg, rgba(8, 20, 32, .42) 0%, transparent 38%),
+    linear-gradient(180deg, rgba(8, 20, 32, .35) 0%, transparent 22%);
 }
 
-.gl-white-card {
+/* Riel de la izquierda */
+.vitrina__riel {
+  position: absolute;
+  top: calc(var(--alto-header, 76px) + 2rem);
+  bottom: 2rem;
+  left: clamp(1rem, 2.6vw, 2.4rem);
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-height: 100%;
-  transition: opacity .45s var(--ease), transform .45s var(--ease);
-}
-
-.gl-loading .gl-white-card { opacity: 0; transform: translateY(14px); }
-.gl-loading .gl-full-bg { opacity: .55; }
-
-.gl-header-tag {
-  display: flex;
   align-items: center;
-  gap: .6rem;
-  margin-bottom: .85rem;
+  justify-content: center;
+  gap: 1.5rem;
 }
-.gl-header-tag img { width: 13px; filter: brightness(0) saturate(100%) invert(45%) sepia(72%) saturate(2200%) hue-rotate(1deg); }
-.gl-tag-txt {
-  color: var(--acento-texto);
-  font-size: var(--t-xs);
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
-
-.gl-main-h1 {
-  display: flex;
-  align-items: baseline;
-  gap: .8rem;
-  margin-bottom: 1rem;
-  font-family: var(--display);
-  font-size: clamp(1.9rem, 3.2vw, 2.7rem);
-  font-weight: 600;
-  font-style: italic;
-  color: var(--ink);
-  line-height: 1.05;
-}
-.gl-year-light {
-  font-style: normal;
-  font-weight: 300;
-  font-size: .62em;
-  color: var(--tenue);
-  letter-spacing: .02em;
-}
-
-.gl-body-p {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  padding-right: .6rem;
-  color: var(--tinta);
-  font-size: .95rem;
-  line-height: 1.7;
-}
-.gl-body-p::-webkit-scrollbar { width: 3px; }
-.gl-body-p::-webkit-scrollbar-thumb { background: var(--linea); border-radius: 3px; }
-
-.gl-verse-box {
-  margin-top: 1.1rem;
-  padding: 1rem 0 0 1.1rem;
-  border-top: 1px solid var(--linea);
-  border-left: 2px solid var(--acento);
-  padding-left: 1.1rem;
-  font-family: var(--display);
-  font-style: italic;
-  font-size: .96rem;
-  color: var(--ink);
-}
-
-/* Tira de años */
-.gl-dock-nav {
+.vitrina__riel::before {
+  content: "";
   position: absolute;
-  left: 46%;
-  right: 0;
+  top: 0;
   bottom: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .85rem clamp(1.5rem, 3vw, 3rem);
-  background: linear-gradient(to top, var(--papel-2) 62%, transparent);
+  left: 50%;
+  width: 1px;
+  background: rgba(255, 255, 255, .16);
 }
-
-.gl-btn-arrow {
-  flex-shrink: 0;
+/* Un punto por lema, repartidos sobre la línea. El elegido crece a
+   un círculo de cristal con su número */
+.vitrina__puntos {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(.35rem, 1.6vh, .9rem);
+  list-style: none;
+}
+.vitrina__punto {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--linea);
-  border-radius: 50%;
-  background: var(--papel);
-  color: var(--ink);
-  font-size: .8rem;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
   cursor: pointer;
-  transition: background .25s var(--ease), color .25s var(--ease);
 }
-.gl-btn-arrow:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+/* El punto chico se dibuja adentro: el botón sigue siendo fácil de tocar */
+.vitrina__punto span {
+  display: grid;
+  place-items: center;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .45);
+  font-size: 0;
+  font-weight: 600;
+  color: transparent;
+  transition: width .45s var(--ease), height .45s var(--ease),
+              background .3s var(--ease), font-size .3s var(--ease), color .3s var(--ease);
+}
+.vitrina__punto:hover span { background: rgba(255, 255, 255, .85); }
+.vitrina__punto--actual span {
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, .16);
+  border: 1px solid rgba(255, 255, 255, .35);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  font-size: .78rem;
+  color: #fff;
+}
+.vitrina__punto:focus-visible { outline: 2px solid #f0a35c; outline-offset: 2px; border-radius: 50%; }
 
-.gl-scroll-box {
+.vitrina__riel-txt {
+  position: absolute;
+  bottom: 0;
+  padding: .4rem 0;
+  background: transparent;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: .7rem;
+  letter-spacing: .12em;
+  color: rgba(255, 255, 255, .6);
+}
+
+.vitrina__interior {
+  position: relative;
+  z-index: 1;
   flex: 1;
-  display: flex;
-  gap: .5rem;
-  padding: 3px 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
+  display: grid;
+  padding-top: var(--alto-header, 76px);
+  grid-template-columns: minmax(0, 40%) minmax(0, 1fr);
+  padding-left: clamp(4.5rem, 10vw, 10rem);
 }
-.gl-scroll-box::-webkit-scrollbar { display: none; }
 
-.gl-year-trigger {
-  flex: 0 0 auto;
+/* Izquierda: título, descripción y botón; los fantasmas arriba y abajo */
+.vitrina__texto {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Lugar arriba y abajo para los fantasmas */
+  padding: clamp(5rem, 13vh, 8rem) 2rem clamp(5rem, 13vh, 8rem) 0;
+}
+
+.vitrina__fantasma {
+  position: absolute;
+  left: 0;
+  max-width: 100%;
+  overflow: hidden;
+  padding: .2rem 0;
+  border: 0;
+  background: none;
+  font-family: var(--display);
+  font-size: clamp(2rem, 3.6vw, 3.4rem);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color .3s var(--ease), filter .3s var(--ease);
+}
+.vitrina__fantasma:hover { color: rgba(255, 255, 255, .6); }
+.vitrina__fantasma:focus-visible { color: rgba(255, 255, 255, .7); }
+/* Los fantasmas se desvanecen hacia el título: el de arriba pierde
+   su mitad de abajo y el de abajo su mitad de arriba, y los dos van
+   apenas desenfocados, como en la referencia */
+.vitrina__fantasma--arriba {
+  top: clamp(1rem, 4vh, 2.5rem);
+  -webkit-mask-image: linear-gradient(to bottom, #000 15%, transparent 85%);
+          mask-image: linear-gradient(to bottom, #000 15%, transparent 85%);
+}
+.vitrina__fantasma--abajo {
+  bottom: clamp(1rem, 4vh, 2.5rem);
+  -webkit-mask-image: linear-gradient(to top, #000 15%, transparent 85%);
+          mask-image: linear-gradient(to top, #000 15%, transparent 85%);
+}
+.vitrina__fantasma { filter: blur(1.2px); color: rgba(255, 255, 255, .3); }
+.vitrina__fantasma:hover,
+.vitrina__fantasma:focus-visible { filter: none; }
+.vitrina__fantasma[hidden] { display: none; }
+
+.vitrina__principal {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: .1rem;
-  padding: .5rem .95rem;
-  border: 1px solid var(--linea);
-  border-radius: 999px;
-  background: var(--papel);
-  cursor: pointer;
-  scroll-snap-align: center;
-  transition: background .3s var(--ease), color .3s var(--ease),
-              border-color .3s var(--ease), transform .3s var(--ease);
+  gap: 1.15rem;
 }
-.gl-year-trigger:hover { transform: translateY(-2px); border-color: var(--ink); }
 
-.gl-year-trigger strong {
-  color: var(--ink);
-  font-size: .88rem;
+.vitrina__eyebrow {
+  font-size: var(--t-xs);
   font-weight: 600;
-  line-height: 1.1;
-}
-.gl-year-trigger span {
-  color: var(--tenue);
-  font-size: .62rem;
-  font-weight: 600;
-  letter-spacing: .1em;
+  letter-spacing: .2em;
   text-transform: uppercase;
+  color: #fff;
 }
 
-.gl-year-trigger.active {
-  background: var(--ink);
-  border-color: var(--ink);
+/* El título sube desde abajo de su propia línea (lemas.js): el h1
+   recorta lo que se sale */
+.vitrina__titulo {
+  overflow: hidden;
+  max-width: 100%;
+  padding: .06em 0 .12em;
+  font-family: var(--display);
+  /* El título va siempre en una línea, sin partir la palabra: el
+     tamaño es el de --titulo-tam, salvo que la palabra no entre en
+     el ancho de la columna; entonces se achica lo justo. lemas.js
+     pone en --letras cuántas letras tiene (Fraunces: ~.6em cada una) */
+  --titulo-tam: clamp(3.4rem, 7.2vw, 7.6rem);
+  font-size: var(--titulo-tam);
+  font-size: min(var(--titulo-tam), calc(100cqi / (var(--letras, 8) * .6)));
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -.015em;
+  white-space: nowrap;
+  /* Los h1 del sitio son azul tinta (2. Base): aquí va en blanco */
+  color: #fff;
 }
-.gl-year-trigger.active strong { color: #fff; }
-.gl-year-trigger.active span   { color: var(--acento); }
+.vitrina__titulo span { display: inline-block; }
+/* El ancho de referencia para achicar el título */
+.vitrina__principal { container-type: inline-size; width: 100%; }
+
+/* El versículo, con la referencia en <cite> */
+.vitrina__cita { max-width: 32rem; }
+.vitrina__cita p {
+  font-family: var(--display);
+  font-size: var(--t-xl);
+  font-style: italic;
+  line-height: 1.5;
+  color: #fff;
+}
+.vitrina__cita footer { margin-top: .45rem; }
+.vitrina__cita cite {
+  font-size: var(--t-sm);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: .05em;
+  color: #fff;
+}
+
+
+
+/* Derecha: la tira de tarjetas y los controles */
+.vitrina__lado {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vh, 2.75rem);
+  min-width: 0;
+  padding-top: 2vh;
+}
+
+/* La pila: tarjetas superpuestas, una delante de la otra, como
+   discos en una caja. La que sale por la izquierda se recorta en el
+   borde de la pila, no encima del texto */
+/* La pila va pegada al borde derecho de la pantalla */
+.vitrina__ventana {
+  position: relative;
+  margin-left: auto;
+  margin-right: clamp(1rem, 2.5vw, 2.5rem);
+  width: calc(var(--tarjeta-grande) * var(--pila-ancho));
+  max-width: 100%;
+  height: calc(var(--tarjeta-grande) * 10 / 7 + 3.6rem);
+  clip-path: inset(-4rem -100vw -4rem 0);
+}
+
+.vitrina__tira { position: relative; width: 100%; height: 100%; }
+
+/* lemas.js mide esta sonda para saber el ancho del frente */
+.vitrina__medida {
+  position: absolute;
+  width: var(--tarjeta-grande);
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.vitrina__tarjeta {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--tarjeta-grande);
+  will-change: transform, opacity;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+.vitrina__tarjeta--actual { cursor: default; }
+
+.vitrina__tarjeta-cabeza {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 0;
+}
+.vitrina__tarjeta-cabeza strong {
+  overflow: hidden;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.vitrina__tarjeta-cabeza cite {
+  font-size: .74rem;
+  font-style: normal;
+  letter-spacing: .04em;
+  color: rgba(255, 255, 255, .85);
+}
+
+.vitrina__tarjeta-foto {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 7 / 10;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .08);
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, .75), -18px 0 40px -18px rgba(0, 0, 0, .55);
+}
+.vitrina__tarjeta-foto img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Las de atrás se oscurecen más cuanto más al fondo (lemas.js) */
+.vitrina__tarjeta-sombra {
+  position: absolute;
+  inset: 0;
+  background: #081420;
+  opacity: 0;
+  pointer-events: none;
+  transition: background .3s var(--ease);
+}
+.vitrina__tarjeta:not(.vitrina__tarjeta--actual):hover .vitrina__tarjeta-sombra { background: #1b3147; }
+
+/* El año sobre la foto, en una píldora de cristal */
+.vitrina__tarjeta-anio {
+  position: absolute;
+  top: .7rem;
+  right: .7rem;
+  padding: .3rem .65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .88);
+  color: var(--ink);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .4);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vitrina__tarjeta-anio {
+    background: rgba(255, 255, 255, .72);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+            backdrop-filter: blur(10px) saturate(180%);
+  }
+}
+
+.vitrina__controles {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: clamp(1.5rem, 5vw, 4.5rem);
+}
+.vitrina__flechas { display: flex; gap: .7rem; }
+
+/* Flechas de cristal, el mismo vidrio del header */
+.vitrina__flecha {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  -webkit-backdrop-filter: blur(16px) saturate(170%);
+          backdrop-filter: blur(16px) saturate(170%);
+  color: #fff;
+  cursor: pointer;
+  transition: background .25s var(--ease), transform .25s var(--ease);
+}
+.vitrina__flecha:hover { background: rgba(255, 255, 255, .26); }
+.vitrina__flecha:active { transform: scale(.94); }
+.vitrina__flecha svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vitrina__contador {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  font-size: var(--t-lg);
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, .55);
+}
+.vitrina__contador-actual { color: #fff; font-weight: 600; }
+.vitrina__contador-linea {
+  position: relative;
+  width: 4.5rem;
+  height: 1px;
+  background: rgba(255, 255, 255, .25);
+}
+.vitrina__contador-linea i {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Antes de que lemas.js la arme no se ve a medias */
+.vitrina:not(.vitrina--lista) .vitrina__interior,
+.vitrina:not(.vitrina--lista) .vitrina__riel { opacity: 0; }
+.vitrina__interior,
+.vitrina__riel { transition: opacity .6s var(--ease); }
+
+/* Tablet: letra y tarjetas más chicas, la misma composición */
+@media (max-width: 1100px) {
+  .vitrina { --tarjeta-grande: clamp(11rem, 22vw, 14rem); }
+  .vitrina__interior {
+    grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
+    padding-left: clamp(4rem, 8vw, 6rem);
+  }
+  .vitrina__titulo { --titulo-tam: clamp(3rem, 7.4vw, 5.4rem); }
+}
+
+/* Celular y tablet vertical: otra composición, la misma identidad.
+   El título grande sobre la foto y su versículo; abajo
+   la tira de tarjetas a lo ancho del celular y los controles, por
+   encima del área segura del teléfono */
+@media (max-width: 820px) {
+  /* En el celular se ven 3 de la pila: 1 + 2 × .22 */
+  .vitrina {
+    --tarjeta-grande: clamp(9.5rem, 42vw, 12rem);
+    --pila-ancho: 1.44;
+    min-height: 660px;
+  }
+
+  .vitrina__riel { display: none; }
+
+  .vitrina__interior {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    padding: calc(var(--alto-header, 76px) + 2rem) 0 max(1.25rem, env(safe-area-inset-bottom)) 1.25rem;
+  }
+
+  .vitrina__texto {
+    justify-content: flex-end;
+    padding: 0 1.25rem 1.5rem 0;
+  }
+  .vitrina__fantasma { display: none; }
+  .vitrina__principal { gap: .85rem; }
+  .vitrina__titulo { --titulo-tam: clamp(2.8rem, 13vw, 4.4rem); }
+
+  .vitrina__lado { gap: 1.1rem; padding-top: 0; }
+  .vitrina__controles { padding-right: 1.25rem; }
+  .vitrina__flecha { width: 46px; height: 46px; }
+  .vitrina__contador { font-size: var(--t-md); }
+  .vitrina__contador-linea { width: 3rem; }
+
+  .vitrina__velo {
+    background:
+      linear-gradient(0deg, rgba(8, 20, 32, .8) 0%, rgba(8, 20, 32, .42) 45%, rgba(8, 20, 32, .15) 100%),
+      linear-gradient(180deg, rgba(8, 20, 32, .35) 0%, transparent 25%);
+  }
+}
+
+
+/* Tablet y celular: el lema del año en una columna */
+@media (max-width: 900px) {
+  .lema-anio { grid-template-columns: 1fr; }
+}
 
 /* 7.6 Medios ---------------------------------------------------- */
 .medios__grid {
@@ -1601,10 +2109,15 @@ a.barra-info__item:hover { background: #16293c; }
 .flotante svg { width: 26px; height: 26px; fill: currentColor; }
 
 /* 9. Responsive -------------------------------------------------- */
+/* Por debajo del ancho del contenedor las 7 columnas quedan de
+   ~130px y los nombres se parten: 4 por fila (4 + 3) */
+@media (max-width: 1180px) {
+  .agenda__semana { grid-template-columns: repeat(4, 1fr); }
+}
+
 @media (max-width: 1040px) {
   .footer__grid { grid-template-columns: 1fr 1fr; }
   .medios__grid { grid-template-columns: 1fr 1fr; }
-  .agenda__semana { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 900px) {
@@ -1619,23 +2132,31 @@ a.barra-info__item:hover { background: #16293c; }
     min-height: 300px;
   }
 
-  .gl-viewport { flex-direction: column; height: auto; }
-  .gl-col-img { flex: 0 0 220px; }
-  .gl-col-content { padding: 1.75rem 1.5rem 2rem; }
-  .gl-white-card { max-height: none; }
-  .gl-body-p { overflow-y: visible; padding-right: 0; }
-  .gl-dock-nav {
-    position: static;
-    order: -1;
-    padding: 1rem 1.25rem 0;
-    background: var(--papel-2);
-  }
-  .gl-btn-arrow { width: 40px; height: 40px; }
-  .gl-year-trigger { padding: .6rem 1rem; }
 }
 
 /* ---- Celulares y tabletas verticales ------------------------- */
 @media (max-width: 820px) {
+  /* Agenda: desde tablet vertical se lee mejor como lista, día a la izquierda
+     y las actividades a la derecha */
+  .agenda__semana { grid-template-columns: 1fr; gap: 8px; }
+
+  .agenda__dia {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    align-items: start;
+    gap: .35rem 1rem;
+    padding: .95rem 1.1rem;
+  }
+  .agenda__nombre {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    align-self: center;
+  }
+  .agenda__dia ul { gap: .55rem; }
+  .agenda__dia--libre { border-style: solid; opacity: .75; }
+  .agenda__dia--hoy .agenda__nombre { border: 0; }
+
   .nav__toggle { display: grid; }
 
   /* El botón del mapa se queda con su texto, más compacto: en el menú
@@ -1790,7 +2311,6 @@ a.barra-info__item:hover { background: #16293c; }
 
   .somos__cifras { grid-template-columns: 1fr 1fr; }
   .somos__acciones .btn { flex: 1 1 auto; }
-  .agenda__semana { grid-template-columns: repeat(2, 1fr); }
   .agenda__dia { min-height: 0; }
   .medios__grid { grid-template-columns: 1fr; }
   .logo img { height: 40px; }
@@ -1811,36 +2331,49 @@ a.barra-info__item:hover { background: #16293c; }
   /* Botones a lo ancho: más fáciles de acertar con el pulgar */
   .hero__acciones,
   .somos__acciones { flex-direction: column; align-items: stretch; }
+  /* Tres botones apilados no entran en la portada del celular; la
+     oración queda a mano en el botón flotante de WhatsApp */
+  .hero__oracion { display: none; }
   .hero__acciones .btn,
   .somos__acciones .btn,
   .noticias__pie .btn { width: 100%; }
 
+  /* Portada un poco más baja que la pantalla: se asoma lo que sigue
+     y se entiende que hay que bajar (crece si el texto no entra) */
+  .portada { min-height: 88svh; }
+
   .barra-info__item { padding: 1.15rem .25rem; }
   .barra-info__valor { font-size: .97rem; }
+
+  /* "Cómo encontrarnos": primero el próximo culto */
+  .barra-info__item--proximo { order: -1; }
+
+  /* Agenda: solo los días con reuniones (y hoy, aunque no tenga) */
+  .agenda__dia--libre:not(.agenda__dia--hoy) { display: none; }
+
+  /* Medios: una tarjeta a la vez, deslizando, con el borde de la
+     siguiente a la vista. Llega hasta el borde de la pantalla */
+  .medios__grid {
+    display: flex;
+    gap: 12px;
+    margin-inline: -1rem;
+    padding: 0 1rem .5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+  .medios__grid::-webkit-scrollbar { display: none; }
+  .medio { flex: 0 0 84%; scroll-snap-align: start; }
+  .medio:hover { transform: none; }
+
+  /* Mapa: la dirección y "Cómo llegar" primero, el mapa más bajo */
+  .mapa__ficha { order: -1; }
+  .mapa__marco { min-height: 220px; }
 
   .somos__cifras { border-radius: var(--radio); }
   .cifra { padding: 1.25rem 1.1rem; }
 
-  /* Agenda: en columna se lee mejor como lista, día a la izquierda
-     y las actividades a la derecha */
-  .agenda__semana { grid-template-columns: 1fr; gap: 8px; }
-
-  .agenda__dia {
-    display: grid;
-    grid-template-columns: 6.5rem 1fr;
-    align-items: start;
-    gap: .35rem 1rem;
-    padding: .95rem 1.1rem;
-  }
-  .agenda__nombre {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    align-self: center;
-  }
-  .agenda__dia ul { gap: .55rem; }
-  .agenda__dia--libre { border-style: solid; opacity: .75; }
-  .agenda__dia--hoy .agenda__nombre { border: 0; }
 
   .agenda__pie { flex-direction: column; align-items: flex-start; }
 
@@ -1850,9 +2383,7 @@ a.barra-info__item:hover { background: #16293c; }
   .tarjeta-noticia--destacada .tarjeta-noticia__texto { padding: 1.3rem 1.4rem; }
   .tarjeta-noticia--compacta { height: 160px; }
 
-  .gl-col-img { flex: 0 0 180px; }
-  .gl-main-h1 { flex-direction: column; align-items: flex-start; gap: .2rem; }
-  .gl-verse-box { font-size: .92rem; }
+
 
   .oracion__caja { padding: 1.4rem 1.25rem; }
 
